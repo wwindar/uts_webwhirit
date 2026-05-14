@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS resensi (
 );
 
 INSERT INTO users (username, password) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+('windar', 'hongshi1234');
 
 INSERT INTO resensi (judul_buku, penulis, genre, ulasan, rating, user_id) VALUES
 ('Not The Best, But Still Good', 'peachhplease', 'Romance Comedy', 'Kisah ini berpusat pada Duang, mahasiswa jurusan seni dekoratif yang ceria dan pantang menyerah. Ia jatuh cinta pada Qin, mahasiswa jurusan musik yang sangat populer namun dikenal dingin dan sulit didekati. Keberanian Duang diuji saat festival Loy Krathong, di mana ia mengungkapkan perasaannya. Meski tidak langsung diterima, Qin memberikan kesempatan bagi Duang untuk membuktikan ketulusannya.', 5, 1),

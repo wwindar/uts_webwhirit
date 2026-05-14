@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <footer class="footer">
     <p>© <?= date('Y') ?> Katalog Resensi Buku &nbsp;·&nbsp; UTS Praktikum Web Windar Shineta</p>
 </footer>
-<script src="../main.js"></script>
+<script src="main.js"></script>
 
 </body>
 </html>
