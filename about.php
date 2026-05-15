@@ -82,7 +82,7 @@ $basePath = '../';
                 $info = [
                     ['🏫', 'Institusi',   'Universitas Muhammadiyah PKU Surakarta'],
                     ['📚', 'Mata Kuliah', 'Praktikum Pemrograman Web 1'],
-                    ['📅', 'Tahun',       '2024 / 2025'],
+                    ['📅', 'Tahun',       '2025 / 2026'],
                     ['🔗', 'GitHub',      'github.com/wwindar/uts_webwhirit'],
                 ];
                 foreach ($info as [$icon, $label, $value]): ?>
