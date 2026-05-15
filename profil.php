@@ -12,13 +12,13 @@ $basePath = '../';
 $errors = [];
 $success = '';
 
-$stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi");
-$stmtCount->execute();
-$totalResensi = $stmtCount->get_result()->fetch_assoc()['total'];
-$stmtCount->close();
+$stmt = $conn->prepare("SELECT id, username, created_at FROM users WHERE id = ?");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 
-$stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi WHERE user_id = ?");
-$stmtCount->bind_param("i", $_SESSION['user_id']);
+$stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi");
 $stmtCount->execute();
 $totalResensi = $stmtCount->get_result()->fetch_assoc()['total'];
 $stmtCount->close();
