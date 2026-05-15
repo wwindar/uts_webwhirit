@@ -12,11 +12,10 @@ $basePath = '../';
 $errors = [];
 $success = '';
 
-$stmt = $conn->prepare("SELECT id, username, created_at FROM users WHERE id = ?");
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$user = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi");
+$stmtCount->execute();
+$totalResensi = $stmtCount->get_result()->fetch_assoc()['total'];
+$stmtCount->close();
 
 $stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi WHERE user_id = ?");
 $stmtCount->bind_param("i", $_SESSION['user_id']);
@@ -70,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="profil-grid" style="display:grid;gap:1.5rem;align-items:start">
 
-        <!-- Kartu Info Akun -->
         <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
             <div style="text-align:center;margin-bottom:1.5rem">
                 <div style="width:72px;height:72px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">
@@ -104,7 +102,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- Form Ganti Password -->
         <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
             <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:0.3rem">🔒 Ganti Password</h2>
             <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
