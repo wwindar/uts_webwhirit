@@ -27,7 +27,7 @@
     padding: 0;
 }
 
-body {
+.body {
     font-family: var(--font-body);
     background: var(--cream);
     color: var(--ink);
@@ -106,6 +106,29 @@ body {
     font-size: 1.4rem;
     cursor: pointer;
 }
+
+.header-social-links {
+    margin-left: auto;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding-left: 15px;
+    }
+
+.header-social-links a {
+    color: var(--rose-light) !important;
+    font-size: 1.1rem;
+    transition: opacity 0.2s;
+    }
+
+.header-social-links a:hover {
+    opacity: 0.8;
+    }
+
+.header-social-links .logout-link {
+    color: var(--rose) !important;
+    margin-left: 5px;
+    }
 
 .auth-wrapper {
     flex: 1;
