@@ -7,13 +7,11 @@ require_once ('auth.php');
 requireLogin();
 
 $pageTitle = 'Dashboard';
-$basePath = '../';
 
 $totalResensi = $conn->query("SELECT COUNT(*) as total FROM resensi")->fetch_assoc()['total'];
-$avgRating = $conn->query("SELECT ROUND(AVG(rating), 1) as avg FROM resensi")->fetch_assoc()['avg'] ?? 0;
-$totalGenre = $conn->query("SELECT COUNT(DISTINCT genre) as total FROM resensi WHERE genre IS NOT NULL")->fetch_assoc()['total'];
-$topGenre = $conn->query("SELECT genre, COUNT(*) as jml FROM resensi WHERE genre IS NOT NULL GROUP BY genre ORDER BY jml DESC LIMIT 1")->fetch_assoc();
-
+$avgRating    = $conn->query("SELECT ROUND(AVG(rating), 1) as avg FROM resensi")->fetch_assoc()['avg'] ?? 0;
+$totalGenre   = $conn->query("SELECT COUNT(DISTINCT genre) as total FROM resensi WHERE genre IS NOT NULL")->fetch_assoc()['total'];
+$topGenre     = $conn->query("SELECT genre, COUNT(*) as jml FROM resensi WHERE genre IS NOT NULL GROUP BY genre ORDER BY jml DESC LIMIT 1")->fetch_assoc();
 $recentResult = $conn->query("SELECT * FROM resensi ORDER BY tgl_input DESC LIMIT 5");
 
 function renderStars($rating) {
@@ -26,25 +24,16 @@ function renderStars($rating) {
 ?>
 <?php include ('header.php'); ?>
 
-<!DOCTYPE html>
-<html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' — ' : '' ?>Katalog Resensi Buku</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        
-        <div class="main-content">
-        <div class="page-header">
+<div class="main-content">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+        <div>
             <h1>Dashboard</h1>
             <p>Selamat datang, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong> — ringkasan katalog resensi buku.</p>
         </div>
+        <a href="tambah.php" class="btn btn-gold">+ Tambah Resensi</a>
+    </div>
 
-        <div class="stats-grid">
+    <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon">📖</div>
             <div class="stat-num"><?= $totalResensi ?></div>
@@ -101,9 +90,9 @@ function renderStars($rating) {
                         </td>
                         <td class="td-rating"><?= renderStars($row['rating']) ?></td>
                         <td><?= date('d M Y', strtotime($row['tgl_input'])) ?></td>
-                        <td>
+                        <td style="display:flex;gap:0.3rem">
                             <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm">Lihat</a>
-                            <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-gold btn-sm">Edit</a>
+                            <a href="edit.php?id=<?= $row['id'] ?>"   class="btn btn-gold btn-sm">Edit</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -113,10 +102,7 @@ function renderStars($rating) {
         <div style="margin-top:1rem">
             <a href="katalog.php" class="btn btn-outline">Lihat Semua Resensi →</a>
         </div>
-        <?php endif; ?>
-        </div>
-        <?php include ('footer.php'); ?>
+    <?php endif; ?>
+</div>
 
-    <script src="<?= $basePath ?? '../' ?>main.js"></script>
-</body>
-</html>
+<?php include ('footer.php'); ?>

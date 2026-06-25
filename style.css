@@ -745,3 +745,53 @@ tbody td   {
     .auth-card  { padding: 1.5rem; }
     .form-card  { padding: 1.25rem; }
 }
+
+/* --- PERBAIKAN KUAT UNTUK MODAL CRUD --- */
+#crudModal {
+    display: none; 
+    position: fixed !important; 
+    z-index: 9999 !important; 
+    left: 0; 
+    top: 0;
+    width: 100% !important; 
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.5) !important; /* Membuat latar belakang gelap transparan */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Class ini aktif saat tombol + Tambah Resensi diklik */
+#crudModal.open {
+    display: flex !important; 
+}
+
+/* Membatasi kotak modal agar tidak melebar seisi layar */
+#crudModal .modal-content-box {
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    padding: 2.5rem !important;
+    width: 90% !important;
+    max-width: 550px !important; /* Mengunci lebar form resensi */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25) !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+/* Merapikan tombol silang (x) penutup */
+#crudModal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+#crudModal .close-modal {
+    font-size: 2rem;
+    cursor: pointer;
+    color: #888;
+    line-height: 1;
+}
+
+#crudModal .close-modal:hover {
+    color: #000;
+}
