@@ -7,7 +7,6 @@ requireLogin();
 $pageTitle = 'Wishlist';
 $userId = $_SESSION['user_id'];
 
-// Tambah ke wishlist
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'tambah') {
         $judulWish = trim($_POST['judul_buku'] ?? '');
@@ -72,7 +71,6 @@ unset($_SESSION['flash'], $_SESSION['flash_type']);
     <div class="alert alert-<?= $flashType ?>"><?= htmlspecialchars($flashMsg) ?></div>
     <?php endif; ?>
 
-    <!-- Form Tambah -->
     <div id="form-tambah" class="form-card" style="display:none;margin-bottom:1.5rem">
         <h3 style="margin-bottom:1rem;font-size:1.1rem">Tambah ke Wishlist</h3>
         <form method="POST" action="">
@@ -101,7 +99,6 @@ unset($_SESSION['flash'], $_SESSION['flash_type']);
         </form>
     </div>
 
-    <!-- Filter -->
     <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
         <a href="wishlist.php?filter=semua" class="btn <?= $filter==='semua' ? 'btn-primary' : 'btn-outline' ?> btn-sm">Semua</a>
         <a href="wishlist.php?filter=belum" class="btn <?= $filter==='belum' ? 'btn-primary' : 'btn-outline' ?> btn-sm">Belum Dibaca</a>
