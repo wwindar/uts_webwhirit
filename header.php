@@ -18,7 +18,7 @@ if (isset($_SESSION['user_id'])) {
     <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' — ' : '' ?>Katalog Resensi Buku</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/uts_webwhirit/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <nav class="navbar">
