@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
         $st = $conn->prepare(
             "UPDATE resensi SET judul_buku=?, penulis=?, genre=?, ulasan=?, rating=?, foto=? WHERE id=?"
         );
-        $st->bind_param("ssssiis", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $editId);
+        $st->bind_param("ssssisi", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $editId);
         $st->execute();
         $st->close();
         $_SESSION['flash']      = 'Resensi "' . $judul . '" berhasil diperbarui!';

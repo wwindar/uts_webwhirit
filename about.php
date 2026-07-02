@@ -107,7 +107,7 @@ $basePath = '../';
 
             <div style="margin-top:1.2rem;background:var(--cream);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:3px;padding:1rem">
                 <p style="font-size:0.88rem;color:var(--ink-light);line-height:1.7;font-family:var(--font-display);font-style:italic">
-                    "Aplikasi ini dibuat sebagai project UTS Praktikum Pemrograman Web 1,
+                    "Aplikasi ini dibuat sebagai project UAS Praktikum Pemrograman Web 1,
                     menerapkan konsep CRUD, autentikasi, dan version control dengan Git."
                 </p>
             </div>

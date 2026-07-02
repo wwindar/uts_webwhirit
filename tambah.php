@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "INSERT INTO resensi (judul_buku, penulis, genre, ulasan, rating, foto, user_id)
              VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
-        $stmt->bind_param("ssssiis", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $userId);
+        $stmt->bind_param("ssssisi", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $userId);
 
         if ($stmt->execute()) {
             $_SESSION['flash']      = 'Resensi "' . $judul . '" berhasil ditambahkan!';
