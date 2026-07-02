@@ -21,14 +21,14 @@ if (isset($_GET['baca']) && is_numeric($_GET['baca'])) {
     $st->bind_param("ii", $nid, $userId);
     $st->execute();
     $st->close();
-    // redirect ke link notifikasi jika ada
-    $r2 = $conn->prepare("SELECT link FROM notifikasi WHERE id = ? AND user_id = ?");
+    // redirect ke detail resensi jika ada resensi_id
+    $r2 = $conn->prepare("SELECT resensi_id FROM notifikasi WHERE id = ? AND user_id = ?");
     $r2->bind_param("ii", $nid, $userId);
     $r2->execute();
     $rr = $r2->get_result()->fetch_assoc();
     $r2->close();
-    if (!empty($rr['link'])) {
-        header("Location: " . $rr['link']);
+    if (!empty($rr['resensi_id'])) {
+        header("Location: detail.php?id=" . $rr['resensi_id']);
     } else {
         header("Location: notifikasi.php");
     }
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['hapus_id'])) {
 }
 
 $result = $conn->query(
-    "SELECT * FROM notifikasi WHERE user_id = $userId ORDER BY tgl_kirim DESC LIMIT 50"
+    "SELECT *, created_at AS tgl_kirim FROM notifikasi WHERE user_id = $userId ORDER BY created_at DESC LIMIT 50"
 );
 
 $belumBaca = $conn->query(
@@ -98,7 +98,7 @@ $belumBaca = $conn->query(
                 </div>
             </div>
             <div style="display:flex;gap:0.4rem;align-items:center;flex-shrink:0">
-                <?php if (!$n['sudah_dibaca'] && $n['link']): ?>
+                <?php if (!$n['sudah_dibaca'] && $n['resensi_id']): ?>
                 <a href="notifikasi.php?baca=<?= $n['id'] ?>" class="btn btn-outline btn-sm">Lihat</a>
                 <?php elseif (!$n['sudah_dibaca']): ?>
                 <a href="notifikasi.php?baca=<?= $n['id'] ?>" class="btn btn-outline btn-sm">✓ Baca</a>

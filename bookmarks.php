@@ -39,11 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $result = $conn->query(
-    "SELECT r.*, b.tgl_simpan
+    "SELECT r.*, b.created_at AS tgl_simpan
      FROM bookmarks b
      JOIN resensi r ON r.id = b.resensi_id
      WHERE b.user_id = $userId
-     ORDER BY b.tgl_simpan DESC"
+     ORDER BY b.created_at DESC"
 );
 
 $flashMsg  = $_SESSION['flash']      ?? '';
