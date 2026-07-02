@@ -38,11 +38,11 @@ $st->close();
 
 // Komentar
 $komentar = $conn->query(
-    "SELECT k.*, u.username
+    "SELECT k.id, k.resensi_id, k.user_id, k.isi_komentar AS isi, k.created_at AS tgl_komentar, u.username
      FROM komentar k
      JOIN users u ON u.id = k.user_id
      WHERE k.resensi_id = $id
-     ORDER BY k.tgl_komentar ASC"
+     ORDER BY k.created_at ASC"
 );
 
 $flashMsg  = $_SESSION['flash']      ?? '';

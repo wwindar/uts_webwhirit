@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'tambah') {
         $isi = trim($_POST['isi'] ?? '');
         if ($resensiId > 0 && $isi !== '') {
-            $st = $conn->prepare("INSERT INTO komentar (resensi_id, user_id, isi) VALUES (?, ?, ?)");
+            $st = $conn->prepare("INSERT INTO komentar (resensi_id, user_id, isi_komentar) VALUES (?, ?, ?)");
             $st->bind_param("iis", $resensiId, $userId, $isi);
             $st->execute();
             $st->close();
