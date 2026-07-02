@@ -9,7 +9,7 @@ $basePath = '../';
 $errors = [];
 $success = '';
 
-$stmt = $conn->prepare("SELECT id, username, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, bio, foto_profil, created_at FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -40,8 +40,70 @@ $stmtGenre->execute();
 $favoriteGenre = $stmtGenre->get_result()->fetch_assoc()['genre'] ?? '-';
 $stmtGenre->close();
 
+// Edit Profil
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_profil') {
+    $newUsername = trim($_POST['username'] ?? '');
+    $newBio = trim($_POST['bio'] ?? '');
+    $fotoNama = $user['foto_profil'];
+
+    // Cek username bentrok
+    if ($newUsername !== $user['username']) {
+        $stCek = $conn->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+        $stCek->bind_param("si", $newUsername, $_SESSION['user_id']);
+        $stCek->execute();
+        if ($stCek->get_result()->num_rows > 0) {
+            $errors[] = 'Username sudah dipakai orang lain.';
+        }
+        $stCek->close();
+    }
+
+    if (empty($errors)) {
+        if (!empty($_FILES['foto_profil']['name'])) {
+            $allowedTypes = ['image/jpeg','image/png','image/gif','image/webp'];
+            $maxSize      = 2 * 1024 * 1024;
+            if (!in_array($_FILES['foto_profil']['type'], $allowedTypes)) {
+                $errors[] = 'Format foto profil tidak didukung.';
+            } elseif ($_FILES['foto_profil']['size'] > $maxSize) {
+                $errors[] = 'Ukuran foto profil maks 2 MB.';
+            } else {
+                $ext     = pathinfo($_FILES['foto_profil']['name'], PATHINFO_EXTENSION);
+                $newFoto = 'profil_' . time() . '_' . rand(100,999) . '.' . $ext;
+                $dir     = 'uploads/';
+                if (!is_dir($dir)) mkdir($dir, 0755, true);
+                if (move_uploaded_file($_FILES['foto_profil']['tmp_name'], $dir . $newFoto)) {
+                    if ($fotoNama && file_exists($dir . $fotoNama)) @unlink($dir . $fotoNama);
+                    $fotoNama = $newFoto;
+                } else {
+                    $errors[] = 'Gagal upload foto profil.';
+                }
+            }
+        }
+        
+        if (isset($_POST['hapus_foto']) && $_POST['hapus_foto'] === '1') {
+            $dir = 'uploads/';
+            if ($fotoNama && file_exists($dir . $fotoNama)) @unlink($dir . $fotoNama);
+            $fotoNama = null;
+        }
+    }
+
+    if (empty($errors)) {
+        $stUpdate = $conn->prepare("UPDATE users SET username=?, bio=?, foto_profil=? WHERE id=?");
+        $stUpdate->bind_param("sssi", $newUsername, $newBio, $fotoNama, $_SESSION['user_id']);
+        if ($stUpdate->execute()) {
+            $_SESSION['username'] = $newUsername;
+            $success = 'Profil berhasil diperbarui!';
+            $user['username'] = $newUsername;
+            $user['bio'] = $newBio;
+            $user['foto_profil'] = $fotoNama;
+        } else {
+            $errors[] = 'Gagal memperbarui profil.';
+        }
+        $stUpdate->close();
+    }
+}
+
 // Ganti password
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'ganti_password') {
     $password_lama    = $_POST['password_lama']    ?? '';
     $password_baru    = $_POST['password_baru']    ?? '';
     $password_konfirm = $_POST['password_konfirm'] ?? '';
@@ -93,9 +155,15 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                     border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
 
             <div style="text-align:center;margin-bottom:1.5rem">
-                <div style="width:72px;height:72px;background:var(--ink);border-radius:50%;
-                            display:flex;align-items:center;justify-content:center;
-                            margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">👤</div>
+                <?php if (!empty($user['foto_profil']) && file_exists('uploads/' . $user['foto_profil'])): ?>
+                    <img src="uploads/<?= htmlspecialchars($user['foto_profil']) ?>" alt="Foto Profil"
+                         style="width:80px;height:80px;border-radius:50%;object-fit:cover;
+                                margin:0 auto 0.75rem;border:3px solid var(--gold);box-shadow:0 2px 10px rgba(0,0,0,0.1);display:block">
+                <?php else: ?>
+                    <div style="width:72px;height:72px;background:var(--ink);border-radius:50%;
+                                display:flex;align-items:center;justify-content:center;
+                                margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">👤</div>
+                <?php endif; ?>
                 <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--ink)">
                     <?= htmlspecialchars($user['username']) ?>
                 </h2>
@@ -106,6 +174,14 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
             </div>
 
             <div style="border-top:1px solid var(--border);padding-top:1rem">
+                <?php if (!empty($user['bio'])): ?>
+                <div style="margin-bottom:1.25rem;text-align:center">
+                    <p style="font-size:0.9rem;color:var(--ink);line-height:1.5;font-style:italic">
+                        "<?= nl2br(htmlspecialchars($user['bio'])) ?>"
+                    </p>
+                </div>
+                <?php endif; ?>
+                
                 <div style="margin-bottom:0.9rem">
                     <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
                                 text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Username</div>
@@ -141,7 +217,10 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 </div>
             </div>
 
-            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.75rem">
+                <button onclick="document.getElementById('modal-edit-profil').style.display='block';document.body.style.overflow='hidden'" class="btn btn-gold btn-full">
+                    ✏️ Edit Profil
+                </button>
                 <a href="katalog.php" class="btn btn-outline btn-full" style="text-align:center;display:block">
                     📚 Lihat Katalog
                 </a>
@@ -176,6 +255,7 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 <?php endif; ?>
 
                 <form method="POST" action="">
+                    <input type="hidden" name="action" value="ganti_password">
                     <div class="form-group">
                         <label for="password_lama">Password Lama <span style="color:#c0392b">*</span></label>
                         <input type="password" id="password_lama" name="password_lama"
@@ -318,6 +398,49 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
             </div>
 
         </div>
+    </div>
+</div>
+
+<!-- ══════════════ MODAL EDIT PROFIL ══════════════ -->
+<div id="modal-edit-profil" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+     overflow-y:auto;padding:2rem 1rem" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow=''}">
+    <div style="background:#fff;border-radius:16px;max-width:500px;margin:auto;padding:2rem;position:relative">
+        <button onclick="document.getElementById('modal-edit-profil').style.display='none';document.body.style.overflow=''" style="position:absolute;top:1rem;right:1rem;
+            background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">×</button>
+        <h2 style="font-family:var(--font-head);font-size:1.3rem;margin-bottom:1.5rem">✏️ Edit Profil</h2>
+        <form method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="edit_profil">
+            
+            <div class="form-group">
+                <label>FOTO PROFIL</label>
+                <?php if (!empty($user['foto_profil']) && file_exists('uploads/' . $user['foto_profil'])): ?>
+                <div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem">
+                    <img src="uploads/<?= htmlspecialchars($user['foto_profil']) ?>" alt="Foto" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--border)">
+                    <label style="font-size:0.85rem;cursor:pointer">
+                        <input type="checkbox" name="hapus_foto" value="1"> Hapus foto saat ini
+                    </label>
+                </div>
+                <?php endif; ?>
+                <input type="file" name="foto_profil" accept="image/jpeg,image/png,image/gif,image/webp">
+                <small style="color:var(--ink-light);font-size:0.78rem">JPG, PNG, GIF, WEBP — maks 2 MB</small>
+            </div>
+            
+            <div class="form-group">
+                <label>USERNAME <span style="color:#c0392b">*</span></label>
+                <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required maxlength="50">
+            </div>
+            
+            <div class="form-group">
+                <label>BIO / CATATAN PROFIL</label>
+                <textarea name="bio" placeholder="Ceritakan sedikit tentang dirimu..." style="min-height:100px" maxlength="500"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
+                <small style="color:var(--ink-light);font-size:0.78rem">Maksimal 500 karakter.</small>
+            </div>
+            
+            <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+                <button type="submit" class="btn btn-primary">💾 Simpan Profil</button>
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-edit-profil').style.display='none';document.body.style.overflow=''">Batal</button>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -20,7 +20,7 @@ $pageTitle = 'Profil Pengguna';
 $basePath = '../';
 
 // Ambil info user
-$stmt = $conn->prepare("SELECT username, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT username, bio, foto_profil, created_at FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $userResult = $stmt->get_result();
@@ -90,9 +90,15 @@ function renderStars($rating) {
                     border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
 
             <div style="text-align:center;margin-bottom:1.5rem">
-                <div style="width:72px;height:72px;background:var(--ink);border-radius:50%;
-                            display:flex;align-items:center;justify-content:center;
-                            margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">👤</div>
+                <?php if (!empty($user['foto_profil']) && file_exists('uploads/' . $user['foto_profil'])): ?>
+                    <img src="uploads/<?= htmlspecialchars($user['foto_profil']) ?>" alt="Foto Profil"
+                         style="width:80px;height:80px;border-radius:50%;object-fit:cover;
+                                margin:0 auto 0.75rem;border:3px solid var(--gold);box-shadow:0 2px 10px rgba(0,0,0,0.1);display:block">
+                <?php else: ?>
+                    <div style="width:72px;height:72px;background:var(--ink);border-radius:50%;
+                                display:flex;align-items:center;justify-content:center;
+                                margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">👤</div>
+                <?php endif; ?>
                 <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--ink)">
                     <?= htmlspecialchars($user['username']) ?>
                 </h2>
@@ -103,6 +109,14 @@ function renderStars($rating) {
             </div>
 
             <div style="border-top:1px solid var(--border);padding-top:1rem">
+                <?php if (!empty($user['bio'])): ?>
+                <div style="margin-bottom:1.25rem;text-align:center">
+                    <p style="font-size:0.9rem;color:var(--ink);line-height:1.5;font-style:italic">
+                        "<?= nl2br(htmlspecialchars($user['bio'])) ?>"
+                    </p>
+                </div>
+                <?php endif; ?>
+                
                 <div style="margin-bottom:0.9rem">
                     <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
                                 text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Bergabung Sejak</div>

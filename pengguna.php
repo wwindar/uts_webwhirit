@@ -9,7 +9,7 @@ $basePath = '../';
 $search = trim($_GET['search'] ?? '');
 
 $sql = "
-    SELECT u.id, u.username, u.created_at, COUNT(r.id) as total_resensi
+    SELECT u.id, u.username, u.bio, u.foto_profil, u.created_at, COUNT(r.id) as total_resensi
     FROM users u
     LEFT JOIN resensi r ON u.id = r.user_id
 ";
@@ -24,7 +24,7 @@ if ($search !== '') {
     $types .= 's';
 }
 
-$sql .= " GROUP BY u.id, u.username, u.created_at ORDER BY u.username ASC";
+$sql .= " GROUP BY u.id, u.username, u.bio, u.foto_profil, u.created_at ORDER BY u.username ASC";
 
 $stmt = $conn->prepare($sql);
 if ($params) {
@@ -72,10 +72,27 @@ $stmt->close();
     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
         <?php foreach ($users as $u): ?>
         <div style="background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:1.5rem;box-shadow:0 2px 10px var(--shadow);text-align:center;transition:transform 0.2s">
-            <div style="width:64px;height:64px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;border:2px solid var(--gold)">👤</div>
+            <?php if (!empty($u['foto_profil']) && file_exists('uploads/' . $u['foto_profil'])): ?>
+                <img src="uploads/<?= htmlspecialchars($u['foto_profil']) ?>" alt="Foto"
+                     style="width:64px;height:64px;border-radius:50%;object-fit:cover;
+                            margin:0 auto 1rem;border:2px solid var(--gold);display:block">
+            <?php else: ?>
+                <div style="width:64px;height:64px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;border:2px solid var(--gold)">👤</div>
+            <?php endif; ?>
+            
             <h3 style="font-family:var(--font-head);font-size:1.15rem;margin-bottom:0.25rem;color:var(--ink)">
                 <?= htmlspecialchars($u['username']) ?>
             </h3>
+            
+            <?php if (!empty($u['bio'])): ?>
+                <p style="font-size:0.8rem;color:var(--ink);font-style:italic;margin-bottom:0.75rem;
+                          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                    "<?= htmlspecialchars($u['bio']) ?>"
+                </p>
+            <?php else: ?>
+                <div style="height:0.5rem"></div>
+            <?php endif; ?>
+
             <div style="font-size:0.85rem;color:var(--ink-light);margin-bottom:0.75rem">
                 Bergabung: <?= date('M Y', strtotime($u['created_at'])) ?>
             </div>
