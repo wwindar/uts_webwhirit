@@ -30,6 +30,7 @@ if (isset($_SESSION['user_id'])) {
     <ul class="nav-links" id="navLinks">
         <li><a href="dashboard.php"  class="<?= basename($_SERVER['PHP_SELF']) == 'dashboard.php'  ? 'active' : '' ?>">Dashboard</a></li>
         <li><a href="katalog.php"    class="<?= basename($_SERVER['PHP_SELF']) == 'katalog.php'    ? 'active' : '' ?>">Katalog</a></li>
+        <li><a href="pengguna.php"   class="<?= basename($_SERVER['PHP_SELF']) == 'pengguna.php'   ? 'active' : '' ?>">👥 Pengguna</a></li>
         <li><a href="tambah.php"     class="<?= basename($_SERVER['PHP_SELF']) == 'tambah.php'     ? 'active' : '' ?>">+ Tambah</a></li>
         <li><a href="wishlist.php"   class="<?= basename($_SERVER['PHP_SELF']) == 'wishlist.php'   ? 'active' : '' ?>">📌 Wishlist</a></li>
         <li><a href="bookmarks.php"  class="<?= basename($_SERVER['PHP_SELF']) == 'bookmarks.php'  ? 'active' : '' ?>">🔖 Bookmark</a></li>

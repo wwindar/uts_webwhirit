@@ -57,11 +57,15 @@ function renderStars($rating) {
     </div>
 
     <div style="margin: 2rem 0; background: var(--paper); border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 20px var(--shadow)">
-        <h3 style="margin-bottom: 0.75rem; font-family: var(--font-head); font-size: 1.15rem; color: var(--ink);">🔍 Cari Pengguna atau Resensi</h3>
-        <p style="color: var(--ink-light); font-size: 0.85rem; margin-bottom: 1rem;">Ketik nama akun (username) orang lain, judul buku, atau penulis untuk menemukan ulasan yang kamu cari.</p>
-        <form method="GET" action="katalog.php" style="display: flex; gap: 0.5rem; margin: 0; flex-wrap: wrap;">
-            <input type="text" name="search" placeholder="Ketik pencarian di sini..." style="flex: 1; min-width: 200px; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.95rem;" required>
-            <button type="submit" class="btn btn-primary" style="padding: 0 1.5rem; white-space: nowrap;">Cari di Katalog</button>
+        <h3 style="margin-bottom: 0.75rem; font-family: var(--font-head); font-size: 1.15rem; color: var(--ink);">🔍 Pencarian</h3>
+        <p style="color: var(--ink-light); font-size: 0.85rem; margin-bottom: 1rem;">Pilih kategori pencarian lalu masukkan nama buku, nama penulis, atau nama akun (username).</p>
+        <form method="GET" action="katalog.php" id="form-cari-dashboard" style="display: flex; gap: 0.5rem; margin: 0; flex-wrap: wrap;" onsubmit="this.action = document.getElementById('jenis_cari').value;">
+            <select id="jenis_cari" style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.95rem; background: var(--page-bg); cursor: pointer;">
+                <option value="katalog.php">Cari Resensi</option>
+                <option value="pengguna.php">Cari Akun Pengguna</option>
+            </select>
+            <input type="text" name="search" placeholder="Ketik kata kunci di sini..." style="flex: 1; min-width: 200px; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.95rem;" required>
+            <button type="submit" class="btn btn-primary" style="padding: 0 1.5rem; white-space: nowrap;">Cari</button>
         </form>
     </div>
 
