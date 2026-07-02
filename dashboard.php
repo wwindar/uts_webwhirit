@@ -12,7 +12,7 @@ $totalResensi = $conn->query("SELECT COUNT(*) as total FROM resensi")->fetch_ass
 $avgRating    = $conn->query("SELECT ROUND(AVG(rating), 1) as avg FROM resensi")->fetch_assoc()['avg'] ?? 0;
 $totalGenre   = $conn->query("SELECT COUNT(DISTINCT genre) as total FROM resensi WHERE genre IS NOT NULL")->fetch_assoc()['total'];
 $topGenre     = $conn->query("SELECT genre, COUNT(*) as jml FROM resensi WHERE genre IS NOT NULL GROUP BY genre ORDER BY jml DESC LIMIT 1")->fetch_assoc();
-$recentResult = $conn->query("SELECT * FROM resensi ORDER BY tgl_input DESC LIMIT 5");
+$recentResult = $conn->query("SELECT r.*, u.username FROM resensi r JOIN users u ON r.user_id = u.id ORDER BY r.tgl_input DESC LIMIT 5");
 
 function renderStars($rating) {
     $stars = '';
@@ -72,6 +72,7 @@ function renderStars($rating) {
                     <tr>
                         <th>Judul Buku</th>
                         <th>Penulis</th>
+                        <th>Direview Oleh</th>
                         <th>Genre</th>
                         <th>Rating</th>
                         <th>Tanggal</th>
@@ -83,6 +84,7 @@ function renderStars($rating) {
                     <tr>
                         <td class="td-title"><?= htmlspecialchars($row['judul_buku']) ?></td>
                         <td><?= htmlspecialchars($row['penulis']) ?></td>
+                        <td><a href="profil_publik.php?id=<?= $row['user_id'] ?>" style="color:var(--gold);text-decoration:none;font-weight:500"><?= htmlspecialchars($row['username']) ?></a></td>
                         <td>
                             <?php if ($row['genre']): ?>
                                 <span class="book-genre-badge"><?= htmlspecialchars($row['genre']) ?></span>
@@ -92,7 +94,9 @@ function renderStars($rating) {
                         <td><?= date('d M Y', strtotime($row['tgl_input'])) ?></td>
                         <td style="display:flex;gap:0.3rem">
                             <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm">Lihat</a>
-                            <a href="edit.php?id=<?= $row['id'] ?>"   class="btn btn-gold btn-sm">Edit</a>
+                            <?php if ($row['user_id'] == $_SESSION['user_id']): ?>
+                            <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-gold btn-sm">Edit</a>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endwhile; ?>

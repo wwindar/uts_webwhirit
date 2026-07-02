@@ -109,7 +109,7 @@ $orderClause = match($sort) {
     default        => 'ORDER BY tgl_input DESC'
 };
 
-$sql  = "SELECT * FROM resensi $whereClause $orderClause";
+$sql  = "SELECT r.*, u.username FROM resensi r JOIN users u ON r.user_id = u.id $whereClause $orderClause";
 $stmt = $conn->prepare($sql);
 if ($params) $stmt->bind_param($types, ...$params);
 $stmt->execute();
@@ -220,7 +220,10 @@ $result->data_seek(0);
                 <?php endif; ?>
 
                 <div class="book-title"><?= htmlspecialchars($row['judul_buku']) ?></div>
-                <div class="book-author">oleh <span><?= htmlspecialchars($row['penulis']) ?></span></div>
+                <div class="book-author" style="margin-bottom:0.3rem">oleh <span><?= htmlspecialchars($row['penulis']) ?></span></div>
+                <div style="font-size:0.8rem;color:var(--ink-light);margin-bottom:0.75rem">
+                    👤 <a href="profil_publik.php?id=<?= $row['user_id'] ?>" style="color:var(--gold);text-decoration:none;font-weight:600"><?= htmlspecialchars($row['username']) ?></a>
+                </div>
                 <div class="book-ulasan"><?= htmlspecialchars($row['ulasan']) ?></div>
                 <div class="book-meta">
                     <span class="stars"><?= renderStars($row['rating']) ?></span>
@@ -228,10 +231,10 @@ $result->data_seek(0);
                 </div>
                 <div class="book-actions">
                     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm">Detail</a>
-                    <button class="btn btn-gold btn-sm"
-                        onclick="bukaModal(<?= $row['id'] ?>)">Edit</button>
-                    <a href="hapus.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm btn-hapus"
-                       onclick="return confirm('Yakin hapus resensi ini?')">Hapus</a>
+                    <?php if ($row['user_id'] == $userId): ?>
+                    <button class="btn btn-gold btn-sm" onclick="bukaModal(<?= $row['id'] ?>)">Edit</button>
+                    <a href="hapus.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm btn-hapus" onclick="return confirm('Yakin hapus resensi ini?')">Hapus</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
