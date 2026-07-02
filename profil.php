@@ -206,12 +206,6 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                     Unduh seluruh resensi yang kamu tulis dalam format spreadsheet.
                 </p>
 
-                <?php if ($totalResensi === 0): ?>
-                <p style="color:var(--ink-light);font-size:0.88rem">
-                    Belum ada resensi yang bisa diekspor.
-                </p>
-                <?php else: ?>
-
                 <!-- Ekspor CSV (selalu tersedia) -->
                 <div style="background:var(--page-bg);border-radius:8px;padding:1rem;margin-bottom:0.85rem;
                             border:1px solid var(--border)">
@@ -279,7 +273,6 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 </div>
                 <?php endif; ?>
 
-                <?php endif; ?>
             </div>
 
             <!-- ── IMPOR DATA ── -->
