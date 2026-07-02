@@ -282,6 +282,31 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 <?php endif; ?>
             </div>
 
+            <!-- ── IMPOR DATA ── -->
+            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid #2980b9;
+                        border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
+                <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:0.3rem">
+                    📥 Impor Data Resensi
+                </h2>
+                <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.25rem;
+                           padding-bottom:1rem;border-bottom:1px solid var(--border)">
+                    Unggah file CSV untuk menambahkan resensi secara masal.
+                </p>
+
+                <form method="POST" action="impor_csv.php" enctype="multipart/form-data">
+                    <div class="form-group" style="margin-bottom:1rem">
+                        <label>Pilih File CSV <span style="color:#c0392b">*</span></label>
+                        <input type="file" name="file_csv" accept=".csv" required style="padding:0.4rem 0">
+                        <small style="color:var(--ink-light);font-size:0.78rem;display:block;margin-top:0.3rem">
+                            Kolom minimum: <strong>Judul Buku</strong> dan <strong>Ulasan</strong>. Format harus sesuai (bisa gunakan hasil Ekspor CSV sebagai template).
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" style="background:#2980b9;border-color:#2980b9">
+                        ⬆ Unggah & Impor CSV
+                    </button>
+                </form>
+            </div>
+
         </div>
     </div>
 </div>
