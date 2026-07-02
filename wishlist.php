@@ -13,8 +13,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $penulisWish = trim($_POST['penulis'] ?? '');
         $catatan = trim($_POST['catatan'] ?? '');
         if ($judulWish !== '') {
-            $st = $conn->prepare("INSERT INTO wishlist (user_id, judul_buku, penulis, catatan) VALUES (?, ?, ?, ?)");
-            $st->bind_param("isss", $userId, $judulWish, $penulisWish, $catatan);
+            $penulisId = null;
+            if ($penulisWish !== '') {
+                $st = $conn->prepare("SELECT id FROM penulis WHERE nama = ?");
+                $st->bind_param("s", $penulisWish);
+                $st->execute();
+                $res = $st->get_result();
+                if ($row = $res->fetch_assoc()) {
+                    $penulisId = $row['id'];
+                } else {
+                    $st2 = $conn->prepare("INSERT INTO penulis (nama) VALUES (?)");
+                    $st2->bind_param("s", $penulisWish);
+                    $st2->execute();
+                    $penulisId = $st2->insert_id;
+                    $st2->close();
+                }
+                $st->close();
+            }
+
+            $st = $conn->prepare("INSERT INTO wishlist (user_id, judul_buku, penulis_id, catatan) VALUES (?, ?, ?, ?)");
+            $st->bind_param("isis", $userId, $judulWish, $penulisId, $catatan);
             $st->execute();
             $st->close();
             $_SESSION['flash'] = 'Buku berhasil ditambahkan ke wishlist!';
@@ -30,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $_SESSION['flash_type'] = 'info';
     } elseif ($_POST['action'] === 'selesai') {
         $wid = intval($_POST['wishlist_id'] ?? 0);
-        $st = $conn->prepare("UPDATE wishlist SET sudah_dibaca = 1 WHERE id = ? AND user_id = ?");
+        $st = $conn->prepare("UPDATE wishlist SET sudah_baca = 1 WHERE id = ? AND user_id = ?");
         $st->bind_param("ii", $wid, $userId);
         $st->execute();
         $st->close();
@@ -43,12 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 $filter = $_GET['filter'] ?? 'semua';
 $extraWhere = match($filter) {
-    'belum' => 'AND sudah_dibaca = 0',
-    'sudah' => 'AND sudah_dibaca = 1',
+    'belum' => 'AND sudah_baca = 0',
+    'sudah' => 'AND sudah_baca = 1',
     default => ''
 };
 
-$result = $conn->query("SELECT * FROM wishlist WHERE user_id = $userId $extraWhere ORDER BY tgl_tambah DESC");
+$result = $conn->query(
+    "SELECT w.id, w.user_id, w.judul_buku, w.penulis_id, w.genre_id, w.catatan, w.sudah_baca AS sudah_dibaca, w.created_at AS tgl_tambah, p.nama AS penulis
+     FROM wishlist w
+     LEFT JOIN penulis p ON p.id = w.penulis_id
+     WHERE w.user_id = $userId $extraWhere
+     ORDER BY w.created_at DESC"
+);
 
 $flashMsg  = $_SESSION['flash']      ?? '';
 $flashType = $_SESSION['flash_type'] ?? 'info';
