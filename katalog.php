@@ -90,23 +90,23 @@ $sort   = $_GET['sort'] ?? 'terbaru';
 $where  = []; $params = []; $types = '';
 
 if ($search !== '') {
-    $where[] = "(judul_buku LIKE ? OR penulis LIKE ?)";
+    $where[] = "(r.judul_buku LIKE ? OR r.penulis LIKE ? OR u.username LIKE ?)";
     $like = "%$search%";
-    $params[] = $like; $params[] = $like;
-    $types .= 'ss';
+    $params[] = $like; $params[] = $like; $params[] = $like;
+    $types .= 'sss';
 }
 if ($genre !== '') {
-    $where[] = "genre = ?";
+    $where[] = "r.genre = ?";
     $params[] = $genre;
     $types .= 's';
 }
 
 $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 $orderClause = match($sort) {
-    'judul'        => 'ORDER BY judul_buku ASC',
-    'rating_tinggi'=> 'ORDER BY rating DESC',
-    'rating_rendah'=> 'ORDER BY rating ASC',
-    default        => 'ORDER BY tgl_input DESC'
+    'judul'        => 'ORDER BY r.judul_buku ASC',
+    'rating_tinggi'=> 'ORDER BY r.rating DESC',
+    'rating_rendah'=> 'ORDER BY r.rating ASC',
+    default        => 'ORDER BY r.tgl_input DESC'
 };
 
 $sql  = "SELECT r.*, u.username FROM resensi r JOIN users u ON r.user_id = u.id $whereClause $orderClause";
