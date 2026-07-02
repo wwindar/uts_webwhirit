@@ -12,7 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file_csv'])) {
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $_SESSION['flash'] = 'Gagal mengunggah file. Silakan coba lagi.';
         $_SESSION['flash_type'] = 'error';
-        header("Location: profil.php");
+        $redirect = $_SERVER['HTTP_REFERER'] ?? 'katalog.php';
+        header("Location: $redirect");
         exit();
     }
 
@@ -20,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file_csv'])) {
     if (strtolower($ext) !== 'csv') {
         $_SESSION['flash'] = 'Format file tidak didukung. Harus berupa .csv';
         $_SESSION['flash_type'] = 'error';
-        header("Location: profil.php");
+        $redirect = $_SERVER['HTTP_REFERER'] ?? 'katalog.php';
+        header("Location: $redirect");
         exit();
     }
 
@@ -28,7 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file_csv'])) {
     if (!$handle) {
         $_SESSION['flash'] = 'Gagal membuka file CSV.';
         $_SESSION['flash_type'] = 'error';
-        header("Location: profil.php");
+        $redirect = $_SERVER['HTTP_REFERER'] ?? 'katalog.php';
+        header("Location: $redirect");
         exit();
     }
 
@@ -120,5 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file_csv'])) {
     $_SESSION['flash_type'] = $imported > 0 ? 'success' : 'info';
 }
 
-header("Location: profil.php");
+$redirect = $_SERVER['HTTP_REFERER'] ?? 'katalog.php';
+header("Location: $redirect");
 exit();

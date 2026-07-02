@@ -153,7 +153,12 @@ $result->data_seek(0);
             <h1>Katalog Resensi</h1>
             <p>Seluruh koleksi ulasan buku yang telah ditambahkan.</p>
         </div>
-        <a href="tambah.php" class="btn btn-gold">+ Tambah Resensi</a>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="ekspor_csv.php" class="btn btn-outline" style="border-color:#27ae60;color:#27ae60" title="Ekspor CSV">⬇ CSV</a>
+            <a href="ekspor_excel.php" class="btn btn-outline" style="border-color:#27ae60;color:#27ae60" title="Ekspor Excel">⬇ Excel</a>
+            <button class="btn btn-outline" style="border-color:#2980b9;color:#2980b9" onclick="bukaModalImpor()" title="Impor CSV">⬆ Impor</button>
+            <a href="tambah.php" class="btn btn-gold">+ Tambah Resensi</a>
+        </div>
     </div>
 
     <?php if ($flashMsg): ?>
@@ -334,6 +339,32 @@ $result->data_seek(0);
     </div>
 </div>
 
+<!-- ══════════════ MODAL IMPOR ══════════════ -->
+<div id="modal-impor-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+     overflow-y:auto;padding:2rem 1rem" onclick="if(event.target===this)tutupModalImpor()">
+    <div style="background:#fff;border-radius:16px;max-width:500px;margin:auto;padding:2rem;position:relative;border-top:3px solid #2980b9">
+        <button onclick="tutupModalImpor()" style="position:absolute;top:1rem;right:1rem;
+            background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">×</button>
+        <h2 style="font-family:var(--font-head);font-size:1.3rem;margin-bottom:0.5rem">📥 Impor Data Resensi</h2>
+        <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+            Unggah file CSV untuk menambahkan resensi secara masal.
+        </p>
+        <form method="POST" action="impor_csv.php" enctype="multipart/form-data">
+            <div class="form-group" style="margin-bottom:1rem">
+                <label>Pilih File CSV <span style="color:#c0392b">*</span></label>
+                <input type="file" name="file_csv" accept=".csv" required style="padding:0.4rem 0; width:100%">
+                <small style="color:var(--ink-light);font-size:0.78rem;display:block;margin-top:0.3rem">
+                    Kolom minimum: <strong>Judul Buku</strong> dan <strong>Ulasan</strong>. Format harus sesuai (bisa gunakan hasil Ekspor CSV sebagai template).
+                </small>
+            </div>
+            <div style="display:flex;gap:0.75rem;margin-top:1rem">
+                <button type="submit" class="btn btn-primary" style="background:#2980b9;border-color:#2980b9">⬆ Unggah & Impor</button>
+                <button type="button" class="btn btn-outline" onclick="tutupModalImpor()">Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Data resensi untuk JS -->
 <script>
 const resensiData = <?= json_encode(array_values($allResensi), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
@@ -434,7 +465,22 @@ function previewFotoModal(input) {
 }
 
 // Tutup modal dengan ESC
-document.addEventListener('keydown', e => { if (e.key === 'Escape') tutupModal(); });
+document.addEventListener('keydown', e => { 
+    if (e.key === 'Escape') {
+        tutupModal();
+        tutupModalImpor();
+    }
+});
+
+function bukaModalImpor() {
+    document.getElementById('modal-impor-overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function tutupModalImpor() {
+    document.getElementById('modal-impor-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+}
 </script>
 
 <?php include ('footer.php'); ?>

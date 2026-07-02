@@ -11,7 +11,8 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
 if (!$composerReady) {
     $_SESSION['flash'] = 'Gagal mengekspor: PhpSpreadsheet belum diinstal via Composer.';
     $_SESSION['flash_type'] = 'error';
-    header("Location: profil.php");
+    $redirect = $_SERVER['HTTP_REFERER'] ?? 'katalog.php';
+    header("Location: $redirect");
     exit();
 }
 
