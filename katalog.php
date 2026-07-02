@@ -156,7 +156,8 @@ $result->data_seek(0);
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <a href="ekspor_csv.php" class="btn btn-outline" style="border-color:#27ae60;color:#27ae60" title="Ekspor CSV">⬇ CSV</a>
             <a href="ekspor_excel.php" class="btn btn-outline" style="border-color:#27ae60;color:#27ae60" title="Ekspor Excel">⬇ Excel</a>
-            <button class="btn btn-outline" style="border-color:#2980b9;color:#2980b9" onclick="bukaModalImpor()" title="Impor CSV">⬆ Impor</button>
+            <a href="ekspor_word.php" class="btn btn-outline" style="border-color:#2980b9;color:#2980b9" title="Ekspor Word">⬇ Word</a>
+            <button class="btn btn-outline" style="border-color:#8e44ad;color:#8e44ad" onclick="bukaModalImpor()" title="Impor CSV">⬆ Impor</button>
             <a href="tambah.php" class="btn btn-gold">+ Tambah Resensi</a>
         </div>
     </div>

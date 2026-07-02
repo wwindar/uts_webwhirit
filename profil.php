@@ -224,7 +224,7 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 </div>
 
                 <!-- Ekspor Excel -->
-                <div style="background:var(--page-bg);border-radius:8px;padding:1rem;
+                <div style="background:var(--page-bg);border-radius:8px;padding:1rem;margin-bottom:0.85rem;
                             border:1px solid var(--border)">
                     <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
                         <div>
@@ -246,6 +246,23 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                            class="btn btn-sm <?= $composerReady ? '' : 'btn-outline' ?>"
                            style="white-space:nowrap;<?= $composerReady ? 'background:#27ae60;color:#fff;border-color:#27ae60' : 'color:#aaa;border-color:#ccc' ?>">
                             ⬇ Unduh Excel
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ekspor Word -->
+                <div style="background:var(--page-bg);border-radius:8px;padding:1rem;
+                            border:1px solid var(--border)">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem">📝 Format Word (.doc)</div>
+                            <div style="font-size:0.78rem;color:var(--ink-light);margin-top:0.2rem">
+                                Bisa dibuka di Microsoft Word, Google Docs, dll. Format tabel sederhana.
+                            </div>
+                        </div>
+                        <a href="ekspor_word.php" class="btn btn-outline btn-sm"
+                           style="white-space:nowrap;border-color:#2980b9;color:#2980b9">
+                            ⬇ Unduh Word
                         </a>
                     </div>
                 </div>
