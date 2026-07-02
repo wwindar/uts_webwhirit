@@ -1,6 +1,5 @@
 <?php
-// komentar.php — dipanggil via POST dari detail.php
-// Bisa juga diakses langsung untuk lihat komentar suatu resensi
+
 session_start();
 require_once ('db.php');
 require_once ('auth.php');
@@ -27,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($action === 'hapus') {
         $kid = intval($_POST['komentar_id'] ?? 0);
-        // Hanya bisa hapus komentar sendiri
+        // pokoknya hapus komentar punya user ini aja, biar aman
         $st = $conn->prepare("DELETE FROM komentar WHERE id = ? AND user_id = ?");
         $st->bind_param("ii", $kid, $userId);
         $st->execute();

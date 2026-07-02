@@ -1,14 +1,11 @@
 <?php
-
 session_start();
 require_once ('db.php');
 require_once ('auth.php');
-
 requireLogin();
 
 $pageTitle = 'Profil Saya';
 $basePath = '../';
-
 $errors = [];
 $success = '';
 
@@ -18,14 +15,35 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-$stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi");
+// Hitung resensi milik user ini saja
+$stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi WHERE user_id = ?");
+$stmtCount->bind_param("i", $_SESSION['user_id']);
 $stmtCount->execute();
 $totalResensi = $stmtCount->get_result()->fetch_assoc()['total'];
 $stmtCount->close();
 
+// Hitung rata-rata rating
+$stmtAvg = $conn->prepare("SELECT AVG(rating) as avg_rating FROM resensi WHERE user_id = ?");
+$stmtAvg->bind_param("i", $_SESSION['user_id']);
+$stmtAvg->execute();
+$avgRating = round($stmtAvg->get_result()->fetch_assoc()['avg_rating'] ?? 0, 1);
+$stmtAvg->close();
+
+// Genre terbanyak
+$stmtGenre = $conn->prepare(
+    "SELECT genre, COUNT(*) as jml FROM resensi
+     WHERE user_id = ? AND genre IS NOT NULL AND genre != ''
+     GROUP BY genre ORDER BY jml DESC LIMIT 1"
+);
+$stmtGenre->bind_param("i", $_SESSION['user_id']);
+$stmtGenre->execute();
+$favoriteGenre = $stmtGenre->get_result()->fetch_assoc()['genre'] ?? '-';
+$stmtGenre->close();
+
+// Ganti password
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $password_lama   = $_POST['password_lama'] ?? '';
-    $password_baru   = $_POST['password_baru'] ?? '';
+    $password_lama    = $_POST['password_lama']    ?? '';
+    $password_baru    = $_POST['password_baru']    ?? '';
     $password_konfirm = $_POST['password_konfirm'] ?? '';
 
     if (empty($password_lama) || empty($password_baru) || empty($password_konfirm)) {
@@ -35,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($password_baru !== $password_konfirm) {
         $errors[] = 'Konfirmasi password baru tidak cocok.';
     } else {
-   
         $stmtCek = $conn->prepare("SELECT password FROM users WHERE id = ?");
         $stmtCek->bind_param("i", $_SESSION['user_id']);
         $stmtCek->execute();
@@ -48,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashedBaru = password_hash($password_baru, PASSWORD_DEFAULT);
             $stmtUpdate = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
             $stmtUpdate->bind_param("si", $hashedBaru, $_SESSION['user_id']);
-
             if ($stmtUpdate->execute()) {
                 $success = 'Password berhasil diubah!';
             } else {
@@ -58,6 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+// Cek apakah Composer/PhpSpreadsheet tersedia
+$composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
 ?>
 <?php include ('header.php'); ?>
 
@@ -67,80 +86,203 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Informasi akun dan pengaturan keamanan.</p>
     </div>
 
-    <div class="profil-grid" style="display:grid;gap:1.5rem;align-items:start">
+    <div style="display:grid;gap:1.5rem;align-items:start;grid-template-columns:1fr 1fr">
 
-        <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
+        <!-- ── Kartu Info Profil ── -->
+        <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);
+                    border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
+
             <div style="text-align:center;margin-bottom:1.5rem">
-                <div style="width:72px;height:72px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">
-                    👤
-                </div>
+                <div style="width:72px;height:72px;background:var(--ink);border-radius:50%;
+                            display:flex;align-items:center;justify-content:center;
+                            margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">👤</div>
                 <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--ink)">
                     <?= htmlspecialchars($user['username']) ?>
                 </h2>
-                <span style="font-size:0.78rem;color:var(--brown);background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.3);border-radius:20px;padding:0.2rem 0.75rem">
+                <span style="font-size:0.78rem;color:var(--brown);background:rgba(212,168,67,0.12);
+                             border:1px solid rgba(212,168,67,0.3);border-radius:20px;padding:0.2rem 0.75rem">
                     Member
                 </span>
             </div>
 
             <div style="border-top:1px solid var(--border);padding-top:1rem">
                 <div style="margin-bottom:0.9rem">
-                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Username</div>
-                    <div style="font-size:0.95rem;color:var(--ink);font-weight:500"><?= htmlspecialchars($user['username']) ?></div>
+                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Username</div>
+                    <div style="font-size:0.95rem;color:var(--ink);font-weight:500">
+                        <?= htmlspecialchars($user['username']) ?>
+                    </div>
                 </div>
                 <div style="margin-bottom:0.9rem">
-                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Bergabung Sejak</div>
-                    <div style="font-size:0.95rem;color:var(--ink)"><?= date('d F Y', strtotime($user['created_at'])) ?></div>
+                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Bergabung Sejak</div>
+                    <div style="font-size:0.95rem;color:var(--ink)">
+                        <?= date('d F Y', strtotime($user['created_at'])) ?>
+                    </div>
                 </div>
-                <div>
-                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Total Resensi Ditulis</div>
-                    <div style="font-size:1.8rem;font-family:var(--font-display);color:var(--gold);font-weight:700;line-height:1"><?= $totalResensi ?></div>
+
+                <!-- Statistik -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.9rem">
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                        <div style="font-size:1.8rem;font-family:var(--font-display);color:var(--gold);
+                                    font-weight:700;line-height:1"><?= $totalResensi ?></div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi Ditulis</div>
+                    </div>
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                        <div style="font-size:1.8rem;font-family:var(--font-display);color:var(--gold);
+                                    font-weight:700;line-height:1"><?= $avgRating > 0 ? $avgRating : '-' ?></div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Rata-rata Rating</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:0.9rem">
+                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Genre Favorit</div>
+                    <div style="font-size:0.95rem;color:var(--ink)"><?= htmlspecialchars($favoriteGenre) ?></div>
                 </div>
             </div>
 
-            <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border)">
-                <a href="katalog.php" class="btn btn-outline btn-full" style="text-align:center">📚 Lihat Katalog</a>
+            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+                <a href="katalog.php" class="btn btn-outline btn-full" style="text-align:center;display:block">
+                    📚 Lihat Katalog
+                </a>
             </div>
         </div>
 
-        <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
-            <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:0.3rem">🔒 Ganti Password</h2>
-            <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-                Pastikan password baru minimal 6 karakter.
-            </p>
+        <!-- ── Kolom kanan: Ganti Password + Ekspor ── -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem">
 
-            <?php if ($errors): ?>
+            <!-- Ganti Password -->
+            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);
+                        border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
+                <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:0.3rem">
+                    🔒 Ganti Password
+                </h2>
+                <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.4rem;
+                           padding-bottom:1rem;border-bottom:1px solid var(--border)">
+                    Pastikan password baru minimal 6 karakter.
+                </p>
+
+                <?php if ($errors): ?>
                 <div class="alert alert-error">
                     <strong>Perhatikan:</strong><br>
                     <?php foreach ($errors as $e): ?>
                         • <?= htmlspecialchars($e) ?><br>
                     <?php endforeach; ?>
                 </div>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <?php if ($success): ?>
+                <?php if ($success): ?>
                 <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <form method="POST" action="">
-                <div class="form-group">
-                    <label for="password_lama">Password Lama <span style="color:#c0392b">*</span></label>
-                    <input type="password" id="password_lama" name="password_lama"
-                           placeholder="Masukkan password saat ini" required>
+                <form method="POST" action="">
+                    <div class="form-group">
+                        <label for="password_lama">Password Lama <span style="color:#c0392b">*</span></label>
+                        <input type="password" id="password_lama" name="password_lama"
+                            placeholder="Masukkan password saat ini" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password_baru">Password Baru <span style="color:#c0392b">*</span></label>
+                        <input type="password" id="password_baru" name="password_baru"
+                            placeholder="Min. 6 karakter" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password_konfirm">Konfirmasi Password Baru <span style="color:#c0392b">*</span></label>
+                        <input type="password" id="password_konfirm" name="password_konfirm"
+                            placeholder="Ulangi password baru" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Simpan Password Baru</button>
+                </form>
+            </div>
+
+            <!-- ── EKSPOR DATA ── -->
+            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid #27ae60;
+                        border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
+                <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:0.3rem">
+                    📤 Ekspor Data Resensi
+                </h2>
+                <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.25rem;
+                           padding-bottom:1rem;border-bottom:1px solid var(--border)">
+                    Unduh seluruh resensi yang kamu tulis dalam format spreadsheet.
+                </p>
+
+                <?php if ($totalResensi === 0): ?>
+                <p style="color:var(--ink-light);font-size:0.88rem">
+                    Belum ada resensi yang bisa diekspor.
+                </p>
+                <?php else: ?>
+
+                <!-- Ekspor CSV (selalu tersedia) -->
+                <div style="background:var(--page-bg);border-radius:8px;padding:1rem;margin-bottom:0.85rem;
+                            border:1px solid var(--border)">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem">📄 Format CSV</div>
+                            <div style="font-size:0.78rem;color:var(--ink-light);margin-top:0.2rem">
+                                Bisa dibuka di Excel, Google Sheets, LibreOffice. Tidak butuh Composer.
+                            </div>
+                        </div>
+                        <a href="ekspor_csv.php" class="btn btn-outline btn-sm"
+                           style="white-space:nowrap;border-color:#27ae60;color:#27ae60">
+                            ⬇ Unduh CSV
+                        </a>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="password_baru">Password Baru <span style="color:#c0392b">*</span></label>
-                    <input type="password" id="password_baru" name="password_baru"
-                           placeholder="Min. 6 karakter" required>
+
+                <!-- Ekspor Excel -->
+                <div style="background:var(--page-bg);border-radius:8px;padding:1rem;
+                            border:1px solid var(--border)">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem">📊 Format Excel (.xlsx)</div>
+                            <div style="font-size:0.78rem;color:var(--ink-light);margin-top:0.2rem">
+                                File Excel dengan format warna & tabel rapi. Butuh PhpSpreadsheet via Composer.
+                            </div>
+                            <?php if (!$composerReady): ?>
+                            <div style="font-size:0.75rem;color:#e67e22;margin-top:0.4rem;
+                                        background:#fef9e7;padding:0.35rem 0.6rem;border-radius:4px;
+                                        border:1px solid #f39c12;display:inline-block">
+                                ⚠️ Composer belum disetup —
+                                <a href="#panduan-composer" onclick="document.getElementById('panduan-composer').style.display='block'"
+                                   style="color:#e67e22;font-weight:600">lihat panduan</a>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <a href="ekspor_excel.php"
+                           class="btn btn-sm <?= $composerReady ? '' : 'btn-outline' ?>"
+                           style="white-space:nowrap;<?= $composerReady ? 'background:#27ae60;color:#fff;border-color:#27ae60' : 'color:#aaa;border-color:#ccc' ?>">
+                            ⬇ Unduh Excel
+                        </a>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="password_konfirm">Konfirmasi Password Baru <span style="color:#c0392b">*</span></label>
-                    <input type="password" id="password_konfirm" name="password_konfirm"
-                           placeholder="Ulangi password baru" required>
+
+                <!-- Panduan Composer (tersembunyi, muncul jika belum setup) -->
+                <?php if (!$composerReady): ?>
+                <div id="panduan-composer" style="display:none;margin-top:1rem;background:#f8f9fa;
+                            border-radius:8px;padding:1.1rem;border:1px solid #dee2e6;font-size:0.85rem">
+                    <strong>📦 Cara install PhpSpreadsheet:</strong>
+                    <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.9">
+                        <li>Buka <strong>Terminal</strong> di VSCode (<code>Ctrl + `</code>)</li>
+                        <li>Pastikan sudah di folder proyek: <code>cd C:\xampp\htdocs\uts_webwhirit</code></li>
+                        <li>Jalankan:
+                            <code style="display:block;background:#2C3E50;color:#ECF0F1;padding:0.5rem 0.75rem;
+                                         border-radius:4px;margin:0.3rem 0;font-size:0.88rem">
+                                composer require phpoffice/phpspreadsheet
+                            </code>
+                        </li>
+                        <li>Tunggu sampai selesai, lalu refresh halaman ini</li>
+                    </ol>
+                    <p style="margin:0.6rem 0 0;color:var(--ink-light)">
+                        Belum punya Composer? Download di
+                        <a href="https://getcomposer.org/download/" target="_blank">getcomposer.org</a>
+                    </p>
                 </div>
-                <button type="submit" class="btn btn-primary">Simpan Password Baru</button>
-            </form>
+                <?php endif; ?>
+
+                <?php endif; ?>
+            </div>
+
         </div>
-
     </div>
 </div>
 
