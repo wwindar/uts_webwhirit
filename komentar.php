@@ -18,6 +18,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st->bind_param("iis", $resensiId, $userId, $isi);
             $st->execute();
             $st->close();
+
+            // Notifikasi komentar
+            $r1 = $conn->query("SELECT user_id FROM resensi WHERE id = $resensiId");
+            $pemilikResensi = $r1->fetch_assoc()['user_id'] ?? 0;
+            if ($pemilikResensi > 0 && $pemilikResensi != $userId) {
+                $pesan = "<b>" . htmlspecialchars($_SESSION['username']) . "</b> mengomentari resensi Anda: <i>\"" . htmlspecialchars(substr($isi, 0, 30)) . (strlen($isi) > 30 ? "..." : "") . "\"</i>";
+                $n_stmt = $conn->prepare("INSERT INTO notifikasi (user_id, pesan, resensi_id) VALUES (?, ?, ?)");
+                $n_stmt->bind_param("isi", $pemilikResensi, $pesan, $resensiId);
+                $n_stmt->execute();
+                $n_stmt->close();
+            }
+
             $_SESSION['flash'] = 'Komentar berhasil ditambahkan!';
             $_SESSION['flash_type'] = 'success';
         }

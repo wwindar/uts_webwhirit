@@ -77,7 +77,7 @@ $belumBaca = $conn->query(
     <div class="empty-state">
         <div class="empty-icon">🔔</div>
         <h3>Belum ada notifikasi</h3>
-        <p>Notifikasi akan muncul saat ada pengguna lain yang mulai mengikuti akunmu.</p>
+        <p>Notifikasi akan muncul saat ada pengguna lain yang menyukai resensimu, memberikan komentar, atau mengikuti akunmu.</p>
     </div>
     <?php else: ?>
     <div style="display:flex;flex-direction:column;gap:0.75rem">
@@ -91,7 +91,7 @@ $belumBaca = $conn->query(
                     background:var(--gold);margin-right:6px;vertical-align:middle"></span>
                 <?php endif; ?>
                 <span style="font-size:0.95rem">
-                    <?= htmlspecialchars($n['pesan']) ?>
+                    <?= $n['pesan'] ?>
                 </span>
                 <div style="font-size:0.75rem;color:var(--ink-light);margin-top:0.3rem">
                     <?= date('d M Y, H:i', strtotime($n['tgl_kirim'])) ?> WIB
