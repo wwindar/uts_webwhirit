@@ -548,7 +548,8 @@ body {
     background: var(--paper);
 }
 table { 
-    width: 100%; 
+    width: 100%;
+    min-width: 550px;
     border-collapse: collapse; 
     font-size: 0.9rem; 
 }
@@ -709,6 +710,12 @@ tbody td   {
 
 .profil-grid { grid-template-columns: 1fr 1.6fr; }
 .about-grid  { grid-template-columns: 1fr 1fr; }
+
+.profil-grid > div,
+.about-grid > div,
+.books-grid > div {
+    min-width: 0;
+}
 
 @media (max-width: 768px) {
     .main-content   { padding: 1.2rem; }
