@@ -77,7 +77,7 @@ $belumBaca = $conn->query(
     <div class="empty-state">
         <div class="empty-icon">🔔</div>
         <h3>Belum ada notifikasi</h3>
-        <p>Notifikasi akan muncul saat ada yang like atau komentar resensimu.</p>
+        <p>Notifikasi akan muncul saat ada pengguna lain yang mulai mengikuti akunmu.</p>
     </div>
     <?php else: ?>
     <div style="display:flex;flex-direction:column;gap:0.75rem">
