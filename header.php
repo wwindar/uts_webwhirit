@@ -43,7 +43,7 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
 </head>
 <body>
 <nav class="navbar">
-    <a href="dashboard.php" class="nav-brand" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+    <a href="dashboard.php" class="nav-brand">
         <span class="brand-icon">📚</span>
         <span class="brand-name">Resensi<em>Buku</em></span>
     </a>
