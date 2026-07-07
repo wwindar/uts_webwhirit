@@ -107,7 +107,7 @@ function renderStars($rating) {
         <p>Melihat profil dan koleksi resensi dari <strong><?= htmlspecialchars($user['username']) ?></strong>.</p>
     </div>
 
-    <div style="display:grid;gap:1.5rem;align-items:start;grid-template-columns:1fr 2fr">
+    <div class="profil-grid" style="display:grid;gap:1.5rem;align-items:start">
 
         <!-- ── Kartu Info Profil ── -->
         <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);
