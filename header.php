@@ -43,12 +43,11 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
 </head>
 <body>
 <nav class="navbar">
-    <div class="nav-brand">
+    <a href="dashboard.php" class="nav-brand" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
         <span class="brand-icon">📚</span>
         <span class="brand-name">Resensi<em>Buku</em></span>
-    </div>
+    </a>
     <ul class="nav-links" id="navLinks">
-        <li><a href="dashboard.php" class="<?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>">Dashboard</a></li>
         
         <?php if (isset($_SESSION['user_id'])): ?>
         <li class="nav-dropdown-container">
