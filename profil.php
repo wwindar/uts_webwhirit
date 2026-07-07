@@ -179,7 +179,7 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
         <p>Informasi akun dan pengaturan keamanan.</p>
     </div>
 
-    <div style="display:grid;gap:1.5rem;align-items:start;grid-template-columns:1fr 1fr">
+    <div class="profil-grid" style="display:grid;gap:1.5rem;align-items:start">
 
         <!-- Kolom Kiri -->
         <div style="display:flex;flex-direction:column;gap:1.5rem">
