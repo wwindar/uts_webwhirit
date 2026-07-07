@@ -2,21 +2,21 @@
 
 :root {
 
-    --rose:        #F2D5D8;
-    --rose-dark:   #E2C0C4;
-    --rose-deep:   #A07378;
-    --rose-light:  #FDF6F7;
-    --sage:        #A5A5AA;
-    --sage-dark:   #7D7D83;
-    --sage-light:  #F2F2F4;
-    --mint:        #D4D4D8;
-    --cream:       #FBF9FA;
+    --rose:        #AD6775;
+    --rose-dark:   #924D5A;
+    --rose-deep:   #60313A;
+    --rose-light:  #F7EBED;
+    --sage:        #73737A;
+    --sage-dark:   #54545A;
+    --sage-light:  #EEEEF0;
+    --mint:        #8C8C94;
+    --cream:       #F7F4F5;
     --paper:       #FFFFFF;
-    --ink:         #44444A;
-    --ink-light:   #88888D;
-    --gold:        #E2BFC3;
-    --border:      #EDE8E9;
-    --shadow:      rgba(68, 68, 74, 0.08);
+    --ink:         #2B2B30;
+    --ink-light:   #5C5C63;
+    --gold:        #A35D6C;
+    --border:      #DCD1D4;
+    --shadow:      rgba(43, 43, 48, 0.12);
     --font-display: 'Playfair Display', Georgia, serif;
     --font-body:    'DM Sans', sans-serif;
 }
