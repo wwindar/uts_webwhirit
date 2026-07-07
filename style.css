@@ -649,8 +649,8 @@ tbody td   {
 }
 .detail-header .book-genre-badge { 
     color: var(--rose); 
-    border-color: rgba(255,215,223,0.4); 
-    background: rgba(255,215,223,0.15); 
+    border-color: rgba(242, 213, 216, 0.4); 
+    background: rgba(242, 213, 216, 0.15); 
 }
 
 .detail-title {
@@ -660,7 +660,7 @@ tbody td   {
     margin-bottom: 0.3rem;
 }
 .detail-author { 
-    color: #a8d4b8; 
+    color: var(--mint); 
     font-size: 0.95rem; 
 }
 
@@ -692,7 +692,7 @@ tbody td   {
 
 .footer {
     background: var(--ink);
-    color: #a8d4b8;
+    color: var(--mint);
     text-align: center;
     padding: 1.2rem;
     font-size: 0.82rem;
