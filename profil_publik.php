@@ -45,6 +45,30 @@ $stmtAvg->execute();
 $avgRating = round($stmtAvg->get_result()->fetch_assoc()['avg_rating'] ?? 0, 1);
 $stmtAvg->close();
 
+// Hitung pengikut (followers)
+$stmtFollowers = $conn->prepare("SELECT COUNT(*) as total FROM pengikut WHERE diikuti_id = ?");
+$stmtFollowers->bind_param("i", $id);
+$stmtFollowers->execute();
+$totalFollowers = $stmtFollowers->get_result()->fetch_assoc()['total'];
+$stmtFollowers->close();
+
+// Hitung mengikuti (following)
+$stmtFollowing = $conn->prepare("SELECT COUNT(*) as total FROM pengikut WHERE pengikut_id = ?");
+$stmtFollowing->bind_param("i", $id);
+$stmtFollowing->execute();
+$totalFollowing = $stmtFollowing->get_result()->fetch_assoc()['total'];
+$stmtFollowing->close();
+
+// Cek apakah saya sudah follow
+$isFollowing = false;
+$stmtCek = $conn->prepare("SELECT id FROM pengikut WHERE pengikut_id = ? AND diikuti_id = ?");
+$stmtCek->bind_param("ii", $_SESSION['user_id'], $id);
+$stmtCek->execute();
+if ($stmtCek->get_result()->num_rows > 0) {
+    $isFollowing = true;
+}
+$stmtCek->close();
+
 // Genre terbanyak
 $stmtGenre = $conn->prepare(
     "SELECT genre, COUNT(*) as jml FROM resensi
@@ -126,16 +150,28 @@ function renderStars($rating) {
                 </div>
 
                 <!-- Statistik -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.9rem">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:0.9rem">
                     <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
-                        <div style="font-size:1.8rem;font-family:var(--font-display);color:var(--gold);
+                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
                                     font-weight:700;line-height:1"><?= $totalResensi ?></div>
-                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi Ditulis</div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi</div>
                     </div>
                     <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
-                        <div style="font-size:1.8rem;font-family:var(--font-display);color:var(--gold);
-                                    font-weight:700;line-height:1"><?= $avgRating > 0 ? $avgRating : '-' ?></div>
-                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Rata-rata Rating</div>
+                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
+                                    font-weight:700;line-height:1" id="follower-count"><?= $totalFollowers ?></div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Pengikut</div>
+                    </div>
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
+                                    font-weight:700;line-height:1"><?= $totalFollowing ?></div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Mengikuti</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:0.9rem">
+                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Rata-rata Rating (Resensi)</div>
+                    <div style="font-size:0.95rem;color:var(--ink)">
+                        <?= $avgRating > 0 ? $avgRating : '-' ?> ★
                     </div>
                 </div>
                 <div style="margin-bottom:0.9rem">
@@ -143,6 +179,15 @@ function renderStars($rating) {
                                 text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Genre Favorit</div>
                     <div style="font-size:0.95rem;color:var(--ink)"><?= htmlspecialchars($favoriteGenre) ?></div>
                 </div>
+            </div>
+            
+            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.75rem">
+                <button id="btn-follow" data-id="<?= $id ?>" class="btn <?= $isFollowing ? 'btn-outline' : 'btn-primary' ?> btn-full">
+                    <?= $isFollowing ? 'Berhenti Mengikuti' : 'Ikuti' ?>
+                </button>
+                <a href="dm.php?user_id=<?= $id ?>" class="btn btn-gold btn-full" style="text-align:center;display:block">
+                    💬 Kirim Pesan
+                </a>
             </div>
         </div>
 
@@ -197,5 +242,51 @@ function renderStars($rating) {
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('btn-follow').addEventListener('click', function() {
+    const btn = this;
+    const userId = btn.getAttribute('data-id');
+    const isFollowing = btn.classList.contains('btn-outline');
+    const action = isFollowing ? 'unfollow' : 'follow';
+    
+    // Disable btn
+    btn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('diikuti_id', userId);
+    formData.append('action', action);
+    
+    fetch('follow_action.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            const countEl = document.getElementById('follower-count');
+            let count = parseInt(countEl.innerText);
+            if(action === 'follow') {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+                btn.innerText = 'Berhenti Mengikuti';
+                countEl.innerText = count + 1;
+            } else {
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-primary');
+                btn.innerText = 'Ikuti';
+                countEl.innerText = count - 1;
+            }
+        } else {
+            if (typeof buatAlert === 'function') buatAlert(data.message, 'error');
+            else alert(data.message);
+        }
+    })
+    .catch(err => console.error(err))
+    .finally(() => {
+        btn.disabled = false;
+    });
+});
+</script>
 
 <?php include ('footer.php'); ?>

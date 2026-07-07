@@ -22,6 +22,20 @@ $stmtCount->execute();
 $totalResensi = $stmtCount->get_result()->fetch_assoc()['total'];
 $stmtCount->close();
 
+// Hitung pengikut (followers)
+$stmtFollowers = $conn->prepare("SELECT COUNT(*) as total FROM pengikut WHERE diikuti_id = ?");
+$stmtFollowers->bind_param("i", $_SESSION['user_id']);
+$stmtFollowers->execute();
+$totalFollowers = $stmtFollowers->get_result()->fetch_assoc()['total'];
+$stmtFollowers->close();
+
+// Hitung mengikuti (following)
+$stmtFollowing = $conn->prepare("SELECT COUNT(*) as total FROM pengikut WHERE pengikut_id = ?");
+$stmtFollowing->bind_param("i", $_SESSION['user_id']);
+$stmtFollowing->execute();
+$totalFollowing = $stmtFollowing->get_result()->fetch_assoc()['total'];
+$stmtFollowing->close();
+
 // Hitung rata-rata rating
 $stmtAvg = $conn->prepare("SELECT AVG(rating) as avg_rating FROM resensi WHERE user_id = ?");
 $stmtAvg->bind_param("i", $_SESSION['user_id']);
@@ -198,16 +212,28 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 </div>
 
                 <!-- Statistik -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.9rem">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:0.9rem">
                     <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
-                        <div style="font-size:1.8rem;font-family:var(--font-display);color:var(--gold);
+                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
                                     font-weight:700;line-height:1"><?= $totalResensi ?></div>
-                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi Ditulis</div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi</div>
                     </div>
                     <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
-                        <div style="font-size:1.8rem;font-family:var(--font-display);color:var(--gold);
-                                    font-weight:700;line-height:1"><?= $avgRating > 0 ? $avgRating : '-' ?></div>
-                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Rata-rata Rating</div>
+                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
+                                    font-weight:700;line-height:1"><?= $totalFollowers ?></div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Pengikut</div>
+                    </div>
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
+                                    font-weight:700;line-height:1"><?= $totalFollowing ?></div>
+                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Mengikuti</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:0.9rem">
+                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Rata-rata Rating (Resensi)</div>
+                    <div style="font-size:0.95rem;color:var(--ink)">
+                        <?= $avgRating > 0 ? $avgRating : '-' ?> ★
                     </div>
                 </div>
                 <div style="margin-bottom:0.9rem">

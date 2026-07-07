@@ -9,6 +9,14 @@ if (isset($_SESSION['user_id'])) {
         if ($nr) $notifCount = $nr->fetch_assoc()['c'];
     }
 }
+
+// Hitung DM belum dibaca
+$unreadDmCount = 0;
+if (isset($_SESSION['user_id']) && isset($conn)) {
+    $uid = $_SESSION['user_id'];
+    $ndm  = $conn->query("SELECT COUNT(*) as c FROM pesan WHERE penerima_id = $uid AND dibaca = 0");
+    if ($ndm) $unreadDmCount = $ndm->fetch_assoc()['c'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -43,6 +51,19 @@ if (isset($_SESSION['user_id'])) {
                              border-radius:50%;width:16px;height:16px;font-size:10px;
                              display:flex;align-items:center;justify-content:center;font-weight:700">
                     <?= $notifCount > 9 ? '9+' : $notifCount ?>
+                </span>
+                <?php endif; ?>
+            </a>
+        </li>
+        <li>
+            <a href="dm.php" class="<?= basename($_SERVER['PHP_SELF']) == 'dm.php' ? 'active' : '' ?>"
+               style="position:relative" title="Pesan Langsung">
+                💬
+                <?php if ($unreadDmCount > 0): ?>
+                <span style="position:absolute;top:-4px;right:-8px;background:#e74c3c;color:#fff;
+                             border-radius:50%;width:16px;height:16px;font-size:10px;
+                             display:flex;align-items:center;justify-content:center;font-weight:700">
+                    <?= $unreadDmCount > 9 ? '9+' : $unreadDmCount ?>
                 </span>
                 <?php endif; ?>
             </a>
