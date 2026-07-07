@@ -47,7 +47,6 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
         <span class="brand-icon">📚</span>
         <span class="brand-name">Resensi<em>Buku</em></span>
     </div>
-    <button class="nav-toggle" id="navToggle">☰</button>
     <ul class="nav-links" id="navLinks">
         <li><a href="dashboard.php" class="<?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>">Dashboard</a></li>
         
