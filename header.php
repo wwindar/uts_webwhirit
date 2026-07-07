@@ -74,7 +74,7 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
                     🔔 Pembaruan
                     <?php if($notifCount > 0) echo "<span class='dropdown-badge'>$notifCount</span>"; ?>
                 </a>
-                <a href="katalog.php" class="dropdown-item">📚 Perpustakaan</a>
+                <a href="katalog.php" class="dropdown-item">📚 Katalog Resensi</a>
                 <hr class="nav-dropdown-divider">
                 <a href="wishlist.php" class="dropdown-item">📌 Wishlist</a>
                 <a href="bookmarks.php" class="dropdown-item">🔖 Bookmark</a>
