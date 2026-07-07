@@ -54,6 +54,23 @@ $stmtGenre->execute();
 $favoriteGenre = $stmtGenre->get_result()->fetch_assoc()['genre'] ?? '-';
 $stmtGenre->close();
 
+// Ambil 5 resensi terbaru dari user ini
+$stmtRecent = $conn->prepare("SELECT id, judul_buku, penulis, genre, rating, tgl_input FROM resensi WHERE user_id = ? ORDER BY tgl_input DESC LIMIT 5");
+$stmtRecent->bind_param("i", $_SESSION['user_id']);
+$stmtRecent->execute();
+$recentReviews = $stmtRecent->get_result();
+$stmtRecent->close();
+
+if (!function_exists('renderStars')) {
+    function renderStars($rating) {
+        $stars = '';
+        for ($i = 1; $i <= 5; $i++) {
+            $stars .= $i <= $rating ? '★' : '☆';
+        }
+        return $stars;
+    }
+}
+
 // Edit Profil
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_profil') {
     $newUsername = trim($_POST['username'] ?? '');
@@ -164,9 +181,11 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
 
     <div style="display:grid;gap:1.5rem;align-items:start;grid-template-columns:1fr 1fr">
 
-        <!-- ── Kartu Info Profil ── -->
-        <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);
-                    border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
+        <!-- Kolom Kiri -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem">
+            <!-- ── Kartu Info Profil ── -->
+            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--gold);
+                        border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
 
             <div style="text-align:center;margin-bottom:1.5rem">
                 <?php if (!empty($user['foto_profil']) && file_exists('uploads/' . $user['foto_profil'])): ?>
@@ -213,19 +232,21 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
 
                 <!-- Statistik -->
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:0.9rem">
-                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                    <a href="#recent-resensi" style="text-decoration:none; color:inherit; display:block">
+                        <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center;transition:transform 0.2s;cursor:pointer" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
+                                        font-weight:700;line-height:1"><?= $totalResensi ?></div>
+                            <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi</div>
+                        </div>
+                    </a>
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center;transition:transform 0.2s;cursor:pointer" onclick="openKoneksiModal('pengikut', <?= $_SESSION['user_id'] ?>)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                         <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
-                                    font-weight:700;line-height:1"><?= $totalResensi ?></div>
-                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi</div>
-                    </div>
-                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
-                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
-                                    font-weight:700;line-height:1"><?= $totalFollowers ?></div>
+                                    font-weight:700;line-height:1" id="follower-count"><?= $totalFollowers ?></div>
                         <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Pengikut</div>
                     </div>
-                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center;transition:transform 0.2s;cursor:pointer" onclick="openKoneksiModal('mengikuti', <?= $_SESSION['user_id'] ?>)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                         <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
-                                    font-weight:700;line-height:1"><?= $totalFollowing ?></div>
+                                    font-weight:700;line-height:1" id="following-count"><?= $totalFollowing ?></div>
                         <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Mengikuti</div>
                     </div>
                 </div>
@@ -250,6 +271,49 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 <a href="katalog.php" class="btn btn-outline btn-full" style="text-align:center;display:block">
                     📚 Lihat Katalog
                 </a>
+            </div>
+        </div>
+
+            <!-- ── Resensi Terbaru ── -->
+            <div id="recent-resensi" style="background:var(--paper);border:1px solid var(--border);border-top:3px solid #3498db;
+                        border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
+                <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:1rem">
+                    📚 Resensi Terbaru Saya
+                </h2>
+
+                <?php if ($recentReviews->num_rows === 0): ?>
+                    <div class="empty-state" style="padding:2rem">
+                        <div class="empty-icon">📭</div>
+                        <h3>Belum ada resensi</h3>
+                        <p>Anda belum menulis ulasan apapun.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Judul Buku</th>
+                                    <th>Rating</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = $recentReviews->fetch_assoc()): ?>
+                                <tr>
+                                    <td class="td-title" style="font-size:0.95rem">
+                                        <?= htmlspecialchars($row['judul_buku']) ?><br>
+                                        <small style="color:var(--ink-light);font-weight:normal"><?= htmlspecialchars($row['penulis']) ?></small>
+                                    </td>
+                                    <td class="td-rating"><?= renderStars($row['rating']) ?></td>
+                                    <td>
+                                        <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm">Lihat</a>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -469,5 +533,123 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
         </form>
     </div>
 </div>
+
+<!-- ══════════════ MODAL KONEKSI (FOLLOWER/FOLLOWING) ══════════════ -->
+<div id="modal-koneksi" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+     overflow-y:auto;padding:2rem 1rem" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow=''}">
+    <div style="background:#fff;border-radius:16px;max-width:400px;margin:auto;padding:1.5rem;position:relative">
+        <button onclick="document.getElementById('modal-koneksi').style.display='none';document.body.style.overflow=''" style="position:absolute;top:1rem;right:1rem;
+            background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">×</button>
+        <h2 id="modal-koneksi-title" style="font-family:var(--font-head);font-size:1.2rem;margin-bottom:1rem;text-align:center">Daftar</h2>
+        
+        <div id="modal-koneksi-body" style="max-height:60vh;overflow-y:auto;padding-right:0.5rem">
+            <div style="text-align:center;color:#888;padding:2rem">Memuat...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openKoneksiModal(type, userId) {
+    const modal = document.getElementById('modal-koneksi');
+    const title = document.getElementById('modal-koneksi-title');
+    const body = document.getElementById('modal-koneksi-body');
+    
+    title.innerText = type === 'pengikut' ? 'Pengikut' : 'Mengikuti';
+    body.innerHTML = '<div style="text-align:center;color:#888;padding:2rem">Memuat...</div>';
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    fetch(`get_koneksi.php?type=${type}&user_id=${userId}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            body.innerHTML = '';
+            if (data.data.length === 0) {
+                body.innerHTML = '<div style="text-align:center;color:#888;padding:2rem">Belum ada data.</div>';
+                return;
+            }
+            
+            data.data.forEach(user => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.justifyContent = 'space-between';
+                item.style.padding = '0.75rem 0';
+                item.style.borderBottom = '1px solid var(--border)';
+                
+                let imgHtml = '';
+                if (user.foto_profil) {
+                    imgHtml = `<img src="uploads/${user.foto_profil}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">`;
+                } else {
+                    imgHtml = `<div style="width:40px;height:40px;border-radius:50%;background:var(--gold);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:1.1rem">${user.username.charAt(0).toUpperCase()}</div>`;
+                }
+                
+                let btnHtml = '';
+                if (!user.is_me) {
+                    const btnClass = user.is_following ? 'btn-outline' : 'btn-primary';
+                    const btnText = user.is_following ? 'Berhenti' : 'Ikuti';
+                    btnHtml = `<button class="btn ${btnClass} btn-sm" onclick="toggleFollow(this, ${user.id})">${btnText}</button>`;
+                }
+                
+                item.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:0.75rem">
+                        ${imgHtml}
+                        <a href="profil_publik.php?id=${user.id}" style="font-weight:600;color:var(--ink);text-decoration:none">${user.username}</a>
+                    </div>
+                    <div>
+                        ${btnHtml}
+                    </div>
+                `;
+                body.appendChild(item);
+            });
+        } else {
+            body.innerHTML = `<div style="text-align:center;color:#e74c3c;padding:2rem">${data.message}</div>`;
+        }
+    })
+    .catch(err => {
+        body.innerHTML = '<div style="text-align:center;color:#e74c3c;padding:2rem">Gagal memuat data.</div>';
+        console.error(err);
+    });
+}
+
+function toggleFollow(btn, userId) {
+    const isFollowing = btn.classList.contains('btn-outline');
+    const action = isFollowing ? 'unfollow' : 'follow';
+    
+    btn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('diikuti_id', userId);
+    formData.append('action', action);
+    
+    fetch('follow_action.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            if(action === 'follow') {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+                btn.innerText = 'Berhenti';
+            } else {
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-primary');
+                btn.innerText = 'Ikuti';
+            }
+            // Note: we don't dynamically update the stats count on the main page here 
+            // to keep it simple, but we could if we wanted.
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(err => console.error(err))
+    .finally(() => {
+        btn.disabled = false;
+    });
+}
+</script>
 
 <?php include ('footer.php'); ?>

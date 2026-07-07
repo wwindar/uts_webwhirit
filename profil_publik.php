@@ -151,19 +151,21 @@ function renderStars($rating) {
 
                 <!-- Statistik -->
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:0.9rem">
-                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
-                        <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
-                                    font-weight:700;line-height:1"><?= $totalResensi ?></div>
-                        <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi</div>
-                    </div>
-                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                    <a href="#recent-resensi" style="text-decoration:none; color:inherit; display:block">
+                        <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center;transition:transform 0.2s;cursor:pointer" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
+                                        font-weight:700;line-height:1"><?= $totalResensi ?></div>
+                            <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Resensi</div>
+                        </div>
+                    </a>
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center;transition:transform 0.2s;cursor:pointer" onclick="openKoneksiModal('pengikut', <?= $id ?>)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                         <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
                                     font-weight:700;line-height:1" id="follower-count"><?= $totalFollowers ?></div>
                         <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Pengikut</div>
                     </div>
-                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center">
+                    <div style="background:var(--page-bg);border-radius:8px;padding:0.75rem;text-align:center;transition:transform 0.2s;cursor:pointer" onclick="openKoneksiModal('mengikuti', <?= $id ?>)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                         <div style="font-size:1.5rem;font-family:var(--font-display);color:var(--gold);
-                                    font-weight:700;line-height:1"><?= $totalFollowing ?></div>
+                                    font-weight:700;line-height:1" id="following-count"><?= $totalFollowing ?></div>
                         <div style="font-size:0.72rem;color:var(--ink-light);margin-top:0.2rem">Mengikuti</div>
                     </div>
                 </div>
@@ -192,7 +194,7 @@ function renderStars($rating) {
         </div>
 
         <!-- ── Resensi Terbaru User Ini ── -->
-        <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid #3498db;
+        <div id="recent-resensi" style="background:var(--paper);border:1px solid var(--border);border-top:3px solid #3498db;
                     border-radius:4px;padding:1.8rem;box-shadow:0 4px 20px var(--shadow)">
             <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);margin-bottom:1rem">
                 📚 Resensi Terbaru oleh <?= htmlspecialchars($user['username']) ?>
@@ -243,6 +245,20 @@ function renderStars($rating) {
     </div>
 </div>
 
+<!-- ══════════════ MODAL KONEKSI (FOLLOWER/FOLLOWING) ══════════════ -->
+<div id="modal-koneksi" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+     overflow-y:auto;padding:2rem 1rem" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow=''}">
+    <div style="background:#fff;border-radius:16px;max-width:400px;margin:auto;padding:1.5rem;position:relative">
+        <button onclick="document.getElementById('modal-koneksi').style.display='none';document.body.style.overflow=''" style="position:absolute;top:1rem;right:1rem;
+            background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">×</button>
+        <h2 id="modal-koneksi-title" style="font-family:var(--font-head);font-size:1.2rem;margin-bottom:1rem;text-align:center">Daftar</h2>
+        
+        <div id="modal-koneksi-body" style="max-height:60vh;overflow-y:auto;padding-right:0.5rem">
+            <div style="text-align:center;color:#888;padding:2rem">Memuat...</div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.getElementById('btn-follow').addEventListener('click', function() {
     const btn = this;
@@ -287,6 +303,107 @@ document.getElementById('btn-follow').addEventListener('click', function() {
         btn.disabled = false;
     });
 });
+
+// Koneksi Modal Script
+function openKoneksiModal(type, userId) {
+    const modal = document.getElementById('modal-koneksi');
+    const title = document.getElementById('modal-koneksi-title');
+    const body = document.getElementById('modal-koneksi-body');
+    
+    title.innerText = type === 'pengikut' ? 'Pengikut' : 'Mengikuti';
+    body.innerHTML = '<div style="text-align:center;color:#888;padding:2rem">Memuat...</div>';
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    fetch(`get_koneksi.php?type=${type}&user_id=${userId}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            body.innerHTML = '';
+            if (data.data.length === 0) {
+                body.innerHTML = '<div style="text-align:center;color:#888;padding:2rem">Belum ada data.</div>';
+                return;
+            }
+            
+            data.data.forEach(user => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.justifyContent = 'space-between';
+                item.style.padding = '0.75rem 0';
+                item.style.borderBottom = '1px solid var(--border)';
+                
+                let imgHtml = '';
+                if (user.foto_profil) {
+                    imgHtml = `<img src="uploads/${user.foto_profil}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">`;
+                } else {
+                    imgHtml = `<div style="width:40px;height:40px;border-radius:50%;background:var(--gold);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:1.1rem">${user.username.charAt(0).toUpperCase()}</div>`;
+                }
+                
+                let btnHtml = '';
+                if (!user.is_me) {
+                    const btnClass = user.is_following ? 'btn-outline' : 'btn-primary';
+                    const btnText = user.is_following ? 'Berhenti' : 'Ikuti';
+                    btnHtml = `<button class="btn ${btnClass} btn-sm" onclick="toggleFollowModal(this, ${user.id})">${btnText}</button>`;
+                }
+                
+                item.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:0.75rem">
+                        ${imgHtml}
+                        <a href="profil_publik.php?id=${user.id}" style="font-weight:600;color:var(--ink);text-decoration:none">${user.username}</a>
+                    </div>
+                    <div>
+                        ${btnHtml}
+                    </div>
+                `;
+                body.appendChild(item);
+            });
+        } else {
+            body.innerHTML = `<div style="text-align:center;color:#e74c3c;padding:2rem">${data.message}</div>`;
+        }
+    })
+    .catch(err => {
+        body.innerHTML = '<div style="text-align:center;color:#e74c3c;padding:2rem">Gagal memuat data.</div>';
+        console.error(err);
+    });
+}
+
+function toggleFollowModal(btn, userId) {
+    const isFollowing = btn.classList.contains('btn-outline');
+    const action = isFollowing ? 'unfollow' : 'follow';
+    
+    btn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('diikuti_id', userId);
+    formData.append('action', action);
+    
+    fetch('follow_action.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            if(action === 'follow') {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+                btn.innerText = 'Berhenti';
+            } else {
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-primary');
+                btn.innerText = 'Ikuti';
+            }
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(err => console.error(err))
+    .finally(() => {
+        btn.disabled = false;
+    });
+}
 </script>
 
 <?php include ('footer.php'); ?>
