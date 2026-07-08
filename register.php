@@ -11,6 +11,8 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $nomor_telepon = trim($_POST['nomor_telepon'] ?? '');
     $password = $_POST['password'] ?? '';
     $konfirmasi = $_POST['konfirmasi'] ?? '';
 
@@ -24,23 +26,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Konfirmasi password tidak cocok.';
     } else {
 
-        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
+        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR (email != '' AND email = ?) OR (nomor_telepon != '' AND nomor_telepon = ?)");
+        $stmt->bind_param("sss", $username, $email, $nomor_telepon);
         $stmt->execute();
         $stmt->store_result();
 
         if ($stmt->num_rows > 0) {
-            $error = 'Username sudah digunakan, pilih username lain.';
+            $error = 'Username, Email, atau Nomor Telepon sudah digunakan.';
             $stmt->close();
         } else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             $stmt->close();
 
-            $insert = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-            $insert->bind_param("ss", $username, $hashedPassword);
+            $insert = $conn->prepare("INSERT INTO users (username, email, nomor_telepon, password) VALUES (?, ?, ?, ?)");
+            $insert->bind_param("ssss", $username, $email, $nomor_telepon, $hashedPassword);
 
             if ($insert->execute()) {
-                $success = 'Akun berhasil dibuat! Silakan login.';
+                // Auto-login
+                $_SESSION['user_id'] = $insert->insert_id;
+                $_SESSION['username'] = $username;
+                header("Location: dashboard.php");
+                exit();
             } else {
                 $error = 'Gagal membuat akun. Coba lagi.';
             }
@@ -84,6 +90,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="text" id="username" name="username"
                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
                        placeholder="Min. 4 karakter" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email (Opsional)</label>
+                <input type="email" id="email" name="email"
+                       value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                       placeholder="Contoh: user@email.com">
+            </div>
+            <div class="form-group">
+                <label for="nomor_telepon">Nomor Telepon (Opsional)</label>
+                <input type="text" id="nomor_telepon" name="nomor_telepon"
+                       value="<?= htmlspecialchars($_POST['nomor_telepon'] ?? '') ?>"
+                       placeholder="Contoh: 08123456789">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>

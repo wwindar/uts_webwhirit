@@ -13,11 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if (empty($username) || empty($password)) {
-        $error = 'Username dan password wajib diisi.';
+        $error = 'Username/Email/No HP dan password wajib diisi.';
     } else {
 
-        $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
+        $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ? OR (email != '' AND email = ?) OR (nomor_telepon != '' AND nomor_telepon = ?)");
+        $stmt->bind_param("sss", $username, $username, $username);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Password yang anda masukkan salah.';
             }
         } else {
-            $error = 'Username tidak ditemukan.';
+            $error = 'Akun tidak ditemukan.';
         }
         $stmt->close();
     }
@@ -65,10 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form method="POST" action="">
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username">Username, Email, atau No. HP</label>
                 <input type="text" id="username" name="username"
                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                       placeholder="Masukkan username" required autocomplete="username">
+                       placeholder="Masukkan username, email, atau no. hp" required autocomplete="username">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
@@ -79,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="auth-footer">
-            Belum punya akun? <a href="register.php">Daftar di sini</a>
+            Belum punya akun? <a href="register.php">Daftar di sini</a><br><br>
+            Lupa password? <a href="forgot_password.php">Reset di sini</a>
         </div>
     </div>
 </div>
