@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     $penulis = trim($_POST['penulis']    ?? '');
     $ulasan  = trim($_POST['ulasan']     ?? '');
     $rating  = intval($_POST['rating']   ?? 0);
+    $link_tokopedia = trim($_POST['link_tokopedia'] ?? '');
+    $link_shopee    = trim($_POST['link_shopee'] ?? '');
+    $link_gramedia  = trim($_POST['link_gramedia'] ?? '');
 
     $genreSelect = $_POST['genre']        ?? '';
     $genreCustom = trim($_POST['genre_custom'] ?? '');
@@ -67,9 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
 
     if (empty($errors)) {
         $st = $conn->prepare(
-            "UPDATE resensi SET judul_buku=?, penulis=?, genre=?, ulasan=?, rating=?, foto=? WHERE id=?"
+            "UPDATE resensi SET judul_buku=?, penulis=?, genre=?, ulasan=?, rating=?, foto=?, link_tokopedia=?, link_shopee=?, link_gramedia=? WHERE id=?"
         );
-        $st->bind_param("ssssisi", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $editId);
+        $st->bind_param("ssssisisss", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $link_tokopedia, $link_shopee, $link_gramedia, $editId);
         $st->execute();
         $st->close();
         $_SESSION['flash']      = 'Resensi "' . $judul . '" berhasil diperbarui!';
@@ -318,10 +321,23 @@ $result->data_seek(0);
                 </div>
             </div>
 
-            <!-- ULASAN -->
             <div class="form-group">
                 <label>ULASAN / RESENSI <span style="color:#c0392b">*</span></label>
                 <textarea name="ulasan" id="m_ulasan" required style="min-height:130px"></textarea>
+            </div>
+
+            <!-- LINKS -->
+            <div class="form-group">
+                <label>LINK TOKOPEDIA (Opsional)</label>
+                <input type="url" name="link_tokopedia" id="m_link_tokopedia" maxlength="500">
+            </div>
+            <div class="form-group">
+                <label>LINK SHOPEE (Opsional)</label>
+                <input type="url" name="link_shopee" id="m_link_shopee" maxlength="500">
+            </div>
+            <div class="form-group">
+                <label>LINK GRAMEDIA (Opsional)</label>
+                <input type="url" name="link_gramedia" id="m_link_gramedia" maxlength="500">
             </div>
 
             <!-- RATING -->
@@ -381,6 +397,9 @@ function bukaModal(id) {
     document.getElementById('m_judul').value   = r.judul_buku;
     document.getElementById('m_penulis').value = r.penulis;
     document.getElementById('m_ulasan').value  = r.ulasan;
+    document.getElementById('m_link_tokopedia').value = r.link_tokopedia || '';
+    document.getElementById('m_link_shopee').value    = r.link_shopee || '';
+    document.getElementById('m_link_gramedia').value  = r.link_gramedia || '';
 
     // Rating
     const ratingInput = document.getElementById('m_rating' + r.rating);

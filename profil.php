@@ -507,12 +507,19 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 <div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem">
                     <img src="uploads/<?= htmlspecialchars($user['foto_profil']) ?>" alt="Foto" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--border)">
                     <label style="font-size:0.85rem;cursor:pointer">
-                        <input type="checkbox" name="hapus_foto" value="1"> Hapus foto saat ini
+                        <input type="checkbox" name="hapus_foto" value="1" id="m_hapus_foto_profil" onchange="toggleHapusFotoProfil(this)"> Hapus foto saat ini
                     </label>
                 </div>
                 <?php endif; ?>
-                <input type="file" name="foto_profil" accept="image/jpeg,image/png,image/gif,image/webp">
+                <input type="file" name="foto_profil" id="m_foto_profil_input" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewFotoProfilModal(this)">
                 <small style="color:var(--ink-light);font-size:0.78rem">JPG, PNG, GIF, WEBP — maks 2 MB</small>
+
+                <!-- Preview foto baru -->
+                <div id="m_foto_profil_preview" style="display:none;margin-top:0.6rem">
+                    <img id="m_preview_profil_img" src="" alt="Preview"
+                        style="max-width:130px;max-height:130px;object-fit:cover;border-radius:8px;
+                               box-shadow:0 2px 8px rgba(0,0,0,.15)">
+                </div>
             </div>
             
             <div class="form-group">
@@ -649,6 +656,30 @@ function toggleFollow(btn, userId) {
     .finally(() => {
         btn.disabled = false;
     });
+}
+
+function toggleHapusFotoProfil(cb) {
+    const fotoInput   = document.getElementById('m_foto_profil_input');
+    const previewWrap = document.getElementById('m_foto_profil_preview');
+    if (cb.checked) {
+        fotoInput.value        = '';
+        fotoInput.disabled     = true;
+        previewWrap.style.display = 'none';
+    } else {
+        fotoInput.disabled = false;
+    }
+}
+
+function previewFotoProfilModal(input) {
+    const wrap = document.getElementById('m_foto_profil_preview');
+    const img  = document.getElementById('m_preview_profil_img');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; wrap.style.display = 'block'; };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        wrap.style.display = 'none';
+    }
 }
 </script>
 

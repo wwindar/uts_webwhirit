@@ -12,7 +12,8 @@ $active_chat_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
 // Ambil kontak (yang saling follow atau pernah chat)
 $contacts = [];
 $sqlContacts = "
-    SELECT DISTINCT u.id, u.username, u.foto_profil
+    SELECT DISTINCT u.id, u.username, u.foto_profil,
+        (SELECT COUNT(*) FROM pesan p WHERE p.pengirim_id = u.id AND p.penerima_id = ? AND p.dibaca = 0) as unread_count
     FROM users u
     WHERE u.id != ? AND (
         u.id IN (SELECT diikuti_id FROM pengikut WHERE pengikut_id = ?)
@@ -23,7 +24,7 @@ $sqlContacts = "
     )
 ";
 $stmt = $conn->prepare($sqlContacts);
-$stmt->bind_param("iiiiii", $current_user_id, $current_user_id, $current_user_id, $current_user_id, $current_user_id, $active_chat_user_id);
+$stmt->bind_param("iiiiiii", $current_user_id, $current_user_id, $current_user_id, $current_user_id, $current_user_id, $current_user_id, $active_chat_user_id);
 $stmt->execute();
 $res = $stmt->get_result();
 while($row = $res->fetch_assoc()){
@@ -58,7 +59,7 @@ if ($active_chat_user_id > 0) {
 <style>
 .dm-container {
     display: flex;
-    height: 70vh;
+    height: calc(100vh - 200px);
     min-height: 500px;
     background: var(--paper);
     border: 1px solid var(--border);
@@ -207,8 +208,11 @@ if ($active_chat_user_id > 0) {
                         <?php else: ?>
                             <div class="dm-contact-fallback"><?= strtoupper(substr($c['username'],0,1)) ?></div>
                         <?php endif; ?>
-                        <div>
+                        <div style="flex:1; display:flex; justify-content:space-between; align-items:center;">
                             <div style="font-weight: 600; color: var(--ink)"><?= htmlspecialchars($c['username']) ?></div>
+                            <?php if(($c['unread_count'] ?? 0) > 0): ?>
+                                <span style="background:var(--gold); color:#fff; font-size:0.75rem; padding:0.15rem 0.5rem; border-radius:12px; font-weight:bold;"><?= $c['unread_count'] ?></span>
+                            <?php endif; ?>
                         </div>
                     </a>
                 <?php endforeach; ?>
