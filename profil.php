@@ -884,7 +884,6 @@ function copyLinkProfil() {
     document.execCommand('copy');
     alert('Link profil berhasil disalin!');
 }
-}
 
 // ═══════ GENRE FAVORIT PICKER ═══════
 function syncGenreHiddenInputs() {
