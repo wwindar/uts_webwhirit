@@ -9,7 +9,7 @@ $basePath = '../';
 $search = trim($_GET['search'] ?? '');
 
 $sql = "
-    SELECT u.id, u.username, u.bio, u.foto_profil, u.created_at, COUNT(r.id) as total_resensi
+    SELECT u.id, u.username, u.nama_lengkap, u.bio, u.foto_profil, u.created_at, COUNT(r.id) as total_resensi
     FROM users u
     LEFT JOIN resensi r ON u.id = r.user_id
 ";
@@ -18,13 +18,14 @@ $params = [];
 $types = '';
 
 if ($search !== '') {
-    $sql .= " WHERE u.username LIKE ?";
+    $sql .= " WHERE (u.username LIKE ? OR u.nama_lengkap LIKE ?)";
     $like = "%$search%";
     $params[] = $like;
-    $types .= 's';
+    $params[] = $like;
+    $types .= 'ss';
 }
 
-$sql .= " GROUP BY u.id, u.username, u.bio, u.foto_profil, u.created_at ORDER BY u.username ASC";
+$sql .= " GROUP BY u.id, u.username, u.nama_lengkap, u.bio, u.foto_profil, u.created_at ORDER BY u.username ASC";
 
 $stmt = $conn->prepare($sql);
 if ($params) {
@@ -50,7 +51,7 @@ $stmt->close();
 
     <form method="GET" action="pengguna.php">
         <div class="filter-bar">
-            <input type="text" name="search" placeholder="🔍 Cari username..."
+            <input type="text" name="search" placeholder="🔍 Cari username atau nama..."
                 value="<?= htmlspecialchars($search) ?>" style="flex:1;">
             <button type="submit" class="btn btn-primary">Cari Akun</button>
             <?php if ($search): ?>
@@ -71,7 +72,8 @@ $stmt->close();
     </p>
     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
         <?php foreach ($users as $u): ?>
-        <div style="background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:1.5rem;box-shadow:0 2px 10px var(--shadow);text-align:center;transition:transform 0.2s">
+        <div style="background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:1.5rem;box-shadow:0 2px 10px var(--shadow);text-align:center;transition:transform 0.2s"
+             onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
             <?php if (!empty($u['foto_profil']) && file_exists('uploads/' . $u['foto_profil'])): ?>
                 <img src="uploads/<?= htmlspecialchars($u['foto_profil']) ?>" alt="Foto"
                      style="width:64px;height:64px;border-radius:50%;object-fit:cover;
@@ -80,9 +82,14 @@ $stmt->close();
                 <div style="width:64px;height:64px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;border:2px solid var(--gold)">👤</div>
             <?php endif; ?>
             
-            <h3 style="font-family:var(--font-head);font-size:1.15rem;margin-bottom:0.25rem;color:var(--ink)">
-                <?= htmlspecialchars($u['username']) ?>
+            <h3 style="font-family:var(--font-head);font-size:1.15rem;margin-bottom:0.15rem;color:var(--ink)">
+                <?= htmlspecialchars($u['nama_lengkap'] ?: $u['username']) ?>
             </h3>
+            <a href="profil_publik.php?id=<?= $u['id'] ?>" 
+               style="font-size:0.85rem;color:var(--gold);text-decoration:none;font-weight:500;display:inline-block;margin-bottom:0.5rem"
+               onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                @<?= htmlspecialchars($u['username']) ?>
+            </a>
             
             <?php if (!empty($u['bio'])): ?>
                 <p style="font-size:0.8rem;color:var(--ink);font-style:italic;margin-bottom:0.75rem;
