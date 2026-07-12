@@ -112,7 +112,7 @@ $orderClause = match($sort) {
     default        => 'ORDER BY r.tgl_input DESC'
 };
 
-$sql  = "SELECT r.*, u.username FROM resensi r JOIN users u ON r.user_id = u.id $whereClause $orderClause";
+$sql  = "SELECT r.*, u.username, u.nama_lengkap FROM resensi r JOIN users u ON r.user_id = u.id $whereClause $orderClause";
 $stmt = $conn->prepare($sql);
 if ($params) $stmt->bind_param($types, ...$params);
 $stmt->execute();
@@ -225,7 +225,10 @@ $result->data_seek(0);
                 <div class="book-title"><?= htmlspecialchars($row['judul_buku']) ?></div>
                 <div class="book-author" style="margin-bottom:0.3rem">oleh <span><?= htmlspecialchars($row['penulis']) ?></span></div>
                 <div style="font-size:0.8rem;color:var(--ink-light);margin-bottom:0.75rem">
-                    👤 <a href="profil_publik.php?id=<?= $row['user_id'] ?>" style="color:var(--gold);text-decoration:none;font-weight:600"><?= htmlspecialchars($row['username']) ?></a>
+                    👤 <a href="profil_publik.php?id=<?= $row['user_id'] ?>" style="color:var(--gold);text-decoration:none;font-weight:600">
+                        <?= htmlspecialchars($row['nama_lengkap'] ?: $row['username']) ?> 
+                        <span style="font-weight:normal;color:#888;">(@<?= htmlspecialchars($row['username']) ?>)</span>
+                    </a>
                 </div>
                 <div class="book-ulasan"><?= htmlspecialchars($row['ulasan']) ?></div>
                 <div class="book-meta">

@@ -20,7 +20,7 @@ $pageTitle = 'Profil Pengguna';
 $basePath = '../';
 
 // Ambil info user
-$stmt = $conn->prepare("SELECT username, bio, foto_profil, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, foto_profil, created_at FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $userResult = $stmt->get_result();
@@ -97,6 +97,8 @@ function renderStars($rating) {
 ?>
 <?php include ('header.php'); ?>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <div class="main-content">
     <div style="margin-bottom:1.5rem">
         <a href="katalog.php" class="btn btn-outline btn-sm">← Kembali ke Katalog</a>
@@ -124,8 +126,11 @@ function renderStars($rating) {
                                 margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">👤</div>
                 <?php endif; ?>
                 <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--ink)">
-                    <?= htmlspecialchars($user['username']) ?>
+                    <?= htmlspecialchars($user['nama_lengkap'] ?: $user['username']) ?>
                 </h2>
+                <div style="font-size:0.9rem;color:var(--ink-light);margin-bottom:0.4rem;font-weight:500;">
+                    @<?= htmlspecialchars($user['username']) ?>
+                </div>
                 <span style="font-size:0.78rem;color:var(--brown);background:rgba(212,168,67,0.12);
                              border:1px solid rgba(212,168,67,0.3);border-radius:20px;padding:0.2rem 0.75rem">
                     Member
@@ -141,6 +146,13 @@ function renderStars($rating) {
                 </div>
                 <?php endif; ?>
                 
+                <div style="margin-bottom:0.9rem">
+                    <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Nama Tampilan</div>
+                    <div style="font-size:0.95rem;color:var(--ink);font-weight:500">
+                        <?= htmlspecialchars($user['nama_lengkap'] ?: '-') ?>
+                    </div>
+                </div>
                 <div style="margin-bottom:0.9rem">
                     <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
                                 text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Bergabung Sejak</div>
@@ -190,6 +202,9 @@ function renderStars($rating) {
                 <a href="dm.php?user_id=<?= $id ?>" class="btn btn-gold btn-full" style="text-align:center;display:block">
                     💬 Kirim Pesan
                 </a>
+                <button onclick="bukaModalBagikan()" class="btn btn-outline btn-full">
+                    🔗 Bagikan Profil
+                </button>
             </div>
         </div>
 
@@ -259,7 +274,52 @@ function renderStars($rating) {
     </div>
 </div>
 
+<!-- ══════════════ MODAL BAGIKAN ══════════════ -->
+<div id="modal-bagikan" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+     overflow-y:auto;padding:2rem 1rem" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow=''}">
+    <div style="background:#fff;border-radius:16px;max-width:400px;margin:auto;padding:2rem;position:relative;text-align:center;">
+        <button onclick="document.getElementById('modal-bagikan').style.display='none';document.body.style.overflow=''" style="position:absolute;top:1rem;right:1rem;
+            background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">×</button>
+        <h2 style="font-family:var(--font-head);font-size:1.3rem;margin-bottom:0.5rem">Bagikan Profil</h2>
+        <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.5rem">Arahkan kamera untuk memindai QR Code.</p>
+        
+        <div id="qrcode" style="display:flex;justify-content:center;margin-bottom:1.5rem;padding:1rem;background:white;border-radius:12px;border:1px solid var(--border);"></div>
+        
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+            <input type="text" id="link-profil" readonly value="" style="flex:1;padding:0.6rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;background:#f8f9fa;">
+            <button onclick="copyLinkProfil()" class="btn btn-gold btn-sm" style="white-space:nowrap;">Salin</button>
+        </div>
+    </div>
+</div>
+
 <script>
+let qrcodeInstance = null;
+function bukaModalBagikan() {
+    document.getElementById('modal-bagikan').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Construct public profile link
+    const link = window.location.href; // since we are on profil_publik.php
+    document.getElementById('link-profil').value = link;
+    
+    if (!qrcodeInstance) {
+        qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
+            text: link,
+            width: 200,
+            height: 200,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    }
+}
+
+function copyLinkProfil() {
+    const linkInput = document.getElementById('link-profil');
+    linkInput.select();
+    document.execCommand('copy');
+    alert('Link profil berhasil disalin!');
+}
 document.getElementById('btn-follow').addEventListener('click', function() {
     const btn = this;
     const userId = btn.getAttribute('data-id');

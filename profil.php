@@ -9,7 +9,7 @@ $basePath = '../';
 $errors = [];
 $success = '';
 
-$stmt = $conn->prepare("SELECT id, username, bio, foto_profil, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, foto_profil, created_at FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -74,6 +74,7 @@ if (!function_exists('renderStars')) {
 // Edit Profil
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_profil') {
     $newUsername = trim($_POST['username'] ?? '');
+    $newNama = trim($_POST['nama_lengkap'] ?? '');
     $newBio = trim($_POST['bio'] ?? '');
     $fotoNama = $user['foto_profil'];
 
@@ -136,12 +137,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 
     if (empty($errors)) {
-        $stUpdate = $conn->prepare("UPDATE users SET username=?, bio=?, foto_profil=? WHERE id=?");
-        $stUpdate->bind_param("sssi", $newUsername, $newBio, $fotoNama, $_SESSION['user_id']);
+        $stUpdate = $conn->prepare("UPDATE users SET username=?, nama_lengkap=?, bio=?, foto_profil=? WHERE id=?");
+        $stUpdate->bind_param("ssssi", $newUsername, $newNama, $newBio, $fotoNama, $_SESSION['user_id']);
         if ($stUpdate->execute()) {
             $_SESSION['username'] = $newUsername;
             $success = 'Profil berhasil diperbarui!';
             $user['username'] = $newUsername;
+            $user['nama_lengkap'] = $newNama;
             $user['bio'] = $newBio;
             $user['foto_profil'] = $fotoNama;
         } else {
@@ -191,9 +193,10 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
 ?>
 <?php include ('header.php'); ?>
 
-<!-- Cropper.js -->
+<!-- Cropper.js & QRCode.js -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <div class="main-content">
     <div class="page-header">
@@ -220,8 +223,11 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                                 margin:0 auto 0.75rem;font-size:2rem;border:3px solid var(--gold)">👤</div>
                 <?php endif; ?>
                 <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--ink)">
-                    <?= htmlspecialchars($user['username']) ?>
+                    <?= htmlspecialchars($user['nama_lengkap'] ?: $user['username']) ?>
                 </h2>
+                <div style="font-size:0.9rem;color:var(--ink-light);margin-bottom:0.4rem;font-weight:500;">
+                    @<?= htmlspecialchars($user['username']) ?>
+                </div>
                 <span style="font-size:0.78rem;color:var(--brown);background:rgba(212,168,67,0.12);
                              border:1px solid rgba(212,168,67,0.3);border-radius:20px;padding:0.2rem 0.75rem">
                     Member
@@ -239,9 +245,9 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 
                 <div style="margin-bottom:0.9rem">
                     <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
-                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Username</div>
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Nama Tampilan</div>
                     <div style="font-size:0.95rem;color:var(--ink);font-weight:500">
-                        <?= htmlspecialchars($user['username']) ?>
+                        <?= htmlspecialchars($user['nama_lengkap'] ?: '-') ?>
                     </div>
                 </div>
                 <div style="margin-bottom:0.9rem">
@@ -289,6 +295,9 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
             <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.75rem">
                 <button onclick="document.getElementById('modal-edit-profil').style.display='block';document.body.style.overflow='hidden'" class="btn btn-gold btn-full">
                     ✏️ Edit Profil
+                </button>
+                <button onclick="bukaModalBagikan()" class="btn btn-primary btn-full">
+                    🔗 Bagikan Profil
                 </button>
                 <a href="katalog.php" class="btn btn-outline btn-full" style="text-align:center;display:block">
                     📚 Lihat Katalog
@@ -549,6 +558,11 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
             </div>
             
             <div class="form-group">
+                <label>NAMA TAMPILAN</label>
+                <input type="text" name="nama_lengkap" value="<?= htmlspecialchars($user['nama_lengkap'] ?? '') ?>" maxlength="100">
+            </div>
+            
+            <div class="form-group">
                 <label>BIO / CATATAN PROFIL</label>
                 <textarea name="bio" placeholder="Ceritakan sedikit tentang dirimu..." style="min-height:100px" maxlength="500"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
                 <small style="color:var(--ink-light);font-size:0.78rem">Maksimal 500 karakter.</small>
@@ -572,6 +586,24 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
         
         <div id="modal-koneksi-body" style="max-height:60vh;overflow-y:auto;padding-right:0.5rem">
             <div style="text-align:center;color:#888;padding:2rem">Memuat...</div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ MODAL BAGIKAN ══════════════ -->
+<div id="modal-bagikan" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+     overflow-y:auto;padding:2rem 1rem" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow=''}">
+    <div style="background:#fff;border-radius:16px;max-width:400px;margin:auto;padding:2rem;position:relative;text-align:center;">
+        <button onclick="document.getElementById('modal-bagikan').style.display='none';document.body.style.overflow=''" style="position:absolute;top:1rem;right:1rem;
+            background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">×</button>
+        <h2 style="font-family:var(--font-head);font-size:1.3rem;margin-bottom:0.5rem">Bagikan Profil</h2>
+        <p style="color:var(--ink-light);font-size:0.85rem;margin-bottom:1.5rem">Arahkan kamera untuk memindai QR Code.</p>
+        
+        <div id="qrcode" style="display:flex;justify-content:center;margin-bottom:1.5rem;padding:1rem;background:white;border-radius:12px;border:1px solid var(--border);"></div>
+        
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+            <input type="text" id="link-profil" readonly value="" style="flex:1;padding:0.6rem;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;background:#f8f9fa;">
+            <button onclick="copyLinkProfil()" class="btn btn-gold btn-sm" style="white-space:nowrap;">Salin</button>
         </div>
     </div>
 </div>
@@ -738,6 +770,35 @@ document.getElementById('form-edit-profil').addEventListener('submit', function(
         document.getElementById('cropped_image_input').value = canvas.toDataURL('image/jpeg', 0.9);
     }
 });
+
+let qrcodeInstance = null;
+function bukaModalBagikan() {
+    document.getElementById('modal-bagikan').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Construct public profile link
+    let baseUrl = window.location.origin + window.location.pathname;
+    const link = baseUrl.replace('profil.php', 'profil_publik.php?id=<?= $_SESSION["user_id"] ?>');
+    document.getElementById('link-profil').value = link;
+    
+    if (!qrcodeInstance) {
+        qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
+            text: link,
+            width: 200,
+            height: 200,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    }
+}
+
+function copyLinkProfil() {
+    const linkInput = document.getElementById('link-profil');
+    linkInput.select();
+    document.execCommand('copy');
+    alert('Link profil berhasil disalin!');
+}
 </script>
 
 <?php include ('footer.php'); ?>

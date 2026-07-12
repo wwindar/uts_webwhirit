@@ -11,6 +11,7 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
+    $nama_lengkap = trim($_POST['nama_lengkap'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $nomor_telepon = trim($_POST['nomor_telepon'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -38,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             $stmt->close();
 
-            $insert = $conn->prepare("INSERT INTO users (username, email, nomor_telepon, password) VALUES (?, ?, ?, ?)");
-            $insert->bind_param("ssss", $username, $email, $nomor_telepon, $hashedPassword);
+            $insert = $conn->prepare("INSERT INTO users (username, nama_lengkap, email, nomor_telepon, password) VALUES (?, ?, ?, ?, ?)");
+            $insert->bind_param("sssss", $username, $nama_lengkap, $email, $nomor_telepon, $hashedPassword);
 
             if ($insert->execute()) {
                 // Auto-login
@@ -86,10 +87,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form method="POST" action="">
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username">Username <span style="color:#c0392b">*</span></label>
                 <input type="text" id="username" name="username"
                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                       placeholder="Min. 4 karakter" required>
+                       placeholder="Min. 4 karakter (Tanpa spasi)" required>
+            </div>
+            <div class="form-group">
+                <label for="nama_lengkap">Nama Tampilan (Opsional)</label>
+                <input type="text" id="nama_lengkap" name="nama_lengkap"
+                       value="<?= htmlspecialchars($_POST['nama_lengkap'] ?? '') ?>"
+                       placeholder="Nama asli atau nama pena Anda">
             </div>
             <div class="form-group">
                 <label for="email">Email (Opsional)</label>
