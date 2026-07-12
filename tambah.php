@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $penulis = trim($_POST['penulis']    ?? '');
     $ulasan  = trim($_POST['ulasan']     ?? '');
     $rating  = intval($_POST['rating']   ?? 0);
+    $link_tokopedia = trim($_POST['link_tokopedia'] ?? '');
+    $link_shopee    = trim($_POST['link_shopee']    ?? '');
+    $link_gramedia  = trim($_POST['link_gramedia']  ?? '');
 
     // Genre: jika pilih "Lainnya", pakai input teks custom
     $genreSelect = $_POST['genre']        ?? '';
@@ -59,10 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $userId = $_SESSION['user_id'];
         $stmt   = $conn->prepare(
-            "INSERT INTO resensi (judul_buku, penulis, genre, ulasan, rating, foto, user_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO resensi (judul_buku, penulis, genre, ulasan, rating, foto, user_id, link_tokopedia, link_shopee, link_gramedia)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
-        $stmt->bind_param("ssssisi", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $userId);
+        $stmt->bind_param("ssssisisss", $judul, $penulis, $genre, $ulasan, $rating, $fotoNama, $userId, $link_tokopedia, $link_shopee, $link_gramedia);
 
         if ($stmt->execute()) {
             $_SESSION['flash']      = 'Resensi "' . $judul . '" berhasil ditambahkan!';
@@ -167,6 +170,27 @@ $genreOptions = [
                 <textarea id="ulasan" name="ulasan"
                     placeholder="Tuliskan ulasan Anda tentang buku ini... (minimal 20 karakter)"
                     required><?= htmlspecialchars($old['ulasan'] ?? '') ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="link_tokopedia">Link Pembelian Tokopedia (Opsional)</label>
+                <input type="url" id="link_tokopedia" name="link_tokopedia"
+                    value="<?= htmlspecialchars($old['link_tokopedia'] ?? '') ?>"
+                    placeholder="Contoh: https://tokopedia.com/..." maxlength="500">
+            </div>
+            
+            <div class="form-group">
+                <label for="link_shopee">Link Pembelian Shopee (Opsional)</label>
+                <input type="url" id="link_shopee" name="link_shopee"
+                    value="<?= htmlspecialchars($old['link_shopee'] ?? '') ?>"
+                    placeholder="Contoh: https://shopee.co.id/..." maxlength="500">
+            </div>
+
+            <div class="form-group">
+                <label for="link_gramedia">Link Pembelian Gramedia (Opsional)</label>
+                <input type="url" id="link_gramedia" name="link_gramedia"
+                    value="<?= htmlspecialchars($old['link_gramedia'] ?? '') ?>"
+                    placeholder="Contoh: https://gramedia.com/..." maxlength="500">
             </div>
 
             <div class="form-group">

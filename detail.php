@@ -172,6 +172,8 @@ $hasFoto  = $fotoPath && file_exists($fotoPath);
         </div>
     </div>
 
+    <?php include ('_detail_body.inc.php'); ?>
+
     <!-- ===== KOMENTAR ===== -->
     <div id="komentar" class="form-card" style="margin-top:2rem">
         <h2 style="font-size:1.15rem;margin-bottom:1.25rem;font-family:var(--font-head)">
