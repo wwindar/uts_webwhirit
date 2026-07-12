@@ -34,26 +34,26 @@ function renderStars($rating) {
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card">
+        <a href="katalog.php" class="stat-card" style="text-decoration:none; color:inherit; display:block; transition:transform 0.2s" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
             <div class="stat-icon">📖</div>
             <div class="stat-num"><?= $totalResensi ?></div>
             <div class="stat-label">Total Resensi</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="katalog.php?sort=rating_tinggi" class="stat-card" style="text-decoration:none; color:inherit; display:block; transition:transform 0.2s" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
             <div class="stat-icon">⭐</div>
             <div class="stat-num"><?= $avgRating ?: '-' ?></div>
             <div class="stat-label">Rata-rata Rating</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="katalog.php" class="stat-card" style="text-decoration:none; color:inherit; display:block; transition:transform 0.2s" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
             <div class="stat-icon">🏷️</div>
             <div class="stat-num"><?= $totalGenre ?></div>
             <div class="stat-label">Genre Tersedia</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="katalog.php?genre=<?= urlencode($topGenre['genre'] ?? '') ?>" class="stat-card" style="text-decoration:none; color:inherit; display:block; transition:transform 0.2s" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
             <div class="stat-icon">🏆</div>
             <div class="stat-num" style="font-size:1.1rem;margin-top:0.4rem"><?= htmlspecialchars($topGenre['genre'] ?? '-') ?></div>
             <div class="stat-label">Genre Terbanyak</div>
-        </div>
+        </a>
     </div>
 
     <div style="margin: 2rem 0; background: var(--paper); border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 20px var(--shadow)">
