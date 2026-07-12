@@ -60,6 +60,7 @@ foreach (range('A', 'G') as $col) {
     $sheet->getColumnDimension($col)->setAutoSize(true);
 }
 
+if (ob_get_length()) ob_clean();
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment;filename="resensi_buku_' . time() . '.xlsx"');
 header('Cache-Control: max-age=0');
