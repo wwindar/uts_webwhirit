@@ -19,6 +19,9 @@ if ($result->num_rows === 0) { header("Location: katalog.php"); exit(); }
 $buku = $result->fetch_assoc();
 $stmt->close();
 
+// Judul tab = judul buku yang sedang dibuka
+$pageFullTitle = htmlspecialchars_decode($buku['judul_buku']) . ' | Resensi Buku';
+
 // Hitung likes
 $totalLikes = $conn->query("SELECT COUNT(*) as c FROM likes WHERE resensi_id = $id")->fetch_assoc()['c'];
 

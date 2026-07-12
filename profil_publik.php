@@ -20,7 +20,7 @@ $pageTitle = 'Profil Pengguna';
 $basePath = '../';
 
 // Ambil info user
-$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, foto_profil, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, genre_favorit, foto_profil, created_at FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $userResult = $stmt->get_result();
@@ -30,6 +30,9 @@ if ($userResult->num_rows === 0) {
 }
 $user = $userResult->fetch_assoc();
 $stmt->close();
+
+// Set judul tab = nama user yang sedang dilihat
+$pageFullTitle = ($user['nama_lengkap'] ?: $user['username']) . ' | Resensi Buku';
 
 // Hitung resensi milik user ini saja
 $stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi WHERE user_id = ?");
@@ -190,8 +193,26 @@ function renderStars($rating) {
                 </div>
                 <div style="margin-bottom:0.9rem">
                     <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
-                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Genre Favorit</div>
-                    <div style="font-size:0.95rem;color:var(--ink)"><?= htmlspecialchars($favoriteGenre) ?></div>
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Genre Favorit</div>
+                    <?php
+                    $genreFavArray = array_filter(array_map('trim', explode(',', $user['genre_favorit'] ?? '')));
+                    $genreColors = ['#e74c3c','#9b59b6','#2980b9','#27ae60','#e67e22','#1abc9c','#c0392b'];
+                    if (!empty($genreFavArray)):
+                    ?>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.35rem">
+                        <?php foreach ($genreFavArray as $idx => $gf): ?>
+                        <span style="background:<?= $genreColors[$idx % count($genreColors)] ?>22;
+                                     color:<?= $genreColors[$idx % count($genreColors)] ?>;
+                                     border:1px solid <?= $genreColors[$idx % count($genreColors)] ?>44;
+                                     border-radius:20px;padding:0.2rem 0.75rem;
+                                     font-size:0.8rem;font-weight:600">
+                            <?= htmlspecialchars($gf) ?>
+                        </span>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php else: ?>
+                    <div style="font-size:0.9rem;color:var(--ink-light);font-style:italic">Belum diatur</div>
+                    <?php endif; ?>
                 </div>
             </div>
             

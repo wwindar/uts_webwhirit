@@ -4,7 +4,7 @@ require_once ('db.php');
 require_once ('auth.php');
 requireLogin();
 
-$pageTitle = 'Tambah Resensi';
+$pageTitle = 'Tulis Resensi';
 $basePath   = '../';
 $errors     = [];
 $old        = [];

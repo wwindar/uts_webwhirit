@@ -6,7 +6,7 @@ require_once ('auth.php');
 
 requireLogin();
 
-$pageTitle = 'Dashboard';
+$pageTitle = 'Beranda';
 
 $totalResensi = $conn->query("SELECT COUNT(*) as total FROM resensi")->fetch_assoc()['total'];
 $avgRating    = $conn->query("SELECT ROUND(AVG(rating), 1) as avg FROM resensi")->fetch_assoc()['avg'] ?? 0;

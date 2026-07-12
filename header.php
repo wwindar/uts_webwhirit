@@ -21,12 +21,14 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
 // Ambil info user untuk dropdown profil
 $navUserFoto = 'default.png';
 $navUsername = 'User';
+$navNamaLengkap = '';
 if (isset($_SESSION['user_id']) && isset($conn)) {
     $uid = $_SESSION['user_id'];
-    $u_res = $conn->query("SELECT username, foto_profil FROM users WHERE id = $uid");
+    $u_res = $conn->query("SELECT username, nama_lengkap, foto_profil FROM users WHERE id = $uid");
     if ($u_res && $u_res->num_rows > 0) {
         $u_data = $u_res->fetch_assoc();
         $navUsername = $u_data['username'];
+        $navNamaLengkap = $u_data['nama_lengkap'] ?? '';
         if (!empty($u_data['foto_profil'])) $navUserFoto = $u_data['foto_profil'];
     }
 }
@@ -36,7 +38,17 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' — ' : '' ?>Katalog Resensi Buku</title>
+    <?php
+    // pageFullTitle: diisi oleh halaman untuk override full title (misal nama user di profil)
+    // pageTitle: judul halaman biasa
+    if (isset($pageFullTitle)) {
+        echo '<title>' . htmlspecialchars($pageFullTitle) . '</title>';
+    } else {
+        $siteName = 'ResensiBуkу'; // pakai karakter mirip biar unik
+        $siteName = 'Resensi Buku';
+        echo '<title>' . (isset($pageTitle) ? htmlspecialchars($pageTitle) . ' | ' . $siteName : $siteName) . '</title>';
+    }
+    ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=<?= time() ?>">

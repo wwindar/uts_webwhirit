@@ -4,7 +4,7 @@ require_once ('db.php');
 require_once ('auth.php');
 requireLogin();
 
-$pageTitle = 'Pesan Langsung';
+$pageTitle = 'Kotak Masuk';
 $basePath = '../';
 $current_user_id = $_SESSION['user_id'];
 $active_chat_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;

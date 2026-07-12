@@ -5,15 +5,19 @@ require_once ('auth.php');
 requireLogin();
 
 $pageTitle = 'Profil Saya';
+// pageFullTitle diset setelah $user diambil dari DB
 $basePath = '../';
 $errors = [];
 $success = '';
 
-$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, foto_profil, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, genre_favorit, foto_profil, created_at FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
+
+// Set judul tab browser = nama tampilan user
+$pageFullTitle = ($user['nama_lengkap'] ?: $user['username']) . ' | Resensi Buku';
 
 // Hitung resensi milik user ini saja
 $stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM resensi WHERE user_id = ?");
@@ -76,6 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $newUsername = trim($_POST['username'] ?? '');
     $newNama = trim($_POST['nama_lengkap'] ?? '');
     $newBio = trim($_POST['bio'] ?? '');
+    // Genre favorit: ambil max 3, sanitasi
+    $rawGenres = $_POST['genre_favorit'] ?? [];
+    if (!is_array($rawGenres)) $rawGenres = [];
+    $cleanGenres = array_filter(array_map('trim', $rawGenres));
+    $cleanGenres = array_unique(array_slice($cleanGenres, 0, 3));
+    $newGenreFavorit = implode(',', $cleanGenres);
     $fotoNama = $user['foto_profil'];
 
     // Validasi format username (IG-style)
@@ -144,14 +154,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 
     if (empty($errors)) {
-        $stUpdate = $conn->prepare("UPDATE users SET username=?, nama_lengkap=?, bio=?, foto_profil=? WHERE id=?");
-        $stUpdate->bind_param("ssssi", $newUsername, $newNama, $newBio, $fotoNama, $_SESSION['user_id']);
+        $stUpdate = $conn->prepare("UPDATE users SET username=?, nama_lengkap=?, bio=?, genre_favorit=?, foto_profil=? WHERE id=?");
+        $stUpdate->bind_param("sssssi", $newUsername, $newNama, $newBio, $newGenreFavorit, $fotoNama, $_SESSION['user_id']);
         if ($stUpdate->execute()) {
             $_SESSION['username'] = $newUsername;
             $success = 'Profil berhasil diperbarui!';
             $user['username'] = $newUsername;
             $user['nama_lengkap'] = $newNama;
             $user['bio'] = $newBio;
+            $user['genre_favorit'] = $newGenreFavorit;
             $user['foto_profil'] = $fotoNama;
         } else {
             $errors[] = 'Gagal memperbarui profil.';
@@ -294,8 +305,26 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 </div>
                 <div style="margin-bottom:0.9rem">
                     <div style="font-size:0.75rem;font-weight:500;color:var(--ink-light);
-                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.2rem">Genre Favorit</div>
-                    <div style="font-size:0.95rem;color:var(--ink)"><?= htmlspecialchars($favoriteGenre) ?></div>
+                                text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Genre Favorit</div>
+                    <?php
+                    $genreFavArray = array_filter(array_map('trim', explode(',', $user['genre_favorit'] ?? '')));
+                    $genreColors = ['#e74c3c','#9b59b6','#2980b9','#27ae60','#e67e22','#1abc9c','#c0392b'];
+                    if (!empty($genreFavArray)):
+                    ?>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.35rem">
+                        <?php foreach ($genreFavArray as $idx => $gf): ?>
+                        <span style="background:<?= $genreColors[$idx % count($genreColors)] ?>22;
+                                     color:<?= $genreColors[$idx % count($genreColors)] ?>;
+                                     border:1px solid <?= $genreColors[$idx % count($genreColors)] ?>44;
+                                     border-radius:20px;padding:0.2rem 0.75rem;
+                                     font-size:0.8rem;font-weight:600">
+                            <?= htmlspecialchars($gf) ?>
+                        </span>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php else: ?>
+                    <div style="font-size:0.9rem;color:var(--ink-light);font-style:italic">Belum diatur — <a href="#" onclick="document.getElementById('modal-edit-profil').style.display='block';document.body.style.overflow='hidden';return false;" style="color:var(--gold)">atur sekarang</a></div>
+                    <?php endif; ?>                
                 </div>
             </div>
 
@@ -585,6 +614,45 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 <small style="color:var(--ink-light);font-size:0.78rem">Maksimal 500 karakter.</small>
             </div>
             
+            <!-- GENRE FAVORIT PICKER -->
+            <div class="form-group">
+                <label>GENRE FAVORIT <small style="color:var(--ink-light);font-weight:normal">(Pilih maks. 3)</small></label>
+                <?php
+                $currentGenres = array_filter(array_map('trim', explode(',', $user['genre_favorit'] ?? '')));
+                $allGenres = ['Fiksi','Non-fiksi','Romantis','Fantasy','Sci-Fi','Thriller','Misteri','Horor','Sejarah','Biografi','Sastra','Petualangan','Komedi','Drama','Motivasi','Psikologi','Family','Young Adult','Manga/Komik','Novel Grafis'];
+                ?>
+                <div id="genre-picker" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.5rem">
+                    <?php foreach ($allGenres as $g): 
+                        $active = in_array($g, $currentGenres);
+                    ?>
+                    <button type="button" 
+                            class="genre-btn <?= $active ? 'genre-active' : '' ?>"
+                            data-genre="<?= htmlspecialchars($g) ?>"
+                            onclick="toggleGenre(this)"
+                            style="border:1.5px solid <?= $active ? 'var(--gold)' : 'var(--border)' ?>;
+                                   background:<?= $active ? 'rgba(212,168,67,0.15)' : 'transparent' ?>;
+                                   color:<?= $active ? 'var(--gold)' : 'var(--ink-light)' ?>;
+                                   border-radius:20px;padding:0.25rem 0.75rem;
+                                   font-size:0.8rem;cursor:pointer;transition:all 0.15s;font-weight:<?= $active ? '600' : '400' ?>">
+                        <?= htmlspecialchars($g) ?>
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+                <div id="genre-limit-msg" style="font-size:0.78rem;color:#e74c3c;display:none">Maksimal 3 genre favorit.</div>
+                <div style="margin-top:0.35rem">
+                    <small style="color:var(--ink-light);font-size:0.75rem">Atau ketik genre sendiri:</small>
+                    <div style="display:flex;gap:0.4rem;margin-top:0.25rem">
+                        <input type="text" id="genre-custom-input" placeholder="Contoh: Kuliner" maxlength="30"
+                               style="flex:1;padding:0.4rem 0.6rem;font-size:0.85rem;border:1px solid var(--border);border-radius:6px">
+                        <button type="button" onclick="tambahGenreCustom()" 
+                                style="background:var(--ink);color:white;border:none;border-radius:6px;padding:0.4rem 0.75rem;font-size:0.82rem;cursor:pointer">+ Tambah</button>
+                    </div>
+                </div>
+                <!-- Hidden inputs untuk genre terpilih -->
+                <div id="genre-hidden-inputs"></div>
+                <div style="margin-top:0.5rem;font-size:0.8rem;color:var(--ink-light)">Terpilih: <span id="genre-count" style="font-weight:600;color:var(--gold)"><?= count($currentGenres) ?></span>/3</div>
+            </div>
+            
             <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
                 <button type="submit" class="btn btn-primary">💾 Simpan Profil</button>
                 <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-edit-profil').style.display='none';document.body.style.overflow=''">Batal</button>
@@ -816,6 +884,98 @@ function copyLinkProfil() {
     document.execCommand('copy');
     alert('Link profil berhasil disalin!');
 }
+}
+
+// ═══════ GENRE FAVORIT PICKER ═══════
+function syncGenreHiddenInputs() {
+    const container = document.getElementById('genre-hidden-inputs');
+    const countEl = document.getElementById('genre-count');
+    const activeBtns = document.querySelectorAll('#genre-picker .genre-btn.genre-active');
+    container.innerHTML = '';
+    activeBtns.forEach(btn => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'genre_favorit[]';
+        input.value = btn.getAttribute('data-genre');
+        container.appendChild(input);
+    });
+    countEl.textContent = activeBtns.length;
+}
+
+// Init on page load
+syncGenreHiddenInputs();
+
+function toggleGenre(btn) {
+    const isActive = btn.classList.contains('genre-active');
+    const total = document.querySelectorAll('#genre-picker .genre-btn.genre-active').length;
+    const limitMsg = document.getElementById('genre-limit-msg');
+
+    if (!isActive && total >= 3) {
+        limitMsg.style.display = 'block';
+        setTimeout(() => limitMsg.style.display = 'none', 2500);
+        // Shake effect
+        btn.style.transform = 'scale(0.95)';
+        setTimeout(() => btn.style.transform = '', 200);
+        return;
+    }
+    limitMsg.style.display = 'none';
+
+    if (isActive) {
+        btn.classList.remove('genre-active');
+        btn.style.border = '1.5px solid var(--border)';
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--ink-light)';
+        btn.style.fontWeight = '400';
+    } else {
+        btn.classList.add('genre-active');
+        btn.style.border = '1.5px solid var(--gold)';
+        btn.style.background = 'rgba(212,168,67,0.15)';
+        btn.style.color = 'var(--gold)';
+        btn.style.fontWeight = '600';
+    }
+    syncGenreHiddenInputs();
+}
+
+function tambahGenreCustom() {
+    const inputEl = document.getElementById('genre-custom-input');
+    const genre = inputEl.value.trim();
+    if (!genre) return;
+
+    const total = document.querySelectorAll('#genre-picker .genre-btn.genre-active').length;
+    const limitMsg = document.getElementById('genre-limit-msg');
+    if (total >= 3) {
+        limitMsg.style.display = 'block';
+        setTimeout(() => limitMsg.style.display = 'none', 2500);
+        return;
+    }
+
+    // Cek apakah genre sudah ada di picker
+    const existing = document.querySelector(`#genre-picker .genre-btn[data-genre="${genre}"]`);
+    if (existing) {
+        if (!existing.classList.contains('genre-active')) toggleGenre(existing);
+        inputEl.value = '';
+        return;
+    }
+
+    // Buat tombol baru
+    const picker = document.getElementById('genre-picker');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'genre-btn genre-active';
+    btn.setAttribute('data-genre', genre);
+    btn.onclick = function() { toggleGenre(this); };
+    btn.style.cssText = 'border:1.5px solid var(--gold);background:rgba(212,168,67,0.15);color:var(--gold);border-radius:20px;padding:0.25rem 0.75rem;font-size:0.8rem;cursor:pointer;transition:all 0.15s;font-weight:600';
+    btn.textContent = genre;
+    picker.appendChild(btn);
+
+    syncGenreHiddenInputs();
+    inputEl.value = '';
+}
+
+// Enter key untuk tambah genre
+document.getElementById('genre-custom-input')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); tambahGenreCustom(); }
+});
 
 // ═══════ USERNAME VALIDATION (IG-style) ═══════
 const originalUsername = '<?= htmlspecialchars($user['username']) ?>';

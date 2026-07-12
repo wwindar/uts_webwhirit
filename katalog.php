@@ -4,7 +4,7 @@ require_once ('db.php');
 require_once ('auth.php');
 requireLogin();
 
-$pageTitle = 'Katalog';
+$pageTitle = 'Katalog Resensi';
 $basePath  = '../';
 $userId    = $_SESSION['user_id'];
 
