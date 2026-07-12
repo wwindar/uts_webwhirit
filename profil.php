@@ -78,8 +78,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $newBio = trim($_POST['bio'] ?? '');
     $fotoNama = $user['foto_profil'];
 
+    // Validasi format username (IG-style)
+    if (!preg_match('/^[a-z0-9_.]+$/', $newUsername)) {
+        $errors[] = 'Username hanya boleh huruf kecil, angka, titik (.), dan garis bawah (_).';
+    } elseif (strlen($newUsername) < 4) {
+        $errors[] = 'Username minimal 4 karakter.';
+    }
+
     // Cek username bentrok
-    if ($newUsername !== $user['username']) {
+    if (empty($errors) && $newUsername !== $user['username']) {
         $stCek = $conn->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
         $stCek->bind_param("si", $newUsername, $_SESSION['user_id']);
         $stCek->execute();
@@ -554,7 +561,17 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
             
             <div class="form-group">
                 <label>USERNAME <span style="color:#c0392b">*</span></label>
-                <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required maxlength="50">
+                <input type="text" name="username" id="edit_username_input" 
+                       value="<?= htmlspecialchars($user['username']) ?>" 
+                       required maxlength="30" 
+                       pattern="[a-z0-9_.]+"
+                       title="Hanya boleh huruf kecil, angka, titik (.), dan garis bawah (_)"
+                       autocomplete="off">
+                <small style="color:var(--ink-light);font-size:0.75rem;display:block;margin-top:0.25rem">
+                    Hanya huruf kecil (a-z), angka (0-9), titik (.) dan garis bawah (_).
+                </small>
+                <div id="username-feedback" style="margin-top:0.4rem;font-size:0.82rem;display:none;"></div>
+                <div id="username-suggestions" style="margin-top:0.4rem;display:none;"></div>
             </div>
             
             <div class="form-group">
@@ -798,6 +815,125 @@ function copyLinkProfil() {
     linkInput.select();
     document.execCommand('copy');
     alert('Link profil berhasil disalin!');
+}
+
+// ═══════ USERNAME VALIDATION (IG-style) ═══════
+const originalUsername = '<?= htmlspecialchars($user['username']) ?>';
+const usernameInput = document.getElementById('edit_username_input');
+const feedbackDiv = document.getElementById('username-feedback');
+const suggestionsDiv = document.getElementById('username-suggestions');
+let usernameTimer = null;
+
+if (usernameInput) {
+    // Auto-lowercase saat mengetik
+    usernameInput.addEventListener('input', function() {
+        this.value = this.value.toLowerCase().replace(/\s/g, ''); // hapus spasi, paksa lowercase
+        
+        clearTimeout(usernameTimer);
+        const val = this.value;
+        
+        // Reset
+        feedbackDiv.style.display = 'none';
+        suggestionsDiv.style.display = 'none';
+        suggestionsDiv.innerHTML = '';
+        
+        if (!val) return;
+        
+        // Cek format dulu (client-side instant)
+        if (!/^[a-z0-9_.]+$/.test(val)) {
+            feedbackDiv.style.display = 'block';
+            feedbackDiv.innerHTML = '⚠️ <span style="color:#e74c3c;font-weight:600">Karakter tidak diperbolehkan!</span><br>' +
+                '<span style="color:#888;font-size:0.78rem">Hanya boleh: huruf kecil (a-z), angka (0-9), titik (.) dan garis bawah (_)</span>';
+            feedbackDiv.style.background = '#fef2f2';
+            feedbackDiv.style.border = '1px solid #fecaca';
+            feedbackDiv.style.borderRadius = '8px';
+            feedbackDiv.style.padding = '0.5rem 0.75rem';
+            return;
+        }
+        
+        if (val.length < 4) {
+            feedbackDiv.style.display = 'block';
+            feedbackDiv.innerHTML = '⚠️ <span style="color:#f59e0b">Username minimal 4 karakter.</span>';
+            feedbackDiv.style.background = '#fffbeb';
+            feedbackDiv.style.border = '1px solid #fde68a';
+            feedbackDiv.style.borderRadius = '8px';
+            feedbackDiv.style.padding = '0.5rem 0.75rem';
+            return;
+        }
+        
+        // Kalau sama dengan username asli, tidak perlu cek
+        if (val === originalUsername) {
+            feedbackDiv.style.display = 'block';
+            feedbackDiv.innerHTML = '✅ <span style="color:#10b981">Username Anda saat ini.</span>';
+            feedbackDiv.style.background = '#f0fdf4';
+            feedbackDiv.style.border = '1px solid #bbf7d0';
+            feedbackDiv.style.borderRadius = '8px';
+            feedbackDiv.style.padding = '0.5rem 0.75rem';
+            return;
+        }
+        
+        // Debounce AJAX (tunggu 500ms setelah berhenti mengetik)
+        feedbackDiv.style.display = 'block';
+        feedbackDiv.innerHTML = '⏳ <span style="color:#888">Memeriksa ketersediaan...</span>';
+        feedbackDiv.style.background = '#f8f9fa';
+        feedbackDiv.style.border = '1px solid #e5e7eb';
+        feedbackDiv.style.borderRadius = '8px';
+        feedbackDiv.style.padding = '0.5rem 0.75rem';
+        
+        usernameTimer = setTimeout(() => {
+            fetch('cek_username.php?username=' + encodeURIComponent(val))
+            .then(r => r.json())
+            .then(data => {
+                feedbackDiv.style.display = 'block';
+                
+                if (data.status === 'available') {
+                    feedbackDiv.innerHTML = '✅ <span style="color:#10b981;font-weight:600">Username tersedia!</span>';
+                    feedbackDiv.style.background = '#f0fdf4';
+                    feedbackDiv.style.border = '1px solid #bbf7d0';
+                    suggestionsDiv.style.display = 'none';
+                } else if (data.status === 'taken') {
+                    feedbackDiv.innerHTML = '❌ <span style="color:#e74c3c;font-weight:600">Username sudah dipakai.</span>';
+                    feedbackDiv.style.background = '#fef2f2';
+                    feedbackDiv.style.border = '1px solid #fecaca';
+                    
+                    // Tampilkan rekomendasi
+                    if (data.suggestions && data.suggestions.length > 0) {
+                        suggestionsDiv.style.display = 'block';
+                        suggestionsDiv.style.background = '#f0f9ff';
+                        suggestionsDiv.style.border = '1px solid #bae6fd';
+                        suggestionsDiv.style.borderRadius = '8px';
+                        suggestionsDiv.style.padding = '0.6rem 0.75rem';
+                        
+                        let html = '<div style="font-size:0.78rem;color:#0369a1;font-weight:600;margin-bottom:0.4rem">💡 Rekomendasi username:</div>';
+                        html += '<div style="display:flex;flex-wrap:wrap;gap:0.35rem">';
+                        data.suggestions.forEach(s => {
+                            html += `<button type="button" onclick="pilihUsername('${s}')" 
+                                style="background:#e0f2fe;border:1px solid #7dd3fc;border-radius:16px;
+                                padding:0.25rem 0.7rem;font-size:0.8rem;cursor:pointer;color:#0c4a6e;
+                                font-weight:500;transition:all 0.15s"
+                                onmouseover="this.style.background='#bae6fd'"
+                                onmouseout="this.style.background='#e0f2fe'">${s}</button>`;
+                        });
+                        html += '</div>';
+                        suggestionsDiv.innerHTML = html;
+                    }
+                } else if (data.status === 'invalid') {
+                    feedbackDiv.innerHTML = '⚠️ <span style="color:#e74c3c">' + data.message + '</span>';
+                    feedbackDiv.style.background = '#fef2f2';
+                    feedbackDiv.style.border = '1px solid #fecaca';
+                }
+            })
+            .catch(() => {
+                feedbackDiv.style.display = 'none';
+            });
+        }, 500);
+    });
+}
+
+function pilihUsername(name) {
+    const input = document.getElementById('edit_username_input');
+    input.value = name;
+    input.dispatchEvent(new Event('input')); // trigger validation ulang
 }
 </script>
 
