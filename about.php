@@ -1,12 +1,10 @@
 <?php
-
 session_start();
 require_once ('db.php');
 require_once ('auth.php');
-
 requireLogin();
 
-$pageTitle = 'Tentang';
+$pageTitle = 'Tentang Aplikasi';
 $basePath = '../';
 ?>
 <?php include ('header.php'); ?>
@@ -43,6 +41,10 @@ $basePath = '../';
                     '🔍 Pencarian & filter berdasarkan genre',
                     '📊 Dashboard statistik koleksi',
                     '🔒 Autentikasi pengguna dengan session',
+                    '👤 Profil pengguna dengan foto & bio',
+                    '💬 Pesan langsung antar pengguna',
+                    '🔔 Notifikasi aktivitas',
+                    '🔖 Wishlist & Bookmark resensi',
                     '📱 Tampilan responsif untuk mobile',
                 ];
                 foreach ($fitur as $f): ?>
@@ -121,47 +123,6 @@ $basePath = '../';
         </div>
 
     </div>
-    
-    <!-- Bagian Bantuan / FAQ -->
-    <div style="margin-top:3rem">
-        <div class="page-header" style="margin-bottom:1.5rem; border-bottom: none; padding-bottom: 0;">
-            <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--ink)">❓ Pusat Bantuan (FAQ)</h2>
-            <p style="color:var(--ink-light);margin-top:0.3rem">Pertanyaan yang sering diajukan seputar penggunaan aplikasi.</p>
-        </div>
-
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:1.5rem">
-            
-            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--rose-dark);border-radius:4px;padding:1.5rem;box-shadow:0 4px 15px var(--shadow)">
-                <h3 style="font-size:1.05rem;color:var(--ink);margin-bottom:0.6rem">Lupa Kata Sandi?</h3>
-                <p style="font-size:0.9rem;color:var(--ink-light);line-height:1.6">
-                    Saat ini fitur <em>reset password</em> otomatis belum tersedia. Jika kamu lupa kata sandi, mohon buat akun baru atau hubungi administrator untuk mereset kata sandimu secara manual.
-                </p>
-            </div>
-
-            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--rose-dark);border-radius:4px;padding:1.5rem;box-shadow:0 4px 15px var(--shadow)">
-                <h3 style="font-size:1.05rem;color:var(--ink);margin-bottom:0.6rem">Cara Menulis Resensi?</h3>
-                <p style="font-size:0.9rem;color:var(--ink-light);line-height:1.6">
-                    Buka menu profil di pojok kanan atas, lalu pilih <strong>➕ Tambah Resensi</strong>. Lengkapi formulir detail buku, berikan rating bintang, tulis ulasanmu, lalu klik "Simpan Resensi".
-                </p>
-            </div>
-
-            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--rose-dark);border-radius:4px;padding:1.5rem;box-shadow:0 4px 15px var(--shadow)">
-                <h3 style="font-size:1.05rem;color:var(--ink);margin-bottom:0.6rem">Cara Mengikuti Pengguna Lain?</h3>
-                <p style="font-size:0.9rem;color:var(--ink-light);line-height:1.6">
-                    Klik nama pengguna penulis mana pun yang kamu temukan di Katalog atau Dashboard untuk membuka Profil Publik mereka, lalu tekan tombol <strong>Ikuti</strong>.
-                </p>
-            </div>
-
-            <div style="background:var(--paper);border:1px solid var(--border);border-top:3px solid var(--rose-dark);border-radius:4px;padding:1.5rem;box-shadow:0 4px 15px var(--shadow)">
-                <h3 style="font-size:1.05rem;color:var(--ink);margin-bottom:0.6rem">Cara Mengirim Pesan Pribadi (DM)?</h3>
-                <p style="font-size:0.9rem;color:var(--ink-light);line-height:1.6">
-                    Kamu bisa menuju menu <strong>💬 Kotak masuk</strong> di menu profilmu, atau masuk ke Profil Publik seseorang dan klik tombol <strong>Kirim Pesan</strong> untuk mulai mengobrol.
-                </p>
-            </div>
-            
-        </div>
-    </div>
-
 </div>
 
 <?php include ('footer.php'); ?>

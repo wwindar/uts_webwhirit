@@ -91,7 +91,8 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
                 <a href="pengguna.php" class="dropdown-item">👥 Pengguna</a>
                 <a href="tambah.php" class="dropdown-item">➕ Tambah Resensi</a>
                 <hr class="nav-dropdown-divider">
-                <a href="about.php" class="dropdown-item">📖 Bantuan</a>
+                <a href="about.php" class="dropdown-item">📖 Tentang Aplikasi</a>
+                <a href="bantuan.php" class="dropdown-item">❓ Bantuan</a>
                 <a href="logout.php" class="dropdown-item text-danger">🚪 Keluar</a>
             </div>
         </li>
