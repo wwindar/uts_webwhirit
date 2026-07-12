@@ -89,7 +89,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 
     if (empty($errors)) {
-        if (!empty($_FILES['foto_profil']['name'])) {
+        if (!empty($_POST['cropped_image'])) {
+            $base64 = $_POST['cropped_image'];
+            $dataParts = explode(';', $base64);
+            $type = $dataParts[0]; // e.g., data:image/jpeg
+            $data = explode(',', $dataParts[1])[1];
+            $decodedData = base64_decode($data);
+            
+            $newFoto = 'profil_' . time() . '_' . rand(100,999) . '.jpg';
+            $dir     = 'uploads/';
+            if (!is_dir($dir)) mkdir($dir, 0755, true);
+            
+            if (file_put_contents($dir . $newFoto, $decodedData)) {
+                if ($fotoNama && file_exists($dir . $fotoNama)) @unlink($dir . $fotoNama);
+                $fotoNama = $newFoto;
+            } else {
+                $errors[] = 'Gagal menyimpan foto profil hasil crop.';
+            }
+        }
+        elseif (!empty($_FILES['foto_profil']['name'])) {
             $allowedTypes = ['image/jpeg','image/png','image/gif','image/webp'];
             $maxSize      = 2 * 1024 * 1024;
             if (!in_array($_FILES['foto_profil']['type'], $allowedTypes)) {
@@ -172,6 +190,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
 ?>
 <?php include ('header.php'); ?>
+
+<!-- Cropper.js -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <div class="main-content">
     <div class="page-header">
@@ -498,7 +520,7 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
         <button onclick="document.getElementById('modal-edit-profil').style.display='none';document.body.style.overflow=''" style="position:absolute;top:1rem;right:1rem;
             background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1">×</button>
         <h2 style="font-family:var(--font-head);font-size:1.3rem;margin-bottom:1.5rem">✏️ Edit Profil</h2>
-        <form method="POST" action="" enctype="multipart/form-data">
+        <form method="POST" action="" enctype="multipart/form-data" id="form-edit-profil">
             <input type="hidden" name="action" value="edit_profil">
             
             <div class="form-group">
@@ -515,11 +537,10 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                 <small style="color:var(--ink-light);font-size:0.78rem">JPG, PNG, GIF, WEBP — maks 2 MB</small>
 
                 <!-- Preview foto baru -->
-                <div id="m_foto_profil_preview" style="display:none;margin-top:0.6rem">
-                    <img id="m_preview_profil_img" src="" alt="Preview"
-                        style="max-width:130px;max-height:130px;object-fit:cover;border-radius:8px;
-                               box-shadow:0 2px 8px rgba(0,0,0,.15)">
+                <div id="m_foto_profil_preview" style="display:none;margin-top:0.6rem;max-width:300px;margin-left:auto;margin-right:auto;">
+                    <img id="m_preview_profil_img" src="" alt="Preview" style="max-width:100%;display:block;">
                 </div>
+                <input type="hidden" name="cropped_image" id="cropped_image_input">
             </div>
             
             <div class="form-group">
@@ -658,6 +679,8 @@ function toggleFollow(btn, userId) {
     });
 }
 
+let cropper = null;
+
 function toggleHapusFotoProfil(cb) {
     const fotoInput   = document.getElementById('m_foto_profil_input');
     const previewWrap = document.getElementById('m_foto_profil_preview');
@@ -665,6 +688,11 @@ function toggleHapusFotoProfil(cb) {
         fotoInput.value        = '';
         fotoInput.disabled     = true;
         previewWrap.style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        document.getElementById('cropped_image_input').value = '';
     } else {
         fotoInput.disabled = false;
     }
@@ -673,14 +701,43 @@ function toggleHapusFotoProfil(cb) {
 function previewFotoProfilModal(input) {
     const wrap = document.getElementById('m_foto_profil_preview');
     const img  = document.getElementById('m_preview_profil_img');
+    const hiddenInput = document.getElementById('cropped_image_input');
+
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = e => { img.src = e.target.result; wrap.style.display = 'block'; };
+        reader.onload = e => { 
+            img.src = e.target.result; 
+            wrap.style.display = 'block'; 
+            
+            if (cropper) {
+                cropper.destroy();
+            }
+            cropper = new Cropper(img, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+            });
+        };
         reader.readAsDataURL(input.files[0]);
     } else {
         wrap.style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        hiddenInput.value = '';
     }
 }
+
+document.getElementById('form-edit-profil').addEventListener('submit', function(e) {
+    if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400
+        });
+        document.getElementById('cropped_image_input').value = canvas.toDataURL('image/jpeg', 0.9);
+    }
+});
 </script>
 
 <?php include ('footer.php'); ?>
