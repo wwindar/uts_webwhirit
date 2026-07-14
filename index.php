@@ -15,12 +15,13 @@ $is_logged_in = isLoggedIn();
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <!-- My Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Viga&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
 
     <title>Beranda — Resensi Buku</title>
 
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Viga&display=swap');
+
     /* Custom Fonts & Base styling */
     body {
         font-family: 'DM Sans', sans-serif;
@@ -33,6 +34,9 @@ $is_logged_in = isLoggedIn();
         position: relative;
         z-index: 10;
         transition: background-color 0.3s;
+        background: transparent !important;
+        border-bottom: none !important;
+        height: auto !important;
     }
 
     .navbar-brand {
