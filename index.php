@@ -376,7 +376,7 @@ $is_logged_in = isLoggedIn();
       <!-- Workingspace -->
       <div class="row workingspace align-items-center">
         <div class="col-lg-6">
-          <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=800" alt="workingspace" class="img-fluid">
+          <img src="workingspace.jpg" alt="workingspace" class="img-fluid" style="border-radius: 20px;">
         </div>
         <div class="col-lg-5 offset-lg-1">
           <h3>Mari Kita <span>Membaca</span> & <span>Berbagi</span> Resensi</h3>
