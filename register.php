@@ -18,7 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $konfirmasi = $_POST['konfirmasi'] ?? '';
 
     if (empty($username) || empty($password) || empty($konfirmasi)) {
-        $error = 'Semua field wajib diisi.';
+        $error = 'Username dan Password wajib diisi.';
+    } elseif (empty($email) && empty($nomor_telepon)) {
+        $error = 'Email atau Nomor Telepon wajib diisi (minimal salah satu).';
     } elseif (strlen($username) < 4) {
         $error = 'Username minimal 4 karakter.';
     } elseif (!preg_match('/^[a-z0-9_.]+$/', $username)) {
@@ -104,13 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        placeholder="Nama asli atau nama pena Anda">
             </div>
             <div class="form-group">
-                <label for="email">Email (Opsional)</label>
+                <label for="email">Email <span style="font-size: 0.8em; color: #8C8C94;">(Salah satu dengan No HP wajib diisi)</span></label>
                 <input type="email" id="email" name="email"
                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
                        placeholder="Contoh: user@email.com">
             </div>
             <div class="form-group">
-                <label for="nomor_telepon">Nomor Telepon (Opsional)</label>
+                <label for="nomor_telepon">Nomor Telepon <span style="font-size: 0.8em; color: #8C8C94;">(Salah satu dengan Email wajib diisi)</span></label>
                 <input type="text" id="nomor_telepon" name="nomor_telepon"
                        value="<?= htmlspecialchars($_POST['nomor_telepon'] ?? '') ?>"
                        placeholder="Contoh: 08123456789">

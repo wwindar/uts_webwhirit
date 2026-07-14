@@ -336,7 +336,7 @@ $is_logged_in = isLoggedIn();
               </li>
             <?php else: ?>
               <li class="nav-item">
-                <a class="nav-link btn btn-primary tombol px-4" href="login.php" style="color: white !important;">Join Us</a>
+                <a class="nav-link btn btn-primary tombol px-4" href="login.php" style="color: white !important;">Log In</a>
               </li>
             <?php endif; ?>
           </ul>
