@@ -75,6 +75,7 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
             
             <div class="nav-dropdown-menu" id="navDropdownMenu">
                 <a href="profil.php" class="dropdown-item">👤 Profil saya</a>
+                <a href="index.php" class="dropdown-item">🏠 Beranda</a>
                 <hr class="nav-dropdown-divider">
                 <a href="dm.php" class="dropdown-item">
                     💬 Kotak masuk
