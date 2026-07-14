@@ -3,338 +3,426 @@ session_start();
 require_once('db.php');
 require_once('auth.php');
 
-$pageTitle = 'Beranda';
+$is_logged_in = isLoggedIn();
 ?>
-<?php include('header.php'); ?>
+<!doctype html>
+<html lang="id">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<main class="landing-main">
-    <section class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-title">Temukan Dunia Baru di Setiap <em>Halaman</em></h1>
-            <p class="hero-subtitle">Bergabunglah dengan komunitas pembaca kami. Bagikan ulasan, temukan rekomendasi terbaik, dan diskusikan buku favorit Anda.</p>
-            <div class="hero-actions">
-                <?php if (isLoggedIn()): ?>
-                    <a href="dashboard.php" class="btn btn-primary">Ke Dashboard</a>
-                <?php else: ?>
-                    <a href="register.php" class="btn btn-primary">Mulai Sekarang</a>
-                    <a href="katalog.php" class="btn btn-secondary">Jelajahi Katalog</a>
-                <?php endif; ?>
-            </div>
-        </div>
-        <div class="hero-visual">
-            <div class="glass-card">
-                <div class="glass-book">
-                    <span class="book-icon">📖</span>
-                    <h3>The Great Gatsby</h3>
-                    <p>F. Scott Fitzgerald</p>
-                    <div class="stars">★★★★★</div>
-                </div>
-                <div class="glass-review">
-                    "Sebuah mahakarya yang menangkap esensi era jazz dengan sempurna."
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <section class="features-section">
-        <div class="section-header">
-            <h2>Kenapa Memilih Resensi<em>Buku</em>?</h2>
-            <p>Platform terbaik untuk membagikan kecintaan Anda pada buku</p>
-        </div>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">✍️</div>
-                <h3>Tulis Ulasan</h3>
-                <p>Bagikan pendapat dan pandangan Anda mengenai buku yang baru saja selesai Anda baca.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔍</div>
-                <h3>Temukan Rekomendasi</h3>
-                <p>Jelajahi ribuan ulasan dari pembaca lain untuk menemukan bacaan Anda selanjutnya.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <h3>Bangun Komunitas</h3>
-                <p>Ikuti pembaca dengan selera yang sama, diskusikan buku, dan kirim pesan secara langsung.</p>
-            </div>
-        </div>
-    </section>
-</main>
+    <!-- My Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Viga&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-<style>
-/* Inline styling specific to landing page to add that 'wow' factor */
-.landing-main {
-    flex: 1;
-}
+    <title>Beranda — Resensi Buku</title>
 
-/* Hero Section */
-.hero-section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6rem 10%;
-    background: radial-gradient(circle at 20% 30%, rgba(173, 103, 117, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(115, 115, 122, 0.1) 0%, transparent 50%);
-    min-height: 80vh;
-    gap: 4rem;
-    overflow: hidden;
-    position: relative;
-}
+    <style>
+    /* Custom Fonts & Base styling */
+    body {
+        font-family: 'DM Sans', sans-serif;
+        background-color: #ffffff;
+        color: #2B2B30;
+    }
 
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: -50%; right: -20%;
-    width: 800px; height: 800px;
-    background: radial-gradient(circle, rgba(173,103,117,0.05) 0%, rgba(247,244,245,0) 70%);
-    border-radius: 50%;
-    z-index: -1;
-}
+    /* Navbar */
+    .navbar {
+        position: relative;
+        z-index: 10;
+        transition: background-color 0.3s;
+    }
 
-.hero-content {
-    flex: 1;
-    max-width: 600px;
-    animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1);
-}
+    .navbar-brand {
+        font-family: Viga;
+        font-size: 24px;
+        color: white !important;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    }
 
-.hero-title {
-    font-family: var(--font-display);
-    font-size: 4rem;
-    line-height: 1.1;
-    color: var(--ink);
-    margin-bottom: 1.5rem;
-}
-
-.hero-title em {
-    color: var(--rose);
-    font-style: italic;
-}
-
-.hero-subtitle {
-    font-size: 1.2rem;
-    color: var(--sage-dark);
-    margin-bottom: 2.5rem;
-    line-height: 1.8;
-}
-
-.hero-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-.hero-actions .btn {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    border-radius: 30px;
-}
-
-.hero-actions .btn-secondary {
-    background: transparent;
-    border: 2px solid var(--rose);
-    color: var(--rose);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.hero-actions .btn-secondary:hover {
-    background: var(--rose-light);
-    transform: translateY(-2px);
-}
-
-.hero-visual {
-    flex: 1;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    animation: fadeInScale 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-card {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    border-radius: 24px;
-    padding: 2.5rem;
-    box-shadow: 0 30px 60px rgba(43, 43, 48, 0.08);
-    position: relative;
-    max-width: 400px;
-    width: 100%;
-    transform: rotate(2deg);
-    transition: transform 0.5s ease;
-}
-
-.glass-card:hover {
-    transform: rotate(0deg) translateY(-10px);
-}
-
-.glass-book {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.book-icon {
-    font-size: 4rem;
-    display: block;
-    margin-bottom: 1rem;
-    filter: drop-shadow(0 10px 10px rgba(173, 103, 117, 0.2));
-}
-
-.glass-book h3 {
-    font-family: var(--font-display);
-    font-size: 1.8rem;
-    color: var(--ink);
-    margin-bottom: 0.5rem;
-}
-
-.glass-book p {
-    color: var(--sage);
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-}
-
-.stars {
-    color: #F59E0B;
-    letter-spacing: 2px;
-    font-size: 1.2rem;
-}
-
-.glass-review {
-    background: rgba(255, 255, 255, 0.6);
-    padding: 1.5rem;
-    border-radius: 16px;
-    font-style: italic;
-    color: var(--ink-light);
-    border-left: 4px solid var(--rose);
-    position: relative;
-}
-
-/* Features Section */
-.features-section {
-    padding: 6rem 10%;
-    background: var(--paper);
-}
-
-.section-header {
-    text-align: center;
-    margin-bottom: 4rem;
-}
-
-.section-header h2 {
-    font-family: var(--font-display);
-    font-size: 2.5rem;
-    color: var(--ink);
-    margin-bottom: 1rem;
-}
-
-.section-header h2 em {
-    color: var(--rose);
-    font-style: italic;
-}
-
-.section-header p {
-    color: var(--sage);
-    font-size: 1.1rem;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 3rem;
-}
-
-.feature-card {
-    background: var(--cream);
-    padding: 3rem 2rem;
-    border-radius: 20px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-}
-
-.feature-card:hover {
-    background: white;
-    border-color: var(--rose-light);
-    box-shadow: 0 20px 40px rgba(173, 103, 117, 0.08);
-    transform: translateY(-10px);
-}
-
-.feature-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    display: inline-block;
-    padding: 1rem;
-    background: var(--rose-light);
-    border-radius: 50%;
-    width: 80px; height: 80px;
-    line-height: 50px;
-}
-
-.feature-card h3 {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    color: var(--ink);
-    margin-bottom: 1rem;
-}
-
-.feature-card p {
-    color: var(--sage-dark);
-    line-height: 1.6;
-}
-
-/* Animations */
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.9) rotate(-5deg); }
-    to { opacity: 1; transform: scale(1) rotate(2deg); }
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-    .hero-section {
-        flex-direction: column;
+    /* Jumbotron */
+    .jumbotron {
+        background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=1920');
+        background-size: cover;
+        background-position: center;
+        height: 540px;
         text-align: center;
-        padding: 4rem 5%;
+        position: relative;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
     }
-    
-    .hero-content {
-        max-width: 100%;
+
+    .jumbotron::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 0;
     }
-    
-    .hero-actions {
+
+    .jumbotron .container {
+        z-index: 1;
+        position: relative;
+    }
+
+    .jumbotron .display-4 {
+        color: white;
+        font-weight: 200;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
+        font-size: 36px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .jumbotron .display-4 span {
+        font-weight: 700;
+        color: #AD6775; /* matching app's rose color */
+    }
+
+    /* Info Panel */
+    .info-panel {
+        box-shadow: 0 10px 30px rgba(43, 43, 48, 0.15);
+        border-radius: 12px;
+        margin-top: -80px;
+        background-color: white;
+        padding: 30px;
+        position: relative;
+        z-index: 5;
+    }
+
+    .info-panel .info-icon {
+        font-size: 32px;
+        margin-right: 15px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
         justify-content: center;
+        background-color: #F7EBED; /* rose-light */
+        border-radius: 50%;
+        float: left;
+        transition: transform 0.3s;
     }
-    
-    .hero-title {
-        font-size: 3rem;
-    }
-    
-    .glass-card {
-        transform: rotate(0);
-    }
-    .glass-card:hover {
-        transform: translateY(-10px);
-    }
-}
 
-@media (max-width: 768px) {
-    .hero-actions {
-        flex-direction: column;
+    .info-panel .col-lg:hover .info-icon {
+        transform: scale(1.1);
     }
-    .hero-title {
-        font-size: 2.5rem;
-    }
-    .features-section {
-        padding: 4rem 5%;
-    }
-}
-</style>
 
-<?php include('footer.php'); ?>
+    .info-panel h4 {
+        font-size: 16px;
+        text-transform: uppercase;
+        font-weight: bold;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .info-panel h4 a {
+        color: #2B2B30;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .info-panel h4 a:hover {
+        color: #AD6775;
+    }
+
+    .info-panel p {
+        font-size: 13px;
+        color: #8C8C94;
+        font-weight: 300;
+        line-height: 1.4;
+    }
+
+    /* Workingspace */
+    .workingspace {
+        margin-top: 100px;
+        text-align: center;
+    }
+
+    .workingspace img {
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        max-width: 100%;
+        height: auto;
+    }
+
+    .workingspace h3 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 32px;
+        font-weight: 200;
+        text-transform: uppercase;
+        margin-top: 20px;
+    }
+
+    .workingspace h3 span {
+        font-weight: 700;
+        color: #AD6775;
+    }
+
+    .workingspace p {
+        font-size: 16px;
+        color: #8C8C94;
+        font-weight: 300;
+        margin: 20px 0;
+        line-height: 1.6;
+    }
+
+    .workingspace .btn {
+        background-color: #AD6775;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 20px;
+        font-weight: bold;
+        transition: background-color 0.2s, transform 0.2s;
+        color: white;
+    }
+
+    .workingspace .btn:hover {
+        background-color: #924D5A;
+        transform: translateY(-2px);
+    }
+
+    /* Testimonial */
+    .testimonial {
+        margin-top: 80px;
+        padding: 50px 20px;
+        background-color: #F7F4F5;
+        border-radius: 20px;
+    }
+
+    .testimonial h5 {
+        text-align: center;
+        font-weight: 300;
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.6;
+        color: #2B2B30;
+    }
+
+    .testimonial figure img {
+        width: 60px;
+        height: 60px;
+        margin: 20px 10px 0px;
+        opacity: 0.6;
+        object-fit: cover;
+        transition: opacity 0.3s;
+    }
+
+    .testimonial figure img.utama {
+        width: 90px;
+        height: 90px;
+        opacity: 1;
+        margin-top: 5px;
+        border: 3px solid #AD6775;
+    }
+
+    .testimonial figure h5 {
+        font-size: 16px;
+        font-weight: bold;
+        font-style: normal;
+        color: #AD6775;
+        margin-top: 10px;
+    }
+
+    .testimonial figure p {
+        font-size: 12px;
+        color: #ACACAC;
+        margin-top: -5px !important;
+    }
+
+    .testimonial figcaption {
+        text-align: center;
+    }
+
+    /* Footer */
+    .footer {
+        margin-top: 80px;
+        padding-bottom: 40px;
+    }
+
+    .footer p {
+        color: #ACACAC;
+        font-size: 14px;
+    }
+
+    /* Utility */
+    .tombol {
+        text-transform: uppercase;
+        border-radius: 40px;
+        background-color: #AD6775 !important;
+        border-color: #AD6775 !important;
+        padding: 10px 30px;
+        font-weight: bold;
+        color: white !important;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .tombol:hover {
+        background-color: #924D5A !important;
+        border-color: #924D5A !important;
+        transform: translateY(-2px);
+    }
+
+    /* DESKTOP VERSION */
+    @media (min-width: 992px) {
+        .navbar-brand {
+            font-size: 32px;
+        }
+
+        .jumbotron {
+            margin-top: -76px;
+            height: 640px;
+        }
+
+        .jumbotron .display-4 {
+            font-size: 56px;
+        }
+
+        .info-panel {
+            margin-top: -100px;
+        }
+
+        .info-panel .info-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 40px;
+        }
+
+        .workingspace {
+            text-align: left;
+            margin-top: 120px;
+        }
+    }
+    </style>
+  </head>
+  <body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="#">Whirit Wening Windar Shineta</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav ml-auto">
+            <?php if ($is_logged_in): ?>
+              <a class="nav-item btn btn-primary tombol" href="dashboard.php">Dashboard</a>
+            <?php else: ?>
+              <a class="nav-item btn btn-primary tombol" href="login.php">Join Us</a>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- akhir Navbar -->
+
+    <!-- Jumbotron -->
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Mari Membaca & <span>Berbagi Resensi Buku</span></h1>
+        <?php if ($is_logged_in): ?>
+          <a href="dashboard.php" class="btn btn-primary tombol">Dashboard</a>
+        <?php else: ?>
+          <a href="register.php" class="btn btn-primary tombol">Join Us</a>
+        <?php endif; ?>
+      </div>
+    </div>
+    <!-- akhir Jumbotron -->
+
+    <!-- Container -->
+    <div class="container">
+
+      <!-- Info Panel -->
+      <div class="row justify-content-center">
+        <div class="col-lg-10 info-panel">
+          <div class="row">
+            <div class="col-lg">
+              <span class="info-icon">📚</span>
+              <h4><a href="<?= $is_logged_in ? 'katalog.php' : 'login.php' ?>">Katalog Resensi</a></h4>
+              <p>Jelajahi ulasan buku mendalam dari berbagai pembaca.</p>
+            </div>
+            <div class="col-lg">
+              <span class="info-icon">✍️</span>
+              <h4><a href="<?= $is_logged_in ? 'tambah.php' : 'login.php' ?>">Tulis Ulasan</a></h4>
+              <p>Bagikan penilaian dan opini jujur mengenai buku favorit Anda.</p>
+            </div>
+            <div class="col-lg">
+              <span class="info-icon">📌</span>
+              <h4><a href="<?= $is_logged_in ? 'wishlist.php' : 'login.php' ?>">Simpan Buku</a></h4>
+              <p>Tambahkan buku pilihan Anda ke dalam Wishlist & Bookmark.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- akhir Info Panel -->
+
+      <!-- Workingspace -->
+      <div class="row workingspace align-items-center">
+        <div class="col-lg-6">
+          <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=800" alt="workingspace" class="img-fluid">
+        </div>
+        <div class="col-lg-5 offset-lg-1">
+          <h3>Mari Kita <span>Membaca</span> & <span>Berbagi</span> Resensi</h3>
+          <p>Temukan rekomendasi bacaan terbaik, pelajari ulasan detail tentang berbagai genre buku, dan mulailah berdiskusi dengan sesama pecinta literatur di seluruh Indonesia.</p>
+          <a href="<?= $is_logged_in ? 'katalog.php' : 'login.php' ?>" class="btn btn-primary tombol">Jelajahi Katalog</a>
+        </div>
+      </div>
+      <!-- akhir Workingspace -->
+
+      <!-- Testimonial -->
+      <section class="testimonial">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h5>"Aku menyadari bahwa yang hilang itu tidak pernah hilang. Hal itu hanya hilang dari hati kita."</h5>
+          </div>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-lg-6 justify-content-center d-flex">
+            <figure class="figure">
+              <img src="win.jpeg" class="figure-img img-fluid rounded-circle" alt="Testi 1">          
+            </figure>
+
+            <figure class="figure">
+              <img src="nda.jpeg" class="figure-img img-fluid rounded-circle utama" alt="Testi 2">
+              <figcaption class="figure-caption">
+                <h5>Windar</h5>
+                <p>Penulis</p>
+              </figcaption>
+            </figure>
+
+            <figure class="figure">
+              <img src="winda.jpeg" class="figure-img img-fluid rounded-circle" alt="Testi 3">
+            </figure>
+          </div>
+        </div>
+      </section>
+      <!-- akhir Testimonial -->
+
+      <!-- Footer -->
+      <div class="row footer">
+        <div class="col text-center">
+          <p>2026 All Right Reserved by Windar Shineta</p>
+        </div>
+      </div>
+      <!-- akhir Footer -->
+
+    </div>
+    <!-- akhir Container -->
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
