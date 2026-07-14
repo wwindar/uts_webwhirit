@@ -321,13 +321,25 @@ $is_logged_in = isLoggedIn();
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar-nav ml-auto">
+          <ul class="navbar-nav ml-auto">
             <?php if ($is_logged_in): ?>
-              <a class="nav-item btn btn-primary tombol" href="dashboard.php">Dashboard</a>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle btn btn-primary tombol px-4" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white !important;">
+                  Akun Saya
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 10px;">
+                  <a class="dropdown-item py-2" href="dashboard.php">🖥️ Dashboard</a>
+                  <a class="dropdown-item py-2" href="profil.php">👤 Profil</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item py-2 text-danger" href="logout.php">🚪 Keluar</a>
+                </div>
+              </li>
             <?php else: ?>
-              <a class="nav-item btn btn-primary tombol" href="login.php">Join Us</a>
+              <li class="nav-item">
+                <a class="nav-link btn btn-primary tombol px-4" href="login.php" style="color: white !important;">Join Us</a>
+              </li>
             <?php endif; ?>
-          </div>
+          </ul>
         </div>
       </div>
     </nav>
