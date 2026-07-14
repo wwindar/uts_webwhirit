@@ -197,53 +197,68 @@ $is_logged_in = isLoggedIn();
     /* Testimonial */
     .testimonial {
         margin-top: 80px;
-        padding: 50px 20px;
-        background-color: #F7F4F5;
-        border-radius: 20px;
+        padding-bottom: 80px;
     }
 
-    .testimonial h5 {
-        text-align: center;
-        font-weight: 300;
-        font-style: italic;
-        font-size: 20px;
-        line-height: 1.6;
-        color: #2B2B30;
-    }
-
-    .testimonial figure img {
-        width: 60px;
-        height: 60px;
-        margin: 20px 10px 0px;
-        opacity: 0.6;
-        object-fit: cover;
-        transition: opacity 0.3s;
-    }
-
-    .testimonial figure img.utama {
+    .testimonial-img {
         width: 90px;
         height: 90px;
-        opacity: 1;
-        margin-top: 5px;
-        border: 3px solid #AD6775;
+        object-fit: cover;
+        margin-bottom: 15px;
     }
 
-    .testimonial figure h5 {
-        font-size: 16px;
+    .testimonial-name {
+        font-size: 18px;
         font-weight: bold;
-        font-style: normal;
-        color: #AD6775;
-        margin-top: 10px;
+        color: #2B2B30;
+        margin-bottom: 2px;
     }
 
-    .testimonial figure p {
-        font-size: 12px;
+    .testimonial-role {
+        font-size: 13px;
         color: #ACACAC;
-        margin-top: -5px !important;
+        margin-bottom: 20px;
     }
 
-    .testimonial figcaption {
-        text-align: center;
+    .testimonial-quote {
+        font-size: 18px;
+        font-weight: 400;
+        font-style: italic;
+        color: #666;
+        line-height: 1.6;
+        position: relative;
+        display: inline-block;
+        padding: 0 10px;
+    }
+
+    .quote-icon {
+        font-size: 40px;
+        color: #A5DBD3;
+        font-weight: bold;
+        line-height: 0;
+        vertical-align: middle;
+        position: relative;
+        top: 15px;
+        font-family: serif;
+    }
+
+    /* Carousel Indicators */
+    .testimonial .carousel-indicators {
+        bottom: -60px;
+    }
+
+    .testimonial .carousel-indicators li {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: transparent;
+        border: 1px solid #4BBBA6;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    .testimonial .carousel-indicators li.active {
+        background-color: #4BBBA6;
     }
 
     /* Utility */
@@ -373,29 +388,94 @@ $is_logged_in = isLoggedIn();
 
       <!-- Testimonial -->
       <section class="testimonial">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <h5>"Aku menyadari bahwa yang hilang itu tidak pernah hilang. Hal itu hanya hilang dari hati kita."</h5>
-          </div>
-        </div>
+        <div id="testimonialCarousel" class="carousel slide" data-ride="carousel">
+          <!-- Indicators -->
+          <ol class="carousel-indicators">
+            <li data-target="#testimonialCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="1"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="2"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="3"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="4"></li>
+          </ol>
 
-        <div class="row justify-content-center">
-          <div class="col-lg-6 justify-content-center d-flex">
-            <figure class="figure">
-              <img src="win.jpeg" class="figure-img img-fluid rounded-circle" alt="Testi 1">          
-            </figure>
+          <!-- Wrapper for slides -->
+          <div class="carousel-inner text-center">
+            
+            <div class="carousel-item active">
+              <img src="win.jpeg" class="rounded-circle testimonial-img" alt="Klabkluen">
+              <h5 class="testimonial-name">Klabkluen</h5>
+              <p class="testimonial-role">Star In My Mind</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Apa yang bukan milikku, aku tidak akan coba mengambilnya. Apa yang menjadi milikku, aku tidak akan pernah membiarkan siapapun mengambilnya.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <figure class="figure">
-              <img src="nda.jpeg" class="figure-img img-fluid rounded-circle utama" alt="Testi 2">
-              <figcaption class="figure-caption">
-                <h5>Windar</h5>
-                <p>Penulis</p>
-              </figcaption>
-            </figure>
+            <div class="carousel-item">
+              <img src="nda.jpeg" class="rounded-circle testimonial-img" alt="Windar">
+              <h5 class="testimonial-name">Windar</h5>
+              <p class="testimonial-role">Penulis</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Aku menyadari bahwa yang hilang itu tidak pernah hilang. Hal itu hanya hilang dari hati kita.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <figure class="figure">
-              <img src="winda.jpeg" class="figure-img img-fluid rounded-circle" alt="Testi 3">
-            </figure>
+            <div class="carousel-item">
+              <img src="winda.jpeg" class="rounded-circle testimonial-img" alt="Winda">
+              <h5 class="testimonial-name">Winda</h5>
+              <p class="testimonial-role">Pembaca Setia</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Buku adalah jendela dunia, dan setiap resensi di sini membuka lembaran baru yang menginspirasi langkah hidupku.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="win.jpeg" class="rounded-circle testimonial-img" alt="Klabkluen">
+              <h5 class="testimonial-name">Klabkluen</h5>
+              <p class="testimonial-role">Star In My Mind</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Membaca resensi di sini membuatku menemukan banyak dunia baru tanpa harus beranjak dari tempatku berada.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="nda.jpeg" class="rounded-circle testimonial-img" alt="Windar">
+              <h5 class="testimonial-name">Windar</h5>
+              <p class="testimonial-role">Penulis</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Karya sastra selalu punya cara magis untuk menghubungkan perasaan kita. Platform ini menjadi ruang terbaiknya.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
