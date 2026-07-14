@@ -242,17 +242,6 @@ $is_logged_in = isLoggedIn();
         text-align: center;
     }
 
-    /* Footer */
-    .footer {
-        margin-top: 80px;
-        padding-bottom: 40px;
-    }
-
-    .footer p {
-        color: #ACACAC;
-        font-size: 14px;
-    }
-
     /* Utility */
     .tombol {
         text-transform: uppercase;
@@ -408,13 +397,12 @@ $is_logged_in = isLoggedIn();
       </section>
       <!-- akhir Testimonial -->
 
-      <!-- Footer -->
-      <div class="row footer">
-        <div class="col text-center">
-          <p>2026 All Right Reserved by Windar Shineta</p>
+      <!-- Lihat Semua Resensi Button -->
+      <div class="row justify-content-center text-center my-5">
+        <div class="col-md-12">
+          <a href="<?= $is_logged_in ? 'katalog.php' : 'login.php' ?>" class="btn btn-outline" style="border-radius: 20px; padding: 0.6rem 2rem;">Lihat Semua Resensi →</a>
         </div>
       </div>
-      <!-- akhir Footer -->
 
     </div>
     <!-- akhir Container -->
@@ -424,5 +412,5 @@ $is_logged_in = isLoggedIn();
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
-</html>
+
+    <?php include('footer.php'); ?>
