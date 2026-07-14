@@ -335,10 +335,7 @@ $nav_username = $is_logged_in ? ($_SESSION['username'] ?? 'Akun') : '';
               </li>
             <?php else: ?>
               <li class="nav-item">
-                <a class="nav-link btn btn-primary tombol px-4" href="login.php" style="color: white !important;">Log In</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link btn tombol px-4" href="register.php" style="background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.7); backdrop-filter: blur(4px); color: white !important;">Join Us</a>
+                <a class="nav-link btn btn-primary tombol px-4" href="login.php" style="color: white !important;">Join Us</a>
               </li>
             <?php endif; ?>
           </ul>
