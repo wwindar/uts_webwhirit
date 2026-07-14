@@ -4,6 +4,7 @@ require_once('db.php');
 require_once('auth.php');
 
 $is_logged_in = isLoggedIn();
+$nav_username = $is_logged_in ? ($_SESSION['username'] ?? 'Akun') : '';
 ?>
 <!doctype html>
 <html lang="id">
@@ -321,22 +322,23 @@ $is_logged_in = isLoggedIn();
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <ul class="navbar-nav ml-auto">
+          <ul class="navbar-nav ml-auto align-items-center" style="gap: 10px;">
             <?php if ($is_logged_in): ?>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle btn btn-primary tombol px-4" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white !important;">
-                  Akun Saya
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown" style="border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 10px;">
-                  <a class="dropdown-item py-2" href="dashboard.php">🖥️ Dashboard</a>
-                  <a class="dropdown-item py-2" href="profil.php">👤 Profil</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item py-2 text-danger" href="logout.php">🚪 Keluar</a>
-                </div>
+              <li class="nav-item" style="color: rgba(255,255,255,0.85); font-size: 0.9rem; padding: 0 4px;">
+                👤 <?= htmlspecialchars($nav_username) ?>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link btn btn-primary tombol px-4" href="dashboard.php" style="color: white !important;">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link btn tombol px-4" href="logout.php" style="background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.7); backdrop-filter: blur(4px); color: white !important;">🚪 Keluar</a>
               </li>
             <?php else: ?>
               <li class="nav-item">
                 <a class="nav-link btn btn-primary tombol px-4" href="login.php" style="color: white !important;">Log In</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link btn tombol px-4" href="register.php" style="background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.7); backdrop-filter: blur(4px); color: white !important;">Join Us</a>
               </li>
             <?php endif; ?>
           </ul>
