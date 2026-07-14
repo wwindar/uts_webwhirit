@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="auth-footer">
-            Ingat password Anda? <a href="index.php">Login di sini</a>
+            Ingat password Anda? <a href="login.php">Login di sini</a>
         </div>
     </div>
 </div>

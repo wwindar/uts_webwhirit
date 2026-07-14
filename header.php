@@ -96,6 +96,10 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
                 <a href="logout.php" class="dropdown-item text-danger">🚪 Keluar</a>
             </div>
         </li>
+        <?php else: ?>
+        <li><a href="katalog.php">Katalog</a></li>
+        <li><a href="login.php">Masuk</a></li>
+        <li><a href="register.php" class="nav-register-btn" style="background:var(--rose); color:white; padding: 0.5rem 1rem; border-radius: 20px;">Daftar</a></li>
         <?php endif; ?>
     </ul>
 </nav>

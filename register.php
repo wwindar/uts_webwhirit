@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="auth-footer">
-            Sudah punya akun? <a href="index.php">Login di sini</a>
+            Sudah punya akun? <a href="login.php">Login di sini</a>
         </div>
     </div>
 </div>

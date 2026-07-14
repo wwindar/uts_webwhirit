@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         <?php if ($success): ?>
             <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
-            <a href="index.php" class="btn btn-primary btn-full" style="margin-top:15px; text-align:center; text-decoration:none;">Kembali ke Login</a>
+            <a href="login.php" class="btn btn-primary btn-full" style="margin-top:15px; text-align:center; text-decoration:none;">Kembali ke Login</a>
         <?php else: ?>
 
             <p class="auth-subtitle">Buat password baru untuk akun <strong><?= htmlspecialchars($_SESSION['reset_username']) ?></strong>.</p>
