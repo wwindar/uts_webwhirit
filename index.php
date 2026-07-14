@@ -407,7 +407,7 @@ $is_logged_in = isLoggedIn();
           <!-- Wrapper for slides -->
           <div class="carousel-inner text-center">
 
-            <div class="carousel-item">
+            <div class="carousel-item active">
               <img src="win1.jfif" class="rounded-circle testimonial-img" alt="Hong Pichetpong">
               <h5 class="testimonial-name">Hong Pichetpong</h5>
               <p class="testimonial-role">LYKN</p>
@@ -527,7 +527,7 @@ $is_logged_in = isLoggedIn();
               </div>
             </div>
 
-            <div class="carousel-item active">
+            <div class="carousel-item">
               <img src="win9.jfif" class="rounded-circle testimonial-img" alt="Pran">
               <h5 class="testimonial-name">Pran</h5>
               <p class="testimonial-role">Bad Buddy Series</p>
@@ -572,7 +572,8 @@ $is_logged_in = isLoggedIn();
               </div>
             </div>
 
-
+          </div>
+        </div>
       </section>
       <!-- akhir Testimonial -->
 
