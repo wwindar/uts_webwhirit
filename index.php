@@ -396,20 +396,41 @@ $is_logged_in = isLoggedIn();
             <li data-target="#testimonialCarousel" data-slide-to="2"></li>
             <li data-target="#testimonialCarousel" data-slide-to="3"></li>
             <li data-target="#testimonialCarousel" data-slide-to="4"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="5"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="6"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="7"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="8"></li> 
+            <li data-target="#testimonialCarousel" data-slide-to="9"></li>
+            <li data-target="#testimonialCarousel" data-slide-to="10"></li>
           </ol>
 
           <!-- Wrapper for slides -->
           <div class="carousel-inner text-center">
-            
-            <div class="carousel-item active">
-              <img src="win.jpeg" class="rounded-circle testimonial-img" alt="Klabkluen">
-              <h5 class="testimonial-name">Klabkluen</h5>
-              <p class="testimonial-role">Star In My Mind</p>
+
+            <div class="carousel-item">
+              <img src="win1.jfif" class="rounded-circle testimonial-img" alt="Hong Pichetpong">
+              <h5 class="testimonial-name">Hong Pichetpong</h5>
+              <p class="testimonial-role">LYKN</p>
               <div class="row justify-content-center">
                 <div class="col-lg-8">
                   <p class="testimonial-quote">
                     <span class="quote-icon">&ldquo;</span>
-                    Apa yang bukan milikku, aku tidak akan coba mengambilnya. Apa yang menjadi milikku, aku tidak akan pernah membiarkan siapapun mengambilnya.
+                    Cowok ganteng yang kamu suka kagumi, mungkin nggak seganteng HONG LYKN
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div> 
+
+            <div class="carousel-item">
+              <img src="win2.jfif" class="rounded-circle testimonial-img" alt="Qin">
+              <h5 class="testimonial-name">Qin</h5>
+              <p class="testimonial-role">Duang With You</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Orang bilang waktu akan menyembuhkan segalanya. Tapi mereka lupa bahwa sebelum sembuh, waktu akan memaksa kita untuk menelan memori-memori tajam yang mengiris tenggorokan dalam diam."
                     <span class="quote-icon">&rdquo;</span>
                   </p>
                 </div>
@@ -417,39 +438,24 @@ $is_logged_in = isLoggedIn();
             </div>
 
             <div class="carousel-item">
-              <img src="nda.jpeg" class="rounded-circle testimonial-img" alt="Windar">
-              <h5 class="testimonial-name">Windar</h5>
+              <img src="win3.jfif" class="rounded-circle testimonial-img" alt="Thame">
+              <h5 class="testimonial-name">Thame</h5>
+              <p class="testimonial-role">Thamepo</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Keberhasilan sejati bukanlah seberapa terang lampu panggung menyorotimu, melainkan seberapa tulus orang-orang di sekitarmu tetap merangkulmu saat lampu itu padam.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="win4.jpg" class="rounded-circle testimonial-img" alt="Wind Lyricist">
+              <h5 class="testimonial-name">Wind Lyricist</h5>
               <p class="testimonial-role">Penulis</p>
-              <div class="row justify-content-center">
-                <div class="col-lg-8">
-                  <p class="testimonial-quote">
-                    <span class="quote-icon">&ldquo;</span>
-                    Aku menyadari bahwa yang hilang itu tidak pernah hilang. Hal itu hanya hilang dari hati kita.
-                    <span class="quote-icon">&rdquo;</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="carousel-item">
-              <img src="winda.jpeg" class="rounded-circle testimonial-img" alt="Winda">
-              <h5 class="testimonial-name">Winda</h5>
-              <p class="testimonial-role">Pembaca Setia</p>
-              <div class="row justify-content-center">
-                <div class="col-lg-8">
-                  <p class="testimonial-quote">
-                    <span class="quote-icon">&ldquo;</span>
-                    Buku adalah jendela dunia, dan setiap resensi di sini membuka lembaran baru yang menginspirasi langkah hidupku.
-                    <span class="quote-icon">&rdquo;</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="carousel-item">
-              <img src="win.jpeg" class="rounded-circle testimonial-img" alt="Klabkluen">
-              <h5 class="testimonial-name">Klabkluen</h5>
-              <p class="testimonial-role">Star In My Mind</p>
               <div class="row justify-content-center">
                 <div class="col-lg-8">
                   <p class="testimonial-quote">
@@ -462,8 +468,98 @@ $is_logged_in = isLoggedIn();
             </div>
 
             <div class="carousel-item">
-              <img src="nda.jpeg" class="rounded-circle testimonial-img" alt="Windar">
-              <h5 class="testimonial-name">Windar</h5>
+              <img src="win5.jfif" class="rounded-circle testimonial-img" alt="Gun">
+              <h5 class="testimonial-name">Gun</h5>
+              <p class="testimonial-role">My School President</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Jangan menyerah pada musikmu hanya karena dunia sedang tidak mendengarkan hari ini. Teruskan, suatu hari suaramu akan sampai ke hati orang yang tepat.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="win6.jfif" class="rounded-circle testimonial-img" alt="Duang">
+              <h5 class="testimonial-name">Duang</h5>
+              <p class="testimonial-role">Duang With You</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Cinta atau impian tidak harus selalu terlihat sempurna sejak awal. Terkadang, sesuatu yang 'tidak sempurna namun cukup baik' justru memberi ruang bagi kita untuk tumbuh bersama.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="win7.jpeg" class="rounded-circle testimonial-img" alt="Wind Lyricist">
+              <h5 class="testimonial-name">Wind Lyricist</h5>
+              <p class="testimonial-role">Penulis</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Setiap orang memiliki waktu dan panggungnya masing-masing untuk bersinar. Jangan meredupkan cahayamu hanya karena melihat orang lain berjalan lebih cepat. Fokuslah pada jalan yang sedang kamu bangun sendiri.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="win8.jfif" class="rounded-circle testimonial-img" alt="Wave">
+              <h5 class="testimonial-name">Wave</h5>
+              <p class="testimonial-role">The Gifted</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Menjadi pintar atau memiliki bakat luar biasa tidak ada gunanya jika kamu harus mengisolasi dirimu dari dunia. Manusia tetap butuh kepercayaan dan pelukan orang lain untuk tetap menjaga kewarasannya.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item active">
+              <img src="win9.jfif" class="rounded-circle testimonial-img" alt="Pran">
+              <h5 class="testimonial-name">Pran</h5>
+              <p class="testimonial-role">Bad Buddy Series</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Aku ingin memiliki cerita yang bisa kusebut milikku sendiri... dan aku juga ingin menjadi orang yang memegang kendali atas akhir dari cerita itu.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="win10.jfif" class="rounded-circle testimonial-img" alt="White">
+              <h5 class="testimonial-name">White</h5>
+              <p class="testimonial-role">Not Me</p>
+              <div class="row justify-content-center">
+                <div class="col-lg-8">
+                  <p class="testimonial-quote">
+                    <span class="quote-icon">&ldquo;</span>
+                    Hukum seharusnya menjadi perisai bagi mereka yang lemah, bukan menjadi pedang di tangan mereka yang berkuasa untuk menindas.
+                    <span class="quote-icon">&rdquo;</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="win11.jpeg" class="rounded-circle testimonial-img" alt="Wind Lyricist">
+              <h5 class="testimonial-name">Wind Lyricist</h5>
               <p class="testimonial-role">Penulis</p>
               <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -476,8 +572,7 @@ $is_logged_in = isLoggedIn();
               </div>
             </div>
 
-          </div>
-        </div>
+
       </section>
       <!-- akhir Testimonial -->
 
