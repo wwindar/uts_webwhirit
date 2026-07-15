@@ -301,24 +301,25 @@ function formatTime(dateStr) {
     return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
 }
 
+let lastMessagesData = '';
+
 function fetchMessages(isInit = false) {
-    if (isInit) lastMessageId = 0;
-    fetch(`dm_action.php?action=fetch&user_id=${activeUserId}&last_id=${lastMessageId}`)
+    // Selalu ambil dari awal (last_id=0) untuk mendeteksi pesan yang diedit/dihapus
+    fetch(`dm_action.php?action=fetch&user_id=${activeUserId}&last_id=0`)
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
-            if (isInit) {
-                chatArea.innerHTML = ''; 
-                if(data.messages.length === 0) {
-                    chatArea.innerHTML = '<div style="text-align:center; padding: 2rem; color: #aaa; font-size: 0.9rem;">Belum ada pesan. Mulai sapa!</div>';
-                }
+            const currentData = JSON.stringify(data.messages);
+            if (currentData === lastMessagesData && !isInit) return; // Tidak ada perubahan, jangan re-render
+            
+            lastMessagesData = currentData;
+            chatArea.innerHTML = ''; 
+            
+            if(data.messages.length === 0) {
+                chatArea.innerHTML = '<div style="text-align:center; padding: 2rem; color: #aaa; font-size: 0.9rem;">Belum ada pesan. Mulai sapa!</div>';
             }
             
             data.messages.forEach(msg => {
-                if(chatArea.querySelector('div[style*="text-align:center"]')) {
-                    chatArea.innerHTML = '';
-                }
-
                 const bubble = document.createElement('div');
                 const isSent = (msg.pengirim_id == currentUserId);
                 bubble.className = 'dm-bubble ' + (isSent ? 'sent' : 'received');
@@ -338,7 +339,6 @@ function fetchMessages(isInit = false) {
                 
                 bubble.innerHTML = innerHtml;
                 chatArea.appendChild(bubble);
-                lastMessageId = Math.max(lastMessageId, msg.id);
             });
             
             if (data.messages.length > 0) {
