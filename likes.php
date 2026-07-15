@@ -29,16 +29,10 @@ if ($resensiId > 0) {
         $st->execute();
         $st->close();
 
-        // Notifikasi like
-        $r1 = $conn->query("SELECT user_id FROM resensi WHERE id = $resensiId");
-        $pemilikResensi = $r1->fetch_assoc()['user_id'] ?? 0;
-        if ($pemilikResensi > 0 && $pemilikResensi != $userId) {
+            // Notifikasi like using shared function
+            require_once 'notify.php';
             $pesan = "<b>" . htmlspecialchars($_SESSION['username']) . "</b> menyukai resensi Anda.";
-            $n_stmt = $conn->prepare("INSERT INTO notifikasi (user_id, pesan, resensi_id) VALUES (?, ?, ?)");
-            $n_stmt->bind_param("isi", $pemilikResensi, $pesan, $resensiId);
-            $n_stmt->execute();
-            $n_stmt->close();
-        }
+            createNotification($pemilikResensi, 'like', ['message' => $pesan, 'resensi_id' => $resensiId]);
     }
 }
 
