@@ -147,6 +147,35 @@ if ($active_chat_user_id > 0) {
     display: block;
     text-align: right;
 }
+.dm-actions {
+    display: none;
+    position: absolute;
+    left: -65px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 6px;
+    box-shadow: 0 2px 5px var(--shadow);
+    white-space: nowrap;
+}
+.dm-bubble.sent:hover .dm-actions {
+    display: flex;
+    gap: 4px;
+}
+.dm-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 2px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+.dm-actions button:hover {
+    opacity: 1;
+}
 .dm-input-area {
     padding: 1rem;
     background: #fff;
@@ -273,6 +302,7 @@ function formatTime(dateStr) {
 }
 
 function fetchMessages(isInit = false) {
+    if (isInit) lastMessageId = 0;
     fetch(`dm_action.php?action=fetch&user_id=${activeUserId}&last_id=${lastMessageId}`)
     .then(res => res.json())
     .then(data => {
@@ -285,17 +315,28 @@ function fetchMessages(isInit = false) {
             }
             
             data.messages.forEach(msg => {
-                // Hapus empty state text jika ada
                 if(chatArea.querySelector('div[style*="text-align:center"]')) {
                     chatArea.innerHTML = '';
                 }
 
                 const bubble = document.createElement('div');
-                bubble.className = 'dm-bubble ' + (msg.pengirim_id == currentUserId ? 'sent' : 'received');
+                const isSent = (msg.pengirim_id == currentUserId);
+                bubble.className = 'dm-bubble ' + (isSent ? 'sent' : 'received');
                 
                 let text = msg.isi_pesan.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                bubble.innerHTML = `${text}<span class="dm-time">${formatTime(msg.created_at)}</span>`;
+                let innerHtml = `${text}<span class="dm-time">${formatTime(msg.created_at)}</span>`;
                 
+                if (isSent) {
+                    let safeText = msg.isi_pesan.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+                    innerHtml += `
+                        <div class="dm-actions">
+                            <button title="Edit" onclick="editMessage(${msg.id}, '${safeText}')">✏️</button>
+                            <button title="Hapus" onclick="deleteMessage(${msg.id})">🗑️</button>
+                        </div>
+                    `;
+                }
+                
+                bubble.innerHTML = innerHtml;
                 chatArea.appendChild(bubble);
                 lastMessageId = Math.max(lastMessageId, msg.id);
             });
@@ -349,6 +390,45 @@ chatForm.addEventListener('submit', function(e) {
         chatInput.focus();
     });
 });
+
+function deleteMessage(id) {
+    if (!confirm('Hapus pesan ini secara permanen?')) return;
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('message_id', id);
+    
+    fetch('dm_action.php', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            fetchMessages(true);
+        } else {
+            if (typeof buatAlert === 'function') buatAlert(data.message, 'error');
+            else alert(data.message);
+        }
+    }).catch(err => console.error(err));
+}
+
+function editMessage(id, oldText) {
+    const newText = prompt('Edit pesan:', oldText);
+    if (newText === null || newText.trim() === '' || newText === oldText) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'edit');
+    formData.append('message_id', id);
+    formData.append('new_text', newText.trim());
+    
+    fetch('dm_action.php', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            fetchMessages(true);
+        } else {
+            if (typeof buatAlert === 'function') buatAlert(data.message, 'error');
+            else alert(data.message);
+        }
+    }).catch(err => console.error(err));
+}
 </script>
 <?php endif; ?>
 

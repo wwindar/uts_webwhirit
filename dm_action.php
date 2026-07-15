@@ -63,6 +63,42 @@ elseif ($action === 'send') {
     $stmt->close();
     exit();
 }
+elseif ($action === 'delete') {
+    $message_id = intval($_POST['message_id'] ?? 0);
+    if ($message_id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid message ID']);
+        exit();
+    }
+    
+    $stmt = $conn->prepare("DELETE FROM pesan WHERE id = ? AND pengirim_id = ?");
+    $stmt->bind_param("ii", $message_id, $current_user_id);
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Gagal menghapus pesan']);
+    }
+    $stmt->close();
+    exit();
+}
+elseif ($action === 'edit') {
+    $message_id = intval($_POST['message_id'] ?? 0);
+    $new_text = trim($_POST['new_text'] ?? '');
+    
+    if ($message_id <= 0 || empty($new_text)) {
+        echo json_encode(['status' => 'error', 'message' => 'Data tidak valid']);
+        exit();
+    }
+    
+    $stmt = $conn->prepare("UPDATE pesan SET isi_pesan = ? WHERE id = ? AND pengirim_id = ?");
+    $stmt->bind_param("sii", $new_text, $message_id, $current_user_id);
+    if ($stmt->execute()) {
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Gagal mengedit pesan']);
+    }
+    $stmt->close();
+    exit();
+}
 else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
 }
