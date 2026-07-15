@@ -20,7 +20,7 @@ $basePath = '../';
         [
             'icon' => '🔑',
             'q'    => 'Lupa Kata Sandi?',
-            'a'    => 'Saat ini fitur <em>reset password</em> otomatis belum tersedia. Jika kamu lupa kata sandi, mohon buat akun baru atau hubungi administrator untuk mereset kata sandimu secara manual.',
+            'a'    => 'Jangan khawatir! Kamu bisa menggunakan fitur <strong>Lupa Password</strong> di halaman Login. Cukup masukkan Username dan Email/Nomor Telepon yang terdaftar, dan kamu bisa langsung mengatur ulang (reset) kata sandi barumu saat itu juga.',
         ],
         [
             'icon' => '✏️',
