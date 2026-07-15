@@ -20,7 +20,7 @@ $pageTitle = 'Profil Pengguna';
 $basePath = '../';
 
 // Ambil info user
-$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, genre_favorit, foto_profil, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, genre_favorit, foto_profil, created_at, role FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $userResult = $stmt->get_result();
@@ -134,10 +134,17 @@ function renderStars($rating) {
                 <div style="font-size:0.9rem;color:var(--ink-light);margin-bottom:0.4rem;font-weight:500;">
                     @<?= htmlspecialchars($user['username']) ?>
                 </div>
-                <span style="font-size:0.78rem;color:var(--brown);background:rgba(212,168,67,0.12);
-                             border:1px solid rgba(212,168,67,0.3);border-radius:20px;padding:0.2rem 0.75rem">
-                    Member
-                </span>
+                <?php if (isset($user['role']) && $user['role'] === 'admin'): ?>
+                    <span style="font-size:0.78rem;color:#c0392b;background:rgba(192,57,43,0.12);
+                                 border:1px solid rgba(192,57,43,0.3);border-radius:20px;padding:0.2rem 0.75rem; font-weight:bold;">
+                        👑 Admin
+                    </span>
+                <?php else: ?>
+                    <span style="font-size:0.78rem;color:var(--brown);background:rgba(212,168,67,0.12);
+                                 border:1px solid rgba(212,168,67,0.3);border-radius:20px;padding:0.2rem 0.75rem">
+                        Member
+                    </span>
+                <?php endif; ?>
             </div>
 
             <div style="border-top:1px solid var(--border);padding-top:1rem">
@@ -270,6 +277,10 @@ function renderStars($rating) {
                                 <td><?= date('d M Y', strtotime($row['tgl_input'])) ?></td>
                                 <td>
                                     <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm">Lihat</a>
+                                    <?php if (isAdmin()): ?>
+                                        <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm" style="color:#f59e0b; border-color:#fcd34d;">Edit</a>
+                                        <a href="hapus.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm" style="color:#ef4444; border-color:#fca5a5;" onclick="return confirm('Yakin ingin menghapus resensi ini?');">Hapus</a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endwhile; ?>

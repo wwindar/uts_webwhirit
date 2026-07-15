@@ -504,6 +504,23 @@ $composerReady = file_exists(__DIR__ . '/vendor/autoload.php');
                     </div>
                 </div>
 
+                <!-- Ekspor PDF -->
+                <div style="background:var(--page-bg);border-radius:8px;padding:1rem;
+                            border:1px solid var(--border)">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem">📄 Format PDF (.pdf)</div>
+                            <div style="font-size:0.78rem;color:var(--ink-light);margin-top:0.2rem">
+                                Format dokumen standar, mudah dibaca dan dicetak.
+                            </div>
+                        </div>
+                        <a href="ekspor_pdf.php" class="btn btn-outline btn-sm"
+                           style="white-space:nowrap;border-color:#c0392b;color:#c0392b">
+                            ⬇ Unduh PDF
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Panduan Composer (tersembunyi, muncul jika belum setup) -->
                 <?php if (!$composerReady): ?>
                 <div id="panduan-composer" style="display:none;margin-top:1rem;background:#f8f9fa;

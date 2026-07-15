@@ -21,6 +21,21 @@
     --font-body:    'DM Sans', sans-serif;
 }
 
+[data-theme="dark"] {
+    --cream:       #121212;
+    --paper:       #1E1E1E;
+    --ink:         #E0E0E0;
+    --ink-light:   #A0A0A0;
+    --border:      #333333;
+    --shadow:      rgba(0, 0, 0, 0.5);
+    --rose-light:  #2D1B1E;
+    --sage-light:  #2A2A2D;
+    
+    /* Adjust specific components for dark mode */
+    --gold:        #D4A843; 
+    --rose:        #C77A8A;
+}
+
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;

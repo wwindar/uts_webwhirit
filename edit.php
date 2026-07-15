@@ -24,6 +24,13 @@ if ($result->num_rows === 0) {
 $buku = $result->fetch_assoc();
 $stmt->close();
 
+if ($buku['user_id'] != $_SESSION['user_id'] && !isAdmin()) {
+    $_SESSION['flash'] = 'Anda tidak memiliki hak akses untuk mengedit resensi ini.';
+    $_SESSION['flash_type'] = 'error';
+    header("Location: katalog.php");
+    exit();
+}
+
 $errors = [];
 
 $genreOptions = [

@@ -53,6 +53,10 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=<?= time() ?>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
 <nav class="navbar">
@@ -61,6 +65,9 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
         <span class="brand-name">Resensi<em>Buku</em></span>
     </a>
     <ul class="nav-links" id="navLinks">
+        <li>
+            <button id="themeToggleBtn" onclick="toggleTheme()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--ink);" title="Ubah Tema">🌙</button>
+        </li>
         
         <?php if (isset($_SESSION['user_id'])): ?>
         <li class="nav-dropdown-container">
@@ -93,6 +100,10 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
                 <a href="pengguna.php" class="dropdown-item">👥 Pengguna</a>
                 <a href="tambah.php" class="dropdown-item">➕ Tambah Resensi</a>
                 <hr class="nav-dropdown-divider">
+                <?php if (isAdmin()): ?>
+                    <a href="admin_users.php" class="dropdown-item" style="color:var(--gold); font-weight:600;">🛠️ Kelola Pengguna</a>
+                    <hr class="nav-dropdown-divider">
+                <?php endif; ?>
                 <a href="about.php" class="dropdown-item">📖 Tentang Aplikasi</a>
                 <a href="bantuan.php" class="dropdown-item">❓ Bantuan</a>
                 <a href="logout.php" class="dropdown-item text-danger">🚪 Keluar</a>
@@ -122,6 +133,27 @@ window.onclick = function(event) {
                 openDropdown.classList.remove('show');
             }
         }
+    }
+}
+
+// Update the icon based on current theme on load
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+    }
+});
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
     }
 }
 </script>

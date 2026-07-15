@@ -13,7 +13,7 @@ if ($id <= 0) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT judul_buku FROM resensi WHERE id = ?");
+$stmt = $conn->prepare("SELECT judul_buku, user_id FROM resensi WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -27,6 +27,13 @@ if ($result->num_rows === 0) {
 
 $buku = $result->fetch_assoc();
 $stmt->close();
+
+if ($buku['user_id'] != $_SESSION['user_id'] && !isAdmin()) {
+    $_SESSION['flash'] = 'Anda tidak memiliki hak akses untuk menghapus resensi ini.';
+    $_SESSION['flash_type'] = 'error';
+    header("Location: katalog.php");
+    exit();
+}
 
 $del = $conn->prepare("DELETE FROM resensi WHERE id = ?");
 $del->bind_param("i", $id);

@@ -14,6 +14,16 @@ $totalGenre   = $conn->query("SELECT COUNT(DISTINCT genre) as total FROM resensi
 $topGenre     = $conn->query("SELECT genre, COUNT(*) as jml FROM resensi WHERE genre IS NOT NULL GROUP BY genre ORDER BY jml DESC LIMIT 1")->fetch_assoc();
 $recentResult = $conn->query("SELECT r.*, u.username FROM resensi r JOIN users u ON r.user_id = u.id ORDER BY r.tgl_input DESC LIMIT 5");
 
+// Ambil data untuk Chart.js (Jumlah resensi per genre)
+$chartQuery = $conn->query("SELECT genre, COUNT(*) as jml FROM resensi WHERE genre IS NOT NULL AND genre != '' GROUP BY genre");
+$chartLabels = [];
+$chartData = [];
+while ($row = $chartQuery->fetch_assoc()) {
+    $chartLabels[] = $row['genre'];
+    $chartData[] = $row['jml'];
+}
+$chartLabelsJson = json_encode($chartLabels);
+$chartDataJson = json_encode($chartData);
 function renderStars($rating) {
     $stars = '';
     for ($i = 1; $i <= 5; $i++) {
@@ -54,6 +64,14 @@ function renderStars($rating) {
             <div class="stat-num" style="font-size:1.1rem;margin-top:0.4rem"><?= htmlspecialchars($topGenre['genre'] ?? '-') ?></div>
             <div class="stat-label">Genre Terbanyak</div>
         </a>
+    </div>
+
+    <!-- Chart.js Container -->
+    <div style="margin: 2rem 0; background: var(--paper); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 20px var(--shadow)">
+        <h3 style="margin-bottom: 1rem; font-family: var(--font-head); font-size: 1.15rem; color: var(--ink);">📊 Distribusi Genre Resensi</h3>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="genreChart"></canvas>
+        </div>
     </div>
 
     <div style="margin: 2rem 0; background: var(--paper); border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 20px var(--shadow)">
@@ -121,5 +139,65 @@ function renderStars($rating) {
         </div>
     <?php endif; ?>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('genreChart');
+    if (!ctx) return;
+    
+    const labels = <?= $chartLabelsJson ?>;
+    const data = <?= $chartDataJson ?>;
+    
+    if (labels.length === 0) {
+        ctx.parentElement.innerHTML = '<p style="text-align:center; color:var(--ink-light); padding-top:2rem;">Belum ada data resensi untuk ditampilkan pada grafik.</p>';
+        return;
+    }
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jumlah Resensi per Genre',
+                data: data,
+                backgroundColor: [
+                    'rgba(163, 93, 108, 0.7)',
+                    'rgba(41, 128, 185, 0.7)',
+                    'rgba(39, 174, 96, 0.7)',
+                    'rgba(243, 156, 18, 0.7)',
+                    'rgba(142, 68, 173, 0.7)',
+                    'rgba(211, 84, 0, 0.7)'
+                ],
+                borderColor: [
+                    '#A35D6C',
+                    '#2980b9',
+                    '#27ae60',
+                    '#f39c12',
+                    '#8e44ad',
+                    '#d35400'
+                ],
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+});
+</script>
 
 <?php include ('footer.php'); ?>
