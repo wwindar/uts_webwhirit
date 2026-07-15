@@ -301,49 +301,88 @@ function formatTime(dateStr) {
     return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
 }
 
-let lastMessagesData = '';
+// Map to track rendered message elements by ID
+const messageMap = {};
+
+function buildBubble(msg) {
+    const bubble = document.createElement('div');
+    const isSent = (msg.pengirim_id == currentUserId);
+    bubble.className = 'dm-bubble ' + (isSent ? 'sent' : 'received');
+    bubble.dataset.msgId = msg.id;
+    
+    let text = msg.isi_pesan.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    let innerHtml = `<span class="dm-text">${text}</span><span class="dm-time">${formatTime(msg.created_at)}</span>`;
+    
+    if (isSent) {
+        let safeText = msg.isi_pesan.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+        innerHtml += `
+            <div class="dm-actions">
+                <button title="Edit" onclick="editMessage(${msg.id}, '${safeText}')">✏️</button>
+                <button title="Hapus" onclick="deleteMessage(${msg.id})">🗑️</button>
+            </div>
+        `;
+    }
+    bubble.innerHTML = innerHtml;
+    return bubble;
+}
 
 function fetchMessages(isInit = false) {
-    // Selalu ambil dari awal (last_id=0) untuk mendeteksi pesan yang diedit/dihapus
     fetch(`dm_action.php?action=fetch&user_id=${activeUserId}&last_id=0`)
     .then(res => res.json())
     .then(data => {
-        if (data.status === 'success') {
-            const currentData = JSON.stringify(data.messages);
-            if (currentData === lastMessagesData && !isInit) return; // Tidak ada perubahan, jangan re-render
-            
-            lastMessagesData = currentData;
-            chatArea.innerHTML = ''; 
-            
-            if(data.messages.length === 0) {
-                chatArea.innerHTML = '<div style="text-align:center; padding: 2rem; color: #aaa; font-size: 0.9rem;">Belum ada pesan. Mulai sapa!</div>';
+        if (data.status !== 'success') return;
+        
+        const msgs = data.messages;
+        const incomingIds = new Set(msgs.map(m => String(m.id)));
+        
+        // Remove empty state placeholder if present
+        const placeholder = chatArea.querySelector('div[style*="text-align:center"]');
+        if (placeholder && msgs.length > 0) placeholder.remove();
+        
+        // Remove deleted messages from DOM
+        Object.keys(messageMap).forEach(id => {
+            if (!incomingIds.has(id)) {
+                messageMap[id].remove();
+                delete messageMap[id];
             }
-            
-            data.messages.forEach(msg => {
-                const bubble = document.createElement('div');
-                const isSent = (msg.pengirim_id == currentUserId);
-                bubble.className = 'dm-bubble ' + (isSent ? 'sent' : 'received');
-                
-                let text = msg.isi_pesan.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                let innerHtml = `${text}<span class="dm-time">${formatTime(msg.created_at)}</span>`;
-                
-                if (isSent) {
-                    let safeText = msg.isi_pesan.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-                    innerHtml += `
-                        <div class="dm-actions">
-                            <button title="Edit" onclick="editMessage(${msg.id}, '${safeText}')">✏️</button>
-                            <button title="Hapus" onclick="deleteMessage(${msg.id})">🗑️</button>
-                        </div>
-                    `;
-                }
-                
-                bubble.innerHTML = innerHtml;
+        });
+        
+        let shouldScroll = false;
+        
+        // Add new messages / update edited ones
+        msgs.forEach(msg => {
+            const idStr = String(msg.id);
+            if (!messageMap[idStr]) {
+                // New message: append to DOM
+                const bubble = buildBubble(msg);
                 chatArea.appendChild(bubble);
-            });
-            
-            if (data.messages.length > 0) {
-                chatArea.scrollTop = chatArea.scrollHeight;
+                messageMap[idStr] = bubble;
+                shouldScroll = true;
+            } else {
+                // Existing message: check if text changed (edit)
+                const textEl = messageMap[idStr].querySelector('.dm-text');
+                if (textEl) {
+                    const newText = msg.isi_pesan.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    if (textEl.innerHTML !== newText) {
+                        textEl.innerHTML = newText;
+                        // Update onclick text for edit button
+                        const editBtn = messageMap[idStr].querySelector('button[title="Edit"]');
+                        if (editBtn) {
+                            let safeText = msg.isi_pesan.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+                            editBtn.setAttribute('onclick', `editMessage(${msg.id}, '${safeText}')`);
+                        }
+                    }
+                }
             }
+        });
+        
+        // Show empty state if no messages
+        if (msgs.length === 0 && Object.keys(messageMap).length === 0) {
+            chatArea.innerHTML = '<div style="text-align:center; padding: 2rem; color: #aaa; font-size: 0.9rem;">Belum ada pesan. Mulai sapa!</div>';
+        }
+        
+        if (shouldScroll || isInit) {
+            chatArea.scrollTop = chatArea.scrollHeight;
         }
     })
     .catch(err => console.error(err));
