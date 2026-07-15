@@ -5,6 +5,7 @@ function isLoggedIn() {
 
 function requireLogin() {
     if (!isLoggedIn()) {
+        $_SESSION['redirect_to'] = $_SERVER['REQUEST_URI'];
         header("Location: login.php");
         exit();
     }

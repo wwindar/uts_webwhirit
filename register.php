@@ -50,7 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Auto-login
                 $_SESSION['user_id'] = $insert->insert_id;
                 $_SESSION['username'] = $username;
-                header("Location: dashboard.php");
+                
+                $redirect = isset($_SESSION['redirect_to']) ? $_SESSION['redirect_to'] : 'dashboard.php';
+                unset($_SESSION['redirect_to']);
+                header("Location: " . $redirect);
                 exit();
             } else {
                 $error = 'Gagal membuat akun. Coba lagi.';
