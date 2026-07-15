@@ -156,8 +156,14 @@ function toggleTheme() {
 
 <?php if (isset($_SESSION['user_id'])): 
     // Get max notification ID for initial polling cursor
-    $maxIdRes = $conn->query("SELECT MAX(id) as m FROM notifikasi WHERE user_id = $uid");
+    $notifUserId = intval($_SESSION['user_id']);
+    $maxIdRes = $conn->query("SELECT MAX(id) as m FROM notifikasi WHERE user_id = $notifUserId");
     $maxNotifId = $maxIdRes ? intval($maxIdRes->fetch_assoc()['m']) : 0;
+    // Determine base URL for API calls
+    $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
+    $baseDir = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+    // If we're in a subdirectory of htdocs, go up to root
+    $apiBase = $baseUrl . (str_contains($baseDir, 'uts_webwhirit') ? '/uts_webwhirit' : $baseDir);
 ?>
 <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
@@ -165,7 +171,8 @@ function toggleTheme() {
 let lastNotifId = <?= $maxNotifId ?>;
 
 setInterval(() => {
-    fetch('api_notif.php?last_id=' + lastNotifId)
+    const apiUrl = '<?= rtrim($apiBase, "/") ?>/api_notif.php?last_id=' + lastNotifId;
+    fetch(apiUrl)
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success' && data.notifs.length > 0) {
