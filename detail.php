@@ -81,7 +81,7 @@ $hasFoto  = $fotoPath && file_exists($fotoPath);
             <p class="detail-author">ditulis oleh <em><?= htmlspecialchars($buku['penulis']) ?></em></p>
         </div>
 
-        <div class="detail-body" style="<?= $hasFoto ? 'display:flex;gap:2rem;align-items:flex-start' : '' ?>">
+        <div class="detail-body" style="<?= $hasFoto ? 'display:flex;flex-wrap:wrap;gap:2rem;align-items:flex-start' : '' ?>">
 
             <?php if ($hasFoto): ?>
             <div style="flex-shrink:0">
@@ -92,7 +92,7 @@ $hasFoto  = $fotoPath && file_exists($fotoPath);
             </div>
             <?php endif; ?>
 
-            <div style="flex:1;min-width:0">
+            <div style="flex:1 1 280px;min-width:0">
                 <div class="detail-stars">
                     <?= renderStars($buku['rating']) ?>
                     <small style="font-family:var(--font-body);font-size:0.85rem;color:var(--ink-light)">
