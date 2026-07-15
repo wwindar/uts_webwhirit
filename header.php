@@ -145,15 +145,81 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    
     const btn = document.getElementById('themeToggleBtn');
-    if (btn) {
-        btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    }
+    if (btn) btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
 }
 </script>
+
+<?php if (isset($_SESSION['user_id'])): 
+    // Get max notification ID for initial polling cursor
+    $maxIdRes = $conn->query("SELECT MAX(id) as m FROM notifikasi WHERE user_id = $uid");
+    $maxNotifId = $maxIdRes ? intval($maxIdRes->fetch_assoc()['m']) : 0;
+?>
+<div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
+
+<script>
+let lastNotifId = <?= $maxNotifId ?>;
+
+setInterval(() => {
+    fetch('api_notif.php?last_id=' + lastNotifId)
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success' && data.notifs.length > 0) {
+            data.notifs.forEach(notif => {
+                lastNotifId = Math.max(lastNotifId, notif.id);
+                showToast(notif.pesan);
+            });
+            // Update red dot indicator
+            let badge = document.querySelector('.nav-badge-dot');
+            if (!badge) {
+                let wrap = document.querySelector('.nav-profile-img-wrapper');
+                if (wrap) {
+                    badge = document.createElement('span');
+                    badge.className = 'nav-badge-dot';
+                    wrap.appendChild(badge);
+                }
+            }
+        }
+    })
+    .catch(err => console.error(err));
+}, 5000); // Poll setiap 5 detik
+
+function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.style.background = 'var(--paper)';
+    toast.style.color = 'var(--ink)';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 15px var(--shadow)';
+    toast.style.borderLeft = '4px solid var(--gold)';
+    toast.style.cursor = 'pointer';
+    toast.style.fontSize = '0.9rem';
+    toast.style.transition = 'opacity 0.3s, transform 0.3s';
+    toast.style.transform = 'translateY(20px)';
+    toast.style.opacity = '0';
+    toast.style.maxWidth = '300px';
+    toast.innerHTML = '🔔 ' + message;
+    
+    toast.onclick = () => window.location.href = 'notifikasi.php';
+    
+    container.appendChild(toast);
+    
+    // Animasi masuk
+    setTimeout(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+    }, 10);
+    
+    // Animasi keluar (hapus setelah 5 detik)
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+</script>
+<?php endif; ?>
