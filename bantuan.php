@@ -25,7 +25,27 @@ $basePath = '../';
         [
             'icon' => '✏️',
             'q'    => 'Cara Menulis Resensi?',
-            'a'    => 'Buka menu profil di pojok kanan atas, lalu pilih <strong>➕ Tulis Resensi</strong>. Lengkapi formulir detail buku, berikan rating bintang, tulis ulasanmu, lalu klik "Simpan Resensi".',
+            'a'    => 'Pilih menu <strong>➕ Tambah Resensi</strong> pada menu profil (pojok kanan atas) atau tombol di Katalog. Lengkapi formulir detail buku, berikan rating bintang, tulis ulasanmu, lalu klik "Simpan Resensi".',
+        ],
+        [
+            'icon' => '📥',
+            'q'    => 'Cara Mengunduh Laporan (PDF, CSV, Word)?',
+            'a'    => 'Kamu bisa mengekspor laporan datamu di halaman <strong>Profil Saya</strong> (gulir ke paling bawah) atau dari halaman <strong>Katalog</strong>. Tersedia format PDF, Excel, CSV, dan Word.',
+        ],
+        [
+            'icon' => '🌙',
+            'q'    => 'Cara Mengaktifkan Mode Gelap (Dark Mode)?',
+            'a'    => 'Klik ikon <strong>🌙 (Bulan)</strong> di sebelah kiri foto profilmu di bilah navigasi atas. Klik lagi ikon ☀️ (Matahari) untuk mengembalikannya ke mode terang. Pilihanmu akan otomatis tersimpan.',
+        ],
+        [
+            'icon' => '📊',
+            'q'    => 'Melihat Statistik Ulasan (Grafik)?',
+            'a'    => 'Statistik visual seperti grafik batang genre favoritmu dapat dilihat langsung di halaman <strong>Beranda (Dashboard)</strong>.',
+        ],
+        [
+            'icon' => '👑',
+            'q'    => 'Apa itu Akun Admin?',
+            'a'    => 'Pengguna dengan peran Admin memiliki akses ke panel <strong>🛠️ Kelola Pengguna</strong>, dapat mengunduh <em>Backup Database</em>, serta menghapus/mengedit resensi pengguna lain jika melanggar aturan.',
         ],
         [
             'icon' => '👤',
@@ -43,19 +63,9 @@ $basePath = '../';
             'a'    => 'Buka halaman <strong>Profil Saya</strong>, klik tombol <strong>✏️ Edit Profil</strong>, lalu pilih foto baru. Kamu bisa memotong (crop) foto sebelum menyimpannya.',
         ],
         [
-            'icon' => '🏷️',
-            'q'    => 'Apa Bedanya Username dan Nama Tampilan?',
-            'a'    => '<strong>Username</strong> adalah identitas unik akunmu (seperti di Instagram) — tidak bisa sama dengan pengguna lain dan hanya boleh huruf kecil, angka, titik, dan garis bawah. <strong>Nama Tampilan</strong> adalah nama yang akan terlihat di profil dan bisa diisi bebas.',
-        ],
-        [
-            'icon' => '🔖',
-            'q'    => 'Apa Bedanya Wishlist dan Bookmark?',
-            'a'    => '<strong>Wishlist</strong> adalah daftar buku yang <em>ingin kamu baca</em> suatu hari nanti. <strong>Bookmark</strong> adalah resensi orang lain yang kamu simpan karena menarik atau ingin dibaca ulang.',
-        ],
-        [
             'icon' => '📤',
-            'q'    => 'Cara Berbagi Profil?',
-            'a'    => 'Buka halaman <strong>Profil Saya</strong> dan klik tombol <strong>🔗 Bagikan Profil</strong>. Akan muncul QR Code dan link yang bisa kamu salin dan kirim ke teman.',
+            'q'    => 'Cara Berbagi Profil (QR Code)?',
+            'a'    => 'Buka halaman <strong>Profil Saya</strong> dan klik tombol <strong>🔗 Bagikan Profil</strong>. Akan muncul QR Code dan link yang bisa kamu salin atau pindai langsung.',
         ],
     ];
     ?>
