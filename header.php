@@ -65,10 +65,6 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
         <span class="brand-name">Resensi<em>Buku</em></span>
     </a>
     <ul class="nav-links" id="navLinks">
-        <li>
-            <button id="themeToggleBtn" onclick="toggleTheme()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--ink);" title="Ubah Tema">🌙</button>
-        </li>
-        
         <?php if (isset($_SESSION['user_id'])): ?>
         <li class="nav-dropdown-container">
             <div class="nav-profile-toggle" onclick="toggleNavDropdown()">
@@ -78,6 +74,7 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
                         <span class="nav-badge-dot"></span>
                     <?php endif; ?>
                 </div>
+                <span class="nav-username-label"><?= htmlspecialchars($navUsername) ?></span>
                 <span class="nav-dropdown-arrow">▼</span>
             </div>
             
@@ -137,21 +134,12 @@ window.onclick = function(event) {
     }
 }
 
-// Update the icon based on current theme on load
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('themeToggleBtn');
-    if (btn) {
-        btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
-    }
-});
-
+// Theme toggle function (still available for pengaturan.php)
 function toggleTheme() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const newTheme = isDark ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    const btn = document.getElementById('themeToggleBtn');
-    if (btn) btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
 }
 </script>
 

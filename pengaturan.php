@@ -334,7 +334,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="settings-card">
             <div class="settings-card-title">🖌️ Tema Aplikasi</div>
-            <p style="font-size:0.85rem;color:var(--ink-light);margin-bottom:1rem;">Pilih tampilan yang nyaman untuk kamu.</p>
+
+            <!-- Toggle Mode Gelap / Terang -->
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label" id="darkModeLabel">Mode Gelap</div>
+                    <div class="setting-desc">Aktifkan tampilan gelap untuk kenyamanan mata di malam hari.</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-track"></span>
+                </label>
+            </div>
+
+            <!-- Pilihan Tema Lengkap -->
+            <p style="font-size:0.82rem;color:var(--ink-light);margin:0.75rem 0 0.5rem;">Atau pilih tema:</p>
             <div class="theme-options">
                 <label class="theme-option">
                     <input type="radio" name="theme_pick" value="light" id="themeLight">
@@ -641,29 +655,45 @@ document.querySelectorAll('.settings-tab-btn').forEach(function(btn) {
     if (lastTab) { var b = document.querySelector('[data-tab="'+lastTab+'"]'); if (b) b.click(); }
 })();
 
-// ===== THEME PICKER =====
-(function(){
-    var cur = localStorage.getItem('theme') || 'light';
-    var r = document.querySelector('[name="theme_pick"][value="'+cur+'"]');
+// ===== THEME PICKER + DARK MODE TOGGLE =====
+function applyTheme(t) {
+    if (t === 'sepia') {
+        document.documentElement.setAttribute('data-theme','light');
+        document.documentElement.style.setProperty('--cream','#f5ead2');
+        document.documentElement.style.setProperty('--paper','#fdf3e3');
+        document.documentElement.style.setProperty('--ink','#5c3d11');
+        document.documentElement.style.setProperty('--ink-light','#8b6331');
+    } else {
+        document.documentElement.removeAttribute('style');
+        document.documentElement.setAttribute('data-theme', t);
+    }
+    localStorage.setItem('theme', t);
+    // sync radio
+    var r = document.querySelector('[name="theme_pick"][value="'+t+'"]');
     if (r) r.checked = true;
+    // sync toggle switch
+    var tog = document.getElementById('darkModeToggle');
+    if (tog) tog.checked = (t === 'dark');
+    // update label
+    var lbl = document.getElementById('darkModeLabel');
+    if (lbl) lbl.textContent = t === 'dark' ? '🌙 Mode Gelap (Aktif)' : '🌙 Mode Gelap';
+}
+
+(function(){
+    applyTheme(localStorage.getItem('theme') || 'light');
+
+    // Radio buttons
     document.querySelectorAll('[name="theme_pick"]').forEach(function(radio){
-        radio.addEventListener('change', function(){
-            var t = this.value;
-            if (t === 'sepia') {
-                document.documentElement.setAttribute('data-theme','light');
-                document.documentElement.style.setProperty('--cream','#f5ead2');
-                document.documentElement.style.setProperty('--paper','#fdf3e3');
-                document.documentElement.style.setProperty('--ink','#5c3d11');
-                document.documentElement.style.setProperty('--ink-light','#8b6331');
-            } else {
-                document.documentElement.removeAttribute('style');
-                document.documentElement.setAttribute('data-theme', t);
-            }
-            localStorage.setItem('theme', t);
-            var btn = document.getElementById('themeToggleBtn');
-            if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
-        });
+        radio.addEventListener('change', function(){ applyTheme(this.value); });
     });
+
+    // Toggle switch (gelap ↔ terang)
+    var tog = document.getElementById('darkModeToggle');
+    if (tog) {
+        tog.addEventListener('change', function(){
+            applyTheme(this.checked ? 'dark' : 'light');
+        });
+    }
 })();
 
 // ===== FONT SLIDER =====

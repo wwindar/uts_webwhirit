@@ -859,13 +859,17 @@ tbody td   {
     right: 0;
     top: 50px;
     background-color: var(--paper);
-    min-width: 240px;
+    min-width: 220px;
+    max-height: 50vh;
+    overflow-y: auto;
     box-shadow: 0 8px 30px var(--shadow);
     border-radius: 12px;
     border: 1px solid var(--border);
     z-index: 1000;
-    overflow: hidden;
-    padding: 0.5rem 0;
+    overflow-x: hidden;
+    padding: 0.3rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
 }
 
 .nav-dropdown-menu.show {
@@ -880,12 +884,12 @@ tbody td   {
 
 .nav-dropdown-menu .dropdown-item {
     color: var(--ink) !important;
-    padding: 0.45rem 1.2rem;
+    padding: 0.35rem 1.1rem;
     text-decoration: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.875rem;
+    font-size: 0.84rem;
     transition: background 0.2s;
     background: transparent !important;
     border: none !important;
@@ -928,4 +932,17 @@ tbody td   {
         width: 260px;
     }
     .navbar { padding: 0 1rem; }
+    .nav-username-label { display: none; }
+}
+
+/* Username label di navbar */
+.nav-username-label {
+    color: var(--mint);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
