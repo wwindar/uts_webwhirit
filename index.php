@@ -263,6 +263,39 @@ $nav_username = $is_logged_in ? ($_SESSION['username'] ?? 'Akun') : '';
         background-color: #4BBBA6;
     }
 
+    /* Carousel Arrow Buttons */
+    .carousel-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,255,255,0.92);
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        transition: background 0.2s, box-shadow 0.2s;
+        color: #AD6775;
+        user-select: none;
+    }
+    .carousel-arrow:hover {
+        background: #AD6775;
+        color: white;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    }
+    .carousel-arrow-left  { left: -20px; }
+    .carousel-arrow-right { right: -20px; }
+    .testimonial .carousel {
+        position: relative;
+        user-select: none;
+    }
+
     /* Utility */
     .tombol {
         text-transform: uppercase;
@@ -400,7 +433,7 @@ $nav_username = $is_logged_in ? ($_SESSION['username'] ?? 'Akun') : '';
 
       <!-- Testimonial -->
       <section class="testimonial">
-        <div id="testimonialCarousel" class="carousel slide" data-ride="carousel">
+        <div id="testimonialCarousel" class="carousel slide" data-ride="carousel" data-interval="4000">
           <!-- Indicators -->
           <ol class="carousel-indicators">
             <li data-target="#testimonialCarousel" data-slide-to="0" class="active"></li>
@@ -415,6 +448,11 @@ $nav_username = $is_logged_in ? ($_SESSION['username'] ?? 'Akun') : '';
             <li data-target="#testimonialCarousel" data-slide-to="9"></li>
             <li data-target="#testimonialCarousel" data-slide-to="10"></li>
           </ol>
+
+          <!-- Arrow Prev -->
+          <button class="carousel-arrow carousel-arrow-left" id="testimonialPrev" aria-label="Sebelumnya">&#8249;</button>
+          <!-- Arrow Next -->
+          <button class="carousel-arrow carousel-arrow-right" id="testimonialNext" aria-label="Berikutnya">&#8250;</button>
 
           <!-- Wrapper for slides -->
           <div class="carousel-inner text-center">
@@ -604,5 +642,62 @@ $nav_username = $is_logged_in ? ($_SESSION['username'] ?? 'Akun') : '';
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+    // Arrow buttons for testimonial carousel
+    document.getElementById('testimonialPrev').addEventListener('click', function() {
+        $('#testimonialCarousel').carousel('prev');
+    });
+    document.getElementById('testimonialNext').addEventListener('click', function() {
+        $('#testimonialCarousel').carousel('next');
+    });
+
+    // Touch / Mouse drag swipe support
+    (function() {
+        var carousel = document.getElementById('testimonialCarousel');
+        var startX = 0;
+        var isDragging = false;
+        var threshold = 50; // minimum px to count as swipe
+
+        // Touch events (mobile)
+        carousel.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+        }, { passive: true });
+
+        carousel.addEventListener('touchend', function(e) {
+            var diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    $('#testimonialCarousel').carousel('next');
+                } else {
+                    $('#testimonialCarousel').carousel('prev');
+                }
+            }
+        }, { passive: true });
+
+        // Mouse drag events (desktop)
+        carousel.addEventListener('mousedown', function(e) {
+            startX = e.clientX;
+            isDragging = true;
+        });
+
+        carousel.addEventListener('mouseup', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            var diff = startX - e.clientX;
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    $('#testimonialCarousel').carousel('next');
+                } else {
+                    $('#testimonialCarousel').carousel('prev');
+                }
+            }
+        });
+
+        carousel.addEventListener('mouseleave', function() {
+            isDragging = false;
+        });
+    })();
+    </script>
 
     <?php include('footer.php'); ?>

@@ -106,6 +106,7 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
                 <?php endif; ?>
                 <a href="about.php" class="dropdown-item">📖 Tentang Aplikasi</a>
                 <a href="bantuan.php" class="dropdown-item">❓ Bantuan</a>
+                <a href="pengaturan.php" class="dropdown-item">⚙️ Pengaturan</a>
                 <a href="logout.php" class="dropdown-item text-danger">🚪 Keluar</a>
             </div>
         </li>
