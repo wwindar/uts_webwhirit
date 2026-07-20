@@ -81,24 +81,51 @@ function renderStars($rating) {
     </div>
 
     <!-- Charts Grid -->
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin: 2rem 0;">
-        <!-- Chart 1: Genre -->
-        <div style="background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:1.5rem; box-shadow:0 4px 20px var(--shadow); grid-column: span 2;">
-            <h3 style="margin-bottom:1rem; font-family:var(--font-head); font-size:1.1rem; color:var(--ink);">📊 Distribusi Genre Resensi</h3>
+    <style>
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    .chart-card {
+        background: var(--paper);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px var(--shadow);
+    }
+    .chart-card-full { grid-column: span 2; }
+    .chart-title {
+        margin-bottom: 1rem;
+        font-family: var(--font-head);
+        font-size: 1.1rem;
+        color: var(--ink);
+    }
+    @media (max-width: 640px) {
+        .charts-grid { grid-template-columns: 1fr; }
+        .chart-card-full { grid-column: span 1; }
+    }
+    </style>
+
+    <div class="charts-grid">
+        <!-- Chart 1: Genre (full width) -->
+        <div class="chart-card chart-card-full">
+            <h3 class="chart-title">📊 Distribusi Genre Resensi</h3>
             <div style="position:relative; height:260px; width:100%;">
                 <canvas id="genreChart"></canvas>
             </div>
         </div>
         <!-- Chart 2: Trend Bulanan -->
-        <div style="background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:1.5rem; box-shadow:0 4px 20px var(--shadow);">
-            <h3 style="margin-bottom:1rem; font-family:var(--font-head); font-size:1.1rem; color:var(--ink);">📈 Tren Resensi 6 Bulan</h3>
+        <div class="chart-card">
+            <h3 class="chart-title">📈 Tren Resensi 6 Bulan</h3>
             <div style="position:relative; height:220px;">
                 <canvas id="trendChart"></canvas>
             </div>
         </div>
         <!-- Chart 3: Distribusi Rating -->
-        <div style="background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:1.5rem; box-shadow:0 4px 20px var(--shadow);">
-            <h3 style="margin-bottom:1rem; font-family:var(--font-head); font-size:1.1rem; color:var(--ink);">⭐ Distribusi Rating</h3>
+        <div class="chart-card">
+            <h3 class="chart-title">⭐ Distribusi Rating</h3>
             <div style="position:relative; height:220px; display:flex; justify-content:center;">
                 <canvas id="ratingChart"></canvas>
             </div>
