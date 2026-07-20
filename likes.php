@@ -29,10 +29,19 @@ if ($resensiId > 0) {
         $st->execute();
         $st->close();
 
-            // Notifikasi like using shared function
+        // Ambil pemilik resensi
+        $r1 = $conn->prepare("SELECT user_id FROM resensi WHERE id = ?");
+        $r1->bind_param("i", $resensiId);
+        $r1->execute();
+        $pemilikResensi = $r1->get_result()->fetch_assoc()['user_id'] ?? 0;
+        $r1->close();
+
+        // Kirim notifikasi (jangan kirim ke diri sendiri)
+        if ($pemilikResensi > 0 && $pemilikResensi != $userId) {
             require_once 'notify.php';
             $pesan = "<b>" . htmlspecialchars($_SESSION['username']) . "</b> menyukai resensi Anda.";
             createNotification($pemilikResensi, 'like', ['message' => $pesan, 'resensi_id' => $resensiId]);
+        }
     }
 }
 
