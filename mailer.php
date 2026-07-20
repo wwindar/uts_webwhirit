@@ -1,8 +1,7 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/phpmailer_lite/Exception.php';
+require_once __DIR__ . '/phpmailer_lite/PHPMailer.php';
+require_once __DIR__ . '/phpmailer_lite/SMTP.php';
 
 function getMailer() {
     $mail = new PHPMailer(true);
