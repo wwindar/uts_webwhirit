@@ -3,6 +3,9 @@ require_once __DIR__ . '/phpmailer_lite/Exception.php';
 require_once __DIR__ . '/phpmailer_lite/PHPMailer.php';
 require_once __DIR__ . '/phpmailer_lite/SMTP.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 function getMailer() {
     $mail = new PHPMailer(true);
 
