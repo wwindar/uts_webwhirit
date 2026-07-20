@@ -748,9 +748,11 @@ tbody td   {
 }
 
 @media (max-width: 420px) {
-    .stats-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
     .auth-card  { padding: 1.5rem; }
     .form-card  { padding: 1.25rem; }
+    .stat-num   { font-size: 1.8rem; }
+    .stat-card  { padding: 1rem; }
 }
 
 /* --- PERBAIKAN KUAT UNTUK MODAL CRUD --- */
