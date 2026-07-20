@@ -5,8 +5,8 @@ require_once('auth.php');
 
 redirectIfLoggedIn();
 
-// Pastikan user sudah melewati verifikasi di forgot_password.php
-if (!isset($_SESSION['reset_user_id']) || !isset($_SESSION['reset_username'])) {
+// Pastikan user sudah melewati verifikasi OTP
+if (!isset($_SESSION['reset_user_id']) || !isset($_SESSION['otp_verified']) || $_SESSION['otp_verified'] !== true) {
     header("Location: forgot_password.php");
     exit();
 }
@@ -27,19 +27,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user_id = $_SESSION['reset_user_id'];
+        $otp_record_id = $_SESSION['otp_record_id'] ?? 0;
 
-        $update = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
-        $update->bind_param("si", $hashedPassword, $user_id);
+        // Mulai transaksi untuk memastikan keduanya terupdate
+        $conn->begin_transaction();
 
-        if ($update->execute()) {
+        try {
+            // Update password
+            $update = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $update->bind_param("si", $hashedPassword, $user_id);
+            $update->execute();
+            $update->close();
+
+            // Tandai OTP digunakan
+            if ($otp_record_id > 0) {
+                $update_otp = $conn->prepare("UPDATE password_resets SET used = 1 WHERE id = ?");
+                $update_otp->bind_param("i", $otp_record_id);
+                $update_otp->execute();
+                $update_otp->close();
+            }
+
+            $conn->commit();
             $success = 'Password berhasil direset! Silakan login dengan password baru.';
+            
             // Hapus session reset agar tidak bisa diakses lagi
             unset($_SESSION['reset_user_id']);
             unset($_SESSION['reset_username']);
-        } else {
-            $error = 'Gagal mereset password. Coba lagi.';
+            unset($_SESSION['reset_email']);
+            unset($_SESSION['otp_verified']);
+            unset($_SESSION['otp_record_id']);
+        } catch (Exception $e) {
+            $conn->rollback();
+            $error = 'Gagal mereset password. Silakan coba kembali.';
         }
-        $update->close();
     }
 }
 ?>
