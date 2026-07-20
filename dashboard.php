@@ -94,17 +94,35 @@ function renderStars($rating) {
         border-radius: 12px;
         padding: 1.5rem;
         box-shadow: 0 4px 20px var(--shadow);
+        overflow: hidden;
+        min-width: 0;
     }
     .chart-card-full { grid-column: span 2; }
     .chart-title {
         margin-bottom: 1rem;
         font-family: var(--font-head);
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         color: var(--ink);
     }
+    .chart-wrap {
+        position: relative;
+        height: 240px;
+        width: 100%;
+        overflow: hidden;
+    }
+    .chart-wrap-donut {
+        position: relative;
+        height: 220px;
+        width: 100%;
+        overflow: hidden;
+    }
     @media (max-width: 640px) {
-        .charts-grid { grid-template-columns: 1fr; }
+        .charts-grid { grid-template-columns: 1fr; gap: 1rem; margin: 1rem 0; }
         .chart-card-full { grid-column: span 1; }
+        .chart-card { padding: 1rem; }
+        .chart-title { font-size: 0.95rem; margin-bottom: 0.6rem; }
+        .chart-wrap { height: 180px; }
+        .chart-wrap-donut { height: 200px; }
     }
     </style>
 
@@ -112,21 +130,21 @@ function renderStars($rating) {
         <!-- Chart 1: Genre (full width) -->
         <div class="chart-card chart-card-full">
             <h3 class="chart-title">📊 Distribusi Genre Resensi</h3>
-            <div style="position:relative; height:260px; width:100%;">
+            <div class="chart-wrap">
                 <canvas id="genreChart"></canvas>
             </div>
         </div>
         <!-- Chart 2: Trend Bulanan -->
         <div class="chart-card">
             <h3 class="chart-title">📈 Tren Resensi 6 Bulan</h3>
-            <div style="position:relative; height:220px;">
+            <div class="chart-wrap">
                 <canvas id="trendChart"></canvas>
             </div>
         </div>
         <!-- Chart 3: Distribusi Rating -->
         <div class="chart-card">
             <h3 class="chart-title">⭐ Distribusi Rating</h3>
-            <div style="position:relative; height:220px; display:flex; justify-content:center;">
+            <div class="chart-wrap-donut">
                 <canvas id="ratingChart"></canvas>
             </div>
         </div>
