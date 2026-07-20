@@ -21,32 +21,43 @@ if (isset($_GET['baca']) && is_numeric($_GET['baca'])) {
     $st->bind_param("ii", $nid, $userId);
     $st->execute();
     $st->close();
-    // redirect berdasarkan tipe notifikasi
-    $r2 = $conn->prepare("SELECT resensi_id, type, payload FROM notifikasi WHERE id = ? AND user_id = ?");
-    $r2->bind_param("ii", $nid, $userId);
-    $r2->execute();
-    $rr = $r2->get_result()->fetch_assoc();
-    $r2->close();
-    if (!empty($rr['resensi_id'])) {
-        header("Location: detail.php?id=" . $rr['resensi_id']);
-    } elseif ($rr['type'] === 'follow') {
-        // cari user_id dari username di payload
-        $payloadArr = json_decode($rr['payload'] ?? '{}', true);
-        $pesanTeks = $payloadArr['message'] ?? '';
-        preg_match('/<b>([^<]+)<\/b>/', $pesanTeks, $m);
-        $uname = $m[1] ?? '';
-        if ($uname) {
-            $ru = $conn->prepare("SELECT id FROM users WHERE username = ?");
-            $ru->bind_param('s', $uname);
-            $ru->execute();
-            $ruRow = $ru->get_result()->fetch_assoc();
-            $ru->close();
-            header("Location: " . ($ruRow ? "profil_publik.php?id=" . $ruRow['id'] : "notifikasi.php"));
+    // redirect berdasarkan tipe notifikasi (aman jika kolom type/payload belum ada)
+    try {
+        $r2 = $conn->prepare("SELECT resensi_id, type, payload FROM notifikasi WHERE id = ? AND user_id = ?");
+        $r2->bind_param("ii", $nid, $userId);
+        $r2->execute();
+        $rr = $r2->get_result()->fetch_assoc();
+        $r2->close();
+        if (!empty($rr['resensi_id'])) {
+            header("Location: detail.php?id=" . intval($rr['resensi_id']));
+        } elseif (!empty($rr['type']) && $rr['type'] === 'follow') {
+            $payloadArr = json_decode($rr['payload'] ?? '{}', true);
+            $pesanTeks  = $payloadArr['message'] ?? '';
+            preg_match('/<b>([^<]+)<\/b>/', $pesanTeks, $m);
+            $uname = $m[1] ?? '';
+            if ($uname) {
+                $ru = $conn->prepare("SELECT id FROM users WHERE username = ?");
+                $ru->bind_param('s', $uname);
+                $ru->execute();
+                $ruRow = $ru->get_result()->fetch_assoc();
+                $ru->close();
+                header("Location: " . ($ruRow ? "profil_publik.php?id=" . $ruRow['id'] : "notifikasi.php"));
+            } else {
+                header("Location: notifikasi.php");
+            }
         } else {
             header("Location: notifikasi.php");
         }
-    } else {
-        header("Location: notifikasi.php");
+    } catch (\Throwable $e) {
+        // Fallback aman jika tabel belum punya kolom type/payload
+        $r2b = $conn->prepare("SELECT resensi_id FROM notifikasi WHERE id = ? AND user_id = ?");
+        $r2b->bind_param("ii", $nid, $userId);
+        $r2b->execute();
+        $rrb = $r2b->get_result()->fetch_assoc();
+        $r2b->close();
+        header(!empty($rrb['resensi_id'])
+            ? "Location: detail.php?id=" . intval($rrb['resensi_id'])
+            : "Location: notifikasi.php");
     }
     exit();
 }
