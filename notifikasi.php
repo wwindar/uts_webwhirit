@@ -21,14 +21,21 @@ if (isset($_GET['baca']) && is_numeric($_GET['baca'])) {
     $st->bind_param("ii", $nid, $userId);
     $st->execute();
     $st->close();
-    // redirect ke detail resensi jika ada resensi_id
-    $r2 = $conn->prepare("SELECT resensi_id FROM notifikasi WHERE id = ? AND user_id = ?");
+    // redirect berdasarkan tipe notifikasi
+    $r2 = $conn->prepare("SELECT resensi_id, type, payload FROM notifikasi WHERE id = ? AND user_id = ?");
     $r2->bind_param("ii", $nid, $userId);
     $r2->execute();
     $rr = $r2->get_result()->fetch_assoc();
     $r2->close();
     if (!empty($rr['resensi_id'])) {
         header("Location: detail.php?id=" . $rr['resensi_id']);
+    } elseif ($rr['type'] === 'follow') {
+        // cari username dari payload
+        $payloadArr = json_decode($rr['payload'] ?? '{}', true);
+        $pesanTeks = $payloadArr['message'] ?? '';
+        preg_match('/<b>([^<]+)<\/b>/', $pesanTeks, $m);
+        $uname = $m[1] ?? '';
+        header("Location: " . ($uname ? "cek_username_publik.php?username=" . urlencode($uname) : "notifikasi.php"));
     } else {
         header("Location: notifikasi.php");
     }
@@ -91,7 +98,19 @@ $belumBaca = $conn->query(
                     background:var(--gold);margin-right:6px;vertical-align:middle"></span>
                 <?php endif; ?>
                 <span style="font-size:0.95rem">
-                    <?= $n['pesan'] ?>
+                    <?php
+                    // Buat username jadi link ke profil_publik
+                    $pesanHtml = $n['pesan'];
+                    $pesanHtml = preg_replace_callback(
+                        '/<b>([^<]+)<\/b>/',
+                        function($matches) {
+                            $uname = htmlspecialchars($matches[1]);
+                            return '<a href="cek_username_publik.php?username=' . urlencode($matches[1]) . '" style="font-weight:700;color:var(--gold);text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' . $uname . '</a>';
+                        },
+                        $pesanHtml
+                    );
+                    echo $pesanHtml;
+                    ?>
                 </span>
                 <div style="font-size:0.75rem;color:var(--ink-light);margin-top:0.3rem">
                     <?= date('d M Y, H:i', strtotime($n['tgl_kirim'])) ?> WIB
