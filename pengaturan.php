@@ -10,7 +10,7 @@ $errors = [];
 $success = '';
 
 // Ambil data user
-$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, foto_profil, created_at FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, nama_lengkap, bio, email, nomor_telepon, foto_profil, created_at FROM users WHERE id = ?");
 $stmt->bind_param("i", $uid);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -19,6 +19,52 @@ $stmt->close();
 // --- Handle POST ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
+
+    // 0. Update Kontak (Email & Nomor Telepon)
+    if ($action === 'update_kontak') {
+        $email = trim($_POST['email'] ?? '');
+        $nomor_telepon = trim($_POST['nomor_telepon'] ?? '');
+
+        if (empty($email)) {
+            $errors[] = 'Email tidak boleh kosong.';
+        } else {
+            // Cek apakah email sudah dipakai user lain
+            $stmtCek = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+            $stmtCek->bind_param("si", $email, $uid);
+            $stmtCek->execute();
+            $resultCek = $stmtCek->get_result();
+            if ($resultCek->num_rows > 0) {
+                $errors[] = 'Email sudah digunakan oleh akun lain.';
+            }
+            $stmtCek->close();
+
+            // Cek apakah nomor telepon sudah dipakai user lain (jika diisi)
+            if (!empty($nomor_telepon)) {
+                $stmtCekTlp = $conn->prepare("SELECT id FROM users WHERE nomor_telepon = ? AND id != ?");
+                $stmtCekTlp->bind_param("si", $nomor_telepon, $uid);
+                $stmtCekTlp->execute();
+                $resultCekTlp = $stmtCekTlp->get_result();
+                if ($resultCekTlp->num_rows > 0) {
+                    $errors[] = 'Nomor telepon sudah digunakan oleh akun lain.';
+                }
+                $stmtCekTlp->close();
+            }
+        }
+
+        if (empty($errors)) {
+            $stmtUp = $conn->prepare("UPDATE users SET email = ?, nomor_telepon = ? WHERE id = ?");
+            $stmtUp->bind_param("ssi", $email, $nomor_telepon, $uid);
+            if ($stmtUp->execute()) {
+                $success = 'Kontak berhasil disimpan!';
+                // Refresh data user
+                $user['email'] = $email;
+                $user['nomor_telepon'] = $nomor_telepon;
+            } else {
+                $errors[] = 'Gagal menyimpan kontak.';
+            }
+            $stmtUp->close();
+        }
+    }
 
     // 1. Ganti Password
     if ($action === 'ganti_password') {
@@ -414,10 +460,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="settings-panel" id="tab-akun">
         <div class="settings-card">
             <div class="settings-card-title">👤 Informasi Akun</div>
-            <div class="info-row">
-                <span class="info-row-key">Username</span>
-                <span class="info-row-val">@<?= htmlspecialchars($user['username']) ?></span>
-            </div>
+            
+            <form method="POST">
+                <input type="hidden" name="action" value="update_kontak">
+                
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-weight: 500; font-size: 0.85rem; color: var(--ink);">Username</label>
+                    <input type="text" value="@<?= htmlspecialchars($user['username']) ?>" disabled style="background: var(--cream); cursor: not-allowed; border: 1px solid var(--border);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="email" style="font-weight: 500; font-size: 0.85rem; color: var(--ink);">Alamat Email</label>
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" placeholder="contoh@gmail.com" required style="border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem; width: 100%; box-sizing: border-box; background: var(--paper); color: var(--ink);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="nomor_telepon" style="font-weight: 500; font-size: 0.85rem; color: var(--ink);">Nomor Telepon / WA</label>
+                    <input type="text" id="nomor_telepon" name="nomor_telepon" value="<?= htmlspecialchars($user['nomor_telepon'] ?? '') ?>" placeholder="08xxxxxxxxxx" style="border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem; width: 100%; box-sizing: border-box; background: var(--paper); color: var(--ink);">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-sm">💾 Simpan Kontak</button>
+            </form>
+
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0 1rem 0;">
+            
             <div class="info-row">
                 <span class="info-row-key">Nama Lengkap</span>
                 <span class="info-row-val"><?= htmlspecialchars($user['nama_lengkap'] ?: '-') ?></span>
@@ -431,7 +497,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="info-row-val" style="text-align:right;max-width:260px;"><?= htmlspecialchars($user['bio'] ?: '-') ?></span>
             </div>
             <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
-                <a href="profil.php" class="btn btn-primary btn-sm">✏️ Edit Profil Lengkap</a>
+                <a href="profil.php" class="btn btn-outline btn-sm">✏️ Edit Profil & Bio Lengkap</a>
             </div>
         </div>
 
