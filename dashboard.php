@@ -14,7 +14,7 @@ $totalGenre   = $conn->query("SELECT COUNT(DISTINCT genre) as total FROM resensi
 $topGenre     = $conn->query("SELECT genre, COUNT(*) as jml FROM resensi WHERE genre IS NOT NULL GROUP BY genre ORDER BY jml DESC LIMIT 1")->fetch_assoc();
 $recentResult = $conn->query("SELECT r.*, u.username FROM resensi r JOIN users u ON r.user_id = u.id ORDER BY r.tgl_input DESC LIMIT 5");
 
-// Ambil data untuk Chart.js (Jumlah resensi per genre)
+// Chart 1: Jumlah resensi per genre
 $chartQuery = $conn->query("SELECT genre, COUNT(*) as jml FROM resensi WHERE genre IS NOT NULL AND genre != '' GROUP BY genre");
 $chartLabels = [];
 $chartData = [];
@@ -24,6 +24,20 @@ while ($row = $chartQuery->fetch_assoc()) {
 }
 $chartLabelsJson = json_encode($chartLabels);
 $chartDataJson = json_encode($chartData);
+
+// Chart 2: Trend resensi per bulan (6 bulan terakhir)
+$trendQuery = $conn->query("SELECT DATE_FORMAT(tgl_input, '%b %Y') as bulan, COUNT(*) as jml FROM resensi WHERE tgl_input >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY DATE_FORMAT(tgl_input, '%Y-%m') ORDER BY tgl_input ASC");
+$trendLabels = []; $trendData = [];
+while ($row = $trendQuery->fetch_assoc()) { $trendLabels[] = $row['bulan']; $trendData[] = $row['jml']; }
+$trendLabelsJson = json_encode($trendLabels);
+$trendDataJson = json_encode($trendData);
+
+// Chart 3: Distribusi rating
+$ratingQuery = $conn->query("SELECT rating, COUNT(*) as jml FROM resensi GROUP BY rating ORDER BY rating");
+$ratingLabels = []; $ratingData = [];
+while ($row = $ratingQuery->fetch_assoc()) { $ratingLabels[] = 'Rating '.$row['rating'].'⭐'; $ratingData[] = $row['jml']; }
+$ratingLabelsJson = json_encode($ratingLabels);
+$ratingDataJson = json_encode($ratingData);
 function renderStars($rating) {
     $stars = '';
     for ($i = 1; $i <= 5; $i++) {
@@ -66,11 +80,28 @@ function renderStars($rating) {
         </a>
     </div>
 
-    <!-- Chart.js Container -->
-    <div style="margin: 2rem 0; background: var(--paper); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 20px var(--shadow)">
-        <h3 style="margin-bottom: 1rem; font-family: var(--font-head); font-size: 1.15rem; color: var(--ink);">📊 Distribusi Genre Resensi</h3>
-        <div style="position: relative; height: 300px; width: 100%;">
-            <canvas id="genreChart"></canvas>
+    <!-- Charts Grid -->
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin: 2rem 0;">
+        <!-- Chart 1: Genre -->
+        <div style="background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:1.5rem; box-shadow:0 4px 20px var(--shadow); grid-column: span 2;">
+            <h3 style="margin-bottom:1rem; font-family:var(--font-head); font-size:1.1rem; color:var(--ink);">📊 Distribusi Genre Resensi</h3>
+            <div style="position:relative; height:260px; width:100%;">
+                <canvas id="genreChart"></canvas>
+            </div>
+        </div>
+        <!-- Chart 2: Trend Bulanan -->
+        <div style="background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:1.5rem; box-shadow:0 4px 20px var(--shadow);">
+            <h3 style="margin-bottom:1rem; font-family:var(--font-head); font-size:1.1rem; color:var(--ink);">📈 Tren Resensi 6 Bulan</h3>
+            <div style="position:relative; height:220px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        <!-- Chart 3: Distribusi Rating -->
+        <div style="background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:1.5rem; box-shadow:0 4px 20px var(--shadow);">
+            <h3 style="margin-bottom:1rem; font-family:var(--font-head); font-size:1.1rem; color:var(--ink);">⭐ Distribusi Rating</h3>
+            <div style="position:relative; height:220px; display:flex; justify-content:center;">
+                <canvas id="ratingChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -143,60 +174,96 @@ function renderStars($rating) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('genreChart');
-    if (!ctx) return;
-    
-    const labels = <?= $chartLabelsJson ?>;
-    const data = <?= $chartDataJson ?>;
-    
-    if (labels.length === 0) {
-        ctx.parentElement.innerHTML = '<p style="text-align:center; color:var(--ink-light); padding-top:2rem;">Belum ada data resensi untuk ditampilkan pada grafik.</p>';
-        return;
-    }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#e0d6cc' : '#3a2e28';
+    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Jumlah Resensi per Genre',
-                data: data,
-                backgroundColor: [
-                    'rgba(163, 93, 108, 0.7)',
-                    'rgba(41, 128, 185, 0.7)',
-                    'rgba(39, 174, 96, 0.7)',
-                    'rgba(243, 156, 18, 0.7)',
-                    'rgba(142, 68, 173, 0.7)',
-                    'rgba(211, 84, 0, 0.7)'
-                ],
-                borderColor: [
-                    '#A35D6C',
-                    '#2980b9',
-                    '#27ae60',
-                    '#f39c12',
-                    '#8e44ad',
-                    '#d35400'
-                ],
-                borderWidth: 1,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
+    // Chart 1: Genre Bar
+    const ctx1 = document.getElementById('genreChart');
+    const labels1 = <?= $chartLabelsJson ?>;
+    const data1 = <?= $chartDataJson ?>;
+    if (ctx1 && labels1.length > 0) {
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: labels1,
+                datasets: [{
+                    label: 'Jumlah Resensi',
+                    data: data1,
+                    backgroundColor: ['rgba(163,93,108,0.75)','rgba(41,128,185,0.75)','rgba(39,174,96,0.75)','rgba(243,156,18,0.75)','rgba(142,68,173,0.75)','rgba(211,84,0,0.75)','rgba(22,160,133,0.75)'],
+                    borderRadius: 6, borderWidth: 0
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 }
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize:1, color: textColor }, grid: { color: gridColor } },
+                    x: { ticks: { color: textColor }, grid: { display: false } }
                 }
             }
-        }
-    });
+        });
+    } else if (ctx1) {
+        ctx1.parentElement.innerHTML = '<p style="text-align:center;color:var(--ink-light);padding-top:2rem;">Belum ada data.</p>';
+    }
+
+    // Chart 2: Trend Line
+    const ctx2 = document.getElementById('trendChart');
+    const labels2 = <?= $trendLabelsJson ?>;
+    const data2 = <?= $trendDataJson ?>;
+    if (ctx2 && labels2.length > 0) {
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: labels2,
+                datasets: [{
+                    label: 'Resensi Baru',
+                    data: data2,
+                    borderColor: '#db2777',
+                    backgroundColor: 'rgba(219,39,119,0.12)',
+                    fill: true, tension: 0.4, pointRadius: 5,
+                    pointBackgroundColor: '#db2777'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize:1, color: textColor }, grid: { color: gridColor } },
+                    x: { ticks: { color: textColor }, grid: { display: false } }
+                }
+            }
+        });
+    } else if (ctx2) {
+        ctx2.parentElement.innerHTML = '<p style="text-align:center;color:var(--ink-light);padding-top:2rem;">Belum ada data 6 bulan terakhir.</p>';
+    }
+
+    // Chart 3: Rating Donut
+    const ctx3 = document.getElementById('ratingChart');
+    const labels3 = <?= $ratingLabelsJson ?>;
+    const data3 = <?= $ratingDataJson ?>;
+    if (ctx3 && labels3.length > 0) {
+        new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: labels3,
+                datasets: [{
+                    data: data3,
+                    backgroundColor: ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6'],
+                    borderWidth: 2,
+                    borderColor: isDark ? '#1a1410' : '#fff'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: textColor, padding: 12, font: { size: 11 } } }
+                }
+            }
+        });
+    } else if (ctx3) {
+        ctx3.parentElement.innerHTML = '<p style="text-align:center;color:var(--ink-light);padding-top:2rem;">Belum ada data rating.</p>';
+    }
 });
 </script>
 

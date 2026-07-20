@@ -22,16 +22,15 @@ if ($action === 'follow') {
     if ($stmt->execute()) {
         if ($stmt->affected_rows > 0) {
             $pesan = "<b>" . htmlspecialchars($_SESSION['username']) . "</b> mulai mengikuti Anda.";
-            $notif_stmt = $conn->prepare("INSERT INTO notifikasi (user_id, pesan, resensi_id) VALUES (?, ?, NULL)");
-            $notif_stmt->bind_param("is", $diikuti_id, $pesan);
-            $notif_stmt->execute();
-            $notif_stmt->close();
+            require_once 'notify.php';
+            createNotification($diikuti_id, 'follow', ['message' => $pesan]);
         }
         echo json_encode(['status' => 'success', 'message' => 'Berhasil mengikuti']);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Gagal mengikuti']);
     }
     $stmt->close();
+
 } elseif ($action === 'unfollow') {
     $stmt = $conn->prepare("DELETE FROM pengikut WHERE pengikut_id = ? AND diikuti_id = ?");
     $stmt->bind_param("ii", $pengikut_id, $diikuti_id);
