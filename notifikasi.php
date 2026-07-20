@@ -30,12 +30,21 @@ if (isset($_GET['baca']) && is_numeric($_GET['baca'])) {
     if (!empty($rr['resensi_id'])) {
         header("Location: detail.php?id=" . $rr['resensi_id']);
     } elseif ($rr['type'] === 'follow') {
-        // cari username dari payload
+        // cari user_id dari username di payload
         $payloadArr = json_decode($rr['payload'] ?? '{}', true);
         $pesanTeks = $payloadArr['message'] ?? '';
         preg_match('/<b>([^<]+)<\/b>/', $pesanTeks, $m);
         $uname = $m[1] ?? '';
-        header("Location: " . ($uname ? "cek_username_publik.php?username=" . urlencode($uname) : "notifikasi.php"));
+        if ($uname) {
+            $ru = $conn->prepare("SELECT id FROM users WHERE username = ?");
+            $ru->bind_param('s', $uname);
+            $ru->execute();
+            $ruRow = $ru->get_result()->fetch_assoc();
+            $ru->close();
+            header("Location: " . ($ruRow ? "profil_publik.php?id=" . $ruRow['id'] : "notifikasi.php"));
+        } else {
+            header("Location: notifikasi.php");
+        }
     } else {
         header("Location: notifikasi.php");
     }
@@ -103,9 +112,15 @@ $belumBaca = $conn->query(
                     $pesanHtml = $n['pesan'];
                     $pesanHtml = preg_replace_callback(
                         '/<b>([^<]+)<\/b>/',
-                        function($matches) {
-                            $uname = htmlspecialchars($matches[1]);
-                            return '<a href="cek_username_publik.php?username=' . urlencode($matches[1]) . '" style="font-weight:700;color:var(--gold);text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' . $uname . '</a>';
+                        function($matches) use ($conn) {
+                            $uname = $matches[1];
+                            $ru = $conn->prepare("SELECT id FROM users WHERE username = ?");
+                            $ru->bind_param('s', $uname);
+                            $ru->execute();
+                            $ruRow = $ru->get_result()->fetch_assoc();
+                            $ru->close();
+                            $url = $ruRow ? 'profil_publik.php?id=' . $ruRow['id'] : '#';
+                            return '<a href="' . $url . '" style="font-weight:700;color:var(--gold);text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' . htmlspecialchars($uname) . '</a>';
                         },
                         $pesanHtml
                     );
