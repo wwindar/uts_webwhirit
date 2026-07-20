@@ -926,10 +926,12 @@ tbody td   {
 
 @media (max-width: 768px) {
     .nav-dropdown-menu {
-        position: absolute;
-        right: -10px;
-        top: 60px;
-        width: 260px;
+        position: fixed;
+        right: 8px;
+        top: 64px;
+        width: calc(100vw - 16px);
+        max-width: 300px;
+        max-height: 70vh;
     }
     .navbar { padding: 0 1rem; }
     .nav-username-label { display: none; }
