@@ -32,6 +32,9 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
 <body class="admin-body">
 
 <div class="admin-layout">
+    <!-- Overlay for mobile -->
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay" onclick="toggleAdminSidebar()"></div>
+
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="admin-sidebar-header">

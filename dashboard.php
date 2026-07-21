@@ -66,7 +66,7 @@ if (isAdmin()) {
         $totalPengguna = $conn->query("SELECT COUNT(*) as c FROM users WHERE role='user'")->fetch_assoc()['c'];
         $totalAdmin = $conn->query("SELECT COUNT(*) as c FROM users WHERE role='admin'")->fetch_assoc()['c'];
     ?>
-    <div style="background: linear-gradient(135deg, #1e1e2d, #2b2b30); border-radius: 12px; padding: 2rem; color: #fff; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #1e1e2d, #2b2b30); border-radius: 12px; padding: 1.25rem; color: #fff; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <h2 style="margin-bottom: 0.5rem; font-family: var(--font-display); color: #d4a843;">Selamat datang di Admin Panel, <?= htmlspecialchars($_SESSION['username']) ?>!</h2>
         <p style="color: #a2a3b7; margin-bottom: 1.5rem;">Berikut adalah ringkasan aktivitas dan data sistem secara keseluruhan.</p>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">

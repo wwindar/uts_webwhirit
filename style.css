@@ -1115,8 +1115,8 @@ tbody td   {
 /* Topbar */
 .admin-topbar {
     height: 70px;
-    background: #fff;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    background: var(--paper);
+    box-shadow: 0 2px 10px var(--shadow);
     display: flex;
     align-items: center;
     padding: 0 2rem;
@@ -1130,7 +1130,7 @@ tbody td   {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #5c5c63;
+    color: var(--ink);
     cursor: pointer;
     margin-right: 1.5rem;
 }
@@ -1139,7 +1139,7 @@ tbody td   {
     font-family: var(--font-display);
     font-size: 1.25rem;
     font-weight: 700;
-    color: #2b2b30;
+    color: var(--ink);
 }
 
 /* Page Content */
@@ -1155,10 +1155,21 @@ tbody td   {
     }
     .admin-sidebar.open {
         transform: translateX(0);
-        box-shadow: 2px 0 20px rgba(0,0,0,0.2);
+        box-shadow: 2px 0 20px rgba(0,0,0,0.5);
     }
     .admin-main {
         margin-left: 0;
+    }
+    .admin-sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        backdrop-filter: blur(2px);
+    }
+    .admin-sidebar-overlay.open {
+        display: block;
     }
     .admin-sidebar-toggle, .admin-sidebar-close {
         display: block;
