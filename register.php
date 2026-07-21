@@ -52,6 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['username'] = $username;
                 $_SESSION['role'] = 'user';
                 
+                require_once('mailer.php');
+                if (!empty($email)) {
+                    kirimEmailWelcome($email, $username);
+                }
+                
                 $redirect = isset($_SESSION['redirect_to']) ? $_SESSION['redirect_to'] : 'dashboard.php';
                 unset($_SESSION['redirect_to']);
                 header("Location: " . $redirect);

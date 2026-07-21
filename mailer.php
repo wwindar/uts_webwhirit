@@ -116,4 +116,61 @@ function kirimEmailNotifikasi($emailTujuan, $username, $tipe, $pesan, $linkUrl =
         return false;
     }
 }
+
+function kirimEmailWelcome($emailTujuan, $username) {
+    try {
+        $mail = getMailer();
+        $mail->addAddress($emailTujuan);
+        $mail->isHTML(true);
+        $mail->Subject = '🎉 Selamat Datang di Resensi Buku!';
+        $mail->Body = "
+        <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px;border:1px solid #eee;border-radius:10px;background:#fff;'>
+            <div style='text-align:center;margin-bottom:20px;'>
+                <span style='font-size:40px;'>📚</span>
+                <h2 style='color:#db2777;margin-top:10px;'>Resensi Buku</h2>
+            </div>
+            <p>Halo <strong>" . htmlspecialchars($username) . "</strong>,</p>
+            <p>Selamat bergabung! Akun kamu berhasil dibuat.</p>
+            <p>Mulai bagikan ulasan buku favoritmu dan temukan inspirasi bacaan baru dari komunitas kami.</p>
+            <div style='text-align:center;margin:30px 0;'>
+                <a href='https://wwindar.infinityfreeapp.com/uts_webwhirit/login.php' style='background:#db2777;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;'>Mulai Sekarang</a>
+            </div>
+            <hr style='border:none;border-top:1px solid #eee;margin:30px 0;'>
+            <p style='font-size:11px;color:#999;text-align:center;'>Email ini dikirim otomatis oleh sistem Resensi Buku.</p>
+        </div>
+        ";
+        $mail->send();
+        return true;
+    } catch (\Exception $e) {
+        return false;
+    }
+}
+
+function kirimEmailLogin($emailTujuan, $username) {
+    try {
+        $mail = getMailer();
+        $mail->addAddress($emailTujuan);
+        $mail->isHTML(true);
+        $mail->Subject = 'Pemberitahuan Login — Resensi Buku';
+        date_default_timezone_set('Asia/Jakarta');
+        $waktu = date('d M Y H:i:s');
+        $mail->Body = "
+        <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px;border:1px solid #eee;border-radius:10px;background:#fff;'>
+            <div style='text-align:center;margin-bottom:20px;'>
+                <span style='font-size:40px;'>📚</span>
+                <h2 style='color:#db2777;margin-top:10px;'>Resensi Buku</h2>
+            </div>
+            <p>Halo <strong>" . htmlspecialchars($username) . "</strong>,</p>
+            <p>Kami mendeteksi login ke akun kamu pada <strong>" . $waktu . " WIB</strong>.</p>
+            <p>Jika ini adalah kamu, abaikan saja email ini. Jika bukan, segera amankan akun kamu dengan mengganti password.</p>
+            <hr style='border:none;border-top:1px solid #eee;margin:30px 0;'>
+            <p style='font-size:11px;color:#999;text-align:center;'>Email ini dikirim otomatis oleh sistem Resensi Buku.</p>
+        </div>
+        ";
+        $mail->send();
+        return true;
+    } catch (\Exception $e) {
+        return false;
+    }
+}
 ?>

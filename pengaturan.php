@@ -123,6 +123,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     max-width: 820px;
     margin: 2.5rem auto;
     padding: 0 1.5rem 4rem;
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .settings-wrapper {
+        margin: 1rem auto;
+        padding: 0 1rem 3rem;
+    }
 }
 
 .settings-header {

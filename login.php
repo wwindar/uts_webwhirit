@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Username/Email/No HP dan password wajib diisi.';
     } else {
 
-        $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ? OR (email != '' AND email = ?) OR (nomor_telepon != '' AND nomor_telepon = ?)");
+        $stmt = $conn->prepare("SELECT id, username, email, password, role FROM users WHERE username = ? OR (email != '' AND email = ?) OR (nomor_telepon != '' AND nomor_telepon = ?)");
         $stmt->bind_param("sss", $username, $username, $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -27,6 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
+                
+                require_once('mailer.php');
+                if (!empty($user['email'])) {
+                    kirimEmailLogin($user['email'], $user['username']);
+                }
                 
                 $redirect = isset($_SESSION['redirect_to']) ? $_SESSION['redirect_to'] : 'index.php';
                 unset($_SESSION['redirect_to']);
