@@ -43,9 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             $stmt->close();
 
+            $email_val = empty($email) ? null : $email;
+            $nomor_telepon_val = empty($nomor_telepon) ? null : $nomor_telepon;
+
             // Set is_verified = 0 explicitly in query although default is 0
             $insert = $conn->prepare("INSERT INTO users (username, nama_lengkap, email, nomor_telepon, password, is_verified) VALUES (?, ?, ?, ?, ?, 0)");
-            $insert->bind_param("sssss", $username, $nama_lengkap, $email, $nomor_telepon, $hashedPassword);
+            $insert->bind_param("sssss", $username, $nama_lengkap, $email_val, $nomor_telepon_val, $hashedPassword);
 
             if ($insert->execute()) {
                 $newUserId = $insert->insert_id;
@@ -79,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit();
                 }
             } else {
-                $error = 'Gagal membuat akun. Coba lagi.';
+                $error = 'Gagal membuat akun. Coba lagi. (Error: ' . $insert->error . ')';
             }
             $insert->close();
         }
@@ -143,15 +146,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        value="<?= htmlspecialchars($_POST['nomor_telepon'] ?? '') ?>"
                        placeholder="Contoh: 08123456789">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="position: relative;">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password"
-                       placeholder="Min. 6 karakter" required>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" id="password" name="password"
+                           placeholder="Min. 6 karakter" required
+                           style="width: 100%; padding-right: 40px;">
+                    <span id="togglePasswordReg" style="position: absolute; right: 10px; cursor: pointer; color: var(--ink-light); font-size: 1.2rem; user-select: none;">👁️</span>
+                </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="position: relative;">
                 <label for="konfirmasi">Konfirmasi Password</label>
-                <input type="password" id="konfirmasi" name="konfirmasi"
-                       placeholder="Ulangi password" required>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" id="konfirmasi" name="konfirmasi"
+                           placeholder="Ulangi password" required
+                           style="width: 100%; padding-right: 40px;">
+                    <span id="toggleKonfirmasiReg" style="position: absolute; right: 10px; cursor: pointer; color: var(--ink-light); font-size: 1.2rem; user-select: none;">👁️</span>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary btn-full">Daftar Sekarang</button>
         </form>
@@ -258,6 +269,21 @@ usernameInput.addEventListener('input', function() {
             feedbackDiv.style.display = 'none';
         });
     }, 500);
+});
+
+// Script for toggling password visibility
+document.getElementById('togglePasswordReg').addEventListener('click', function () {
+    const password = document.getElementById('password');
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+    this.textContent = type === 'password' ? '👁️' : '🙈';
+});
+
+document.getElementById('toggleKonfirmasiReg').addEventListener('click', function () {
+    const konfirmasi = document.getElementById('konfirmasi');
+    const type = konfirmasi.getAttribute('type') === 'password' ? 'text' : 'password';
+    konfirmasi.setAttribute('type', type);
+    this.textContent = type === 'password' ? '👁️' : '🙈';
 });
 </script>
 

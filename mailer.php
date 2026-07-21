@@ -173,7 +173,6 @@ function kirimEmailLogin($emailTujuan, $username) {
         return false;
     }
 }
-}
 
 function kirimEmailOTPRegister($emailTujuan, $username, $kodeOTP) {
     try {

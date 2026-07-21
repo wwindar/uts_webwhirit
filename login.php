@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Username/Email/No HP dan password wajib diisi.';
     } else {
 
-        $stmt = $conn->prepare("SELECT id, username, email, password, role FROM users WHERE username = ? OR (email != '' AND email = ?) OR (nomor_telepon != '' AND nomor_telepon = ?)");
+        $stmt = $conn->prepare("SELECT id, username, email, password, role, is_verified FROM users WHERE username = ? OR (email != '' AND email = ?) OR (nomor_telepon != '' AND nomor_telepon = ?)");
         $stmt->bind_param("sss", $username, $username, $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -24,6 +24,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             if (password_verify($password, $user['password'])) {
+                if (isset($user['is_verified']) && $user['is_verified'] == 0) {
+                    $_SESSION['verify_user_id'] = $user['id'];
+                    $_SESSION['verify_email'] = $user['email'];
+                    
+                    // Optionally generate and send a new OTP here
+                    $otp = sprintf("%06d", mt_rand(100000, 999999));
+                    $expires = date("Y-m-d H:i:s", strtotime("+15 minutes"));
+                    $conn->query("UPDATE users SET otp_code = '$otp', otp_expires = '$expires' WHERE id = " . $user['id']);
+                    require_once('mailer.php');
+                    kirimEmailOTPRegister($user['email'], $user['username'], $otp);
+                    
+                    header("Location: verify_register.php");
+                    exit();
+                }
+
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
@@ -79,10 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
                        placeholder="Masukkan username, email, atau no. hp" required autocomplete="username">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="position: relative;">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password"
-                       placeholder="Masukkan password" required autocomplete="current-password">
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" id="password" name="password"
+                           placeholder="Masukkan password" required autocomplete="current-password"
+                           style="width: 100%; padding-right: 40px;">
+                    <span id="togglePassword" style="position: absolute; right: 10px; cursor: pointer; color: var(--ink-light); font-size: 1.2rem; user-select: none;">👁️</span>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary btn-full">Masuk</button>
         </form>
@@ -95,6 +114,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <?php include('footer.php'); ?>
+
+<script>
+document.getElementById('togglePassword').addEventListener('click', function (e) {
+    const password = document.getElementById('password');
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+    this.textContent = type === 'password' ? '👁️' : '🙈';
+});
+</script>
 
 </body>
 </html>
