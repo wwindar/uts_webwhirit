@@ -54,9 +54,7 @@ while ($row = $result->fetch_assoc()) {
     $users[] = $row;
 }
 ?>
-<?php include ('header.php'); ?>
-
-<div class="main-content">
+<?php include ('admin_header.php'); ?>
     <div class="page-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1>🛠️ Kelola Pengguna (Admin Panel)</h1>
@@ -130,8 +128,4 @@ while ($row = $result->fetch_assoc()) {
             </table>
         </div>
     </div>
-</div>
-
-<?php include ('footer.php'); ?>
-</body>
-</html>
+<?php include ('admin_footer.php'); ?>
