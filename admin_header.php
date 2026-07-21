@@ -41,7 +41,13 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
         </div>
         
         <div class="admin-sidebar-profile">
-            <img src="uploads/<?= htmlspecialchars($navUserFoto) ?>" alt="Admin">
+            <?php if ($navUserFoto == 'default.png' || !file_exists('uploads/' . $navUserFoto)): ?>
+                <div style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #d4a843; background: #2b2b30; color: #d4a843; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; flex-shrink: 0;">
+                    <?= strtoupper(substr($navUsername, 0, 1)) ?>
+                </div>
+            <?php else: ?>
+                <img src="uploads/<?= htmlspecialchars($navUserFoto) ?>" alt="Admin">
+            <?php endif; ?>
             <div class="admin-profile-info">
                 <span class="admin-role">Administrator</span>
                 <span class="admin-name">@<?= htmlspecialchars($navUsername) ?></span>
@@ -50,13 +56,16 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
 
         <nav class="admin-sidebar-nav">
             <div class="admin-nav-label">MENU UTAMA</div>
+            <a href="dashboard.php" class="admin-nav-link <?= (basename($_SERVER['PHP_SELF']) == 'dashboard.php') ? 'active' : '' ?>">
+                <span class="admin-nav-icon">📊</span> Dashboard
+            </a>
             <a href="admin_users.php" class="admin-nav-link <?= (basename($_SERVER['PHP_SELF']) == 'admin_users.php') ? 'active' : '' ?>">
                 <span class="admin-nav-icon">👥</span> Kelola Pengguna
             </a>
             
             <div class="admin-nav-label" style="margin-top: 1.5rem;">APLIKASI</div>
-            <a href="dashboard.php" class="admin-nav-link">
-                <span class="admin-nav-icon">🌐</span> Kembali ke Web
+            <a href="katalog.php" class="admin-nav-link">
+                <span class="admin-nav-icon">🌐</span> Katalog Web
             </a>
             <a href="logout.php" class="admin-nav-link text-danger" style="margin-top: auto;">
                 <span class="admin-nav-icon">🚪</span> Keluar

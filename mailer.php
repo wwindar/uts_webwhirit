@@ -173,4 +173,39 @@ function kirimEmailLogin($emailTujuan, $username) {
         return false;
     }
 }
+}
+
+function kirimEmailOTPRegister($emailTujuan, $username, $kodeOTP) {
+    try {
+        $mail = getMailer();
+        $mail->addAddress($emailTujuan);
+        $mail->isHTML(true);
+        $mail->Subject = 'Kode Verifikasi Pendaftaran — Resensi Buku';
+        $mail->Body = "
+        <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px;border:1px solid #eee;border-radius:10px;background:#fff;'>
+            <div style='text-align:center;margin-bottom:20px;'>
+                <span style='font-size:40px;'>📚</span>
+                <h2 style='color:#db2777;margin-top:10px;'>Resensi Buku</h2>
+            </div>
+            <p>Halo <strong>" . htmlspecialchars($username) . "</strong>,</p>
+            <p>Terima kasih telah mendaftar di Resensi Buku! Untuk menyelesaikan proses pendaftaran dan mengaktifkan akun Anda, silakan masukkan kode verifikasi OTP berikut:</p>
+            
+            <div style='text-align: center; margin: 30px 0;'>
+                <div style='display: inline-block; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #db2777; background: #fdf2f8; padding: 15px 30px; border-radius: 8px; border: 2px dashed #f472b6;'>
+                    $kodeOTP
+                </div>
+            </div>
+
+            <p style='color: #ef4444; font-weight: 500;'>Kode ini akan kedaluwarsa dalam waktu 15 menit.</p>
+            <p>Jika Anda tidak merasa mendaftar di situs kami, Anda bisa mengabaikan email ini.</p>
+            <hr style='border:none;border-top:1px solid #eee;margin:30px 0;'>
+            <p style='font-size:11px;color:#999;text-align:center;'>Email ini dikirim otomatis oleh sistem Resensi Buku.</p>
+        </div>
+        ";
+        $mail->send();
+        return true;
+    } catch (\Exception $e) {
+        return false;
+    }
+}
 ?>

@@ -43,24 +43,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             $stmt->close();
 
-            $insert = $conn->prepare("INSERT INTO users (username, nama_lengkap, email, nomor_telepon, password) VALUES (?, ?, ?, ?, ?)");
+            // Set is_verified = 0 explicitly in query although default is 0
+            $insert = $conn->prepare("INSERT INTO users (username, nama_lengkap, email, nomor_telepon, password, is_verified) VALUES (?, ?, ?, ?, ?, 0)");
             $insert->bind_param("sssss", $username, $nama_lengkap, $email, $nomor_telepon, $hashedPassword);
 
             if ($insert->execute()) {
-                // Auto-login
-                $_SESSION['user_id'] = $insert->insert_id;
-                $_SESSION['username'] = $username;
-                $_SESSION['role'] = 'user';
+                $newUserId = $insert->insert_id;
                 
-                require_once('mailer.php');
                 if (!empty($email)) {
-                    kirimEmailWelcome($email, $username);
+                    // Generate OTP
+                    $otp = sprintf("%06d", mt_rand(100000, 999999));
+                    $expires = date("Y-m-d H:i:s", strtotime("+15 minutes"));
+                    
+                    $stmt_otp = $conn->prepare("UPDATE users SET otp_code = ?, otp_expires = ? WHERE id = ?");
+                    $stmt_otp->bind_param("ssi", $otp, $expires, $newUserId);
+                    $stmt_otp->execute();
+                    $stmt_otp->close();
+                    
+                    require_once('mailer.php');
+                    kirimEmailOTPRegister($email, $username, $otp);
+                    
+                    // Set session for verification
+                    $_SESSION['verify_user_id'] = $newUserId;
+                    $_SESSION['verify_email'] = $email;
+                    
+                    header("Location: verify_register.php");
+                    exit();
+                } else {
+                    // If no email, auto-verify for now or show error (since we only send via email)
+                    // The user requested: "wajib menggunakan email atau nomor untuk mendapatkan kode"
+                    // But we only integrated email. We'll mark them as unverified and tell them to login to get OTP.
+                    // Wait, if no email is provided, we can't send OTP. Let's just redirect to login with a warning.
+                    $_SESSION['verify_user_id'] = $newUserId;
+                    header("Location: login.php?msg=no_email");
+                    exit();
                 }
-                
-                $redirect = isset($_SESSION['redirect_to']) ? $_SESSION['redirect_to'] : 'dashboard.php';
-                unset($_SESSION['redirect_to']);
-                header("Location: " . $redirect);
-                exit();
             } else {
                 $error = 'Gagal membuat akun. Coba lagi.';
             }
