@@ -733,16 +733,8 @@ document.querySelectorAll('.settings-tab-btn').forEach(function(btn) {
 
 // ===== THEME PICKER + DARK MODE TOGGLE =====
 function applyTheme(t) {
-    if (t === 'sepia') {
-        document.documentElement.setAttribute('data-theme','light');
-        document.documentElement.style.setProperty('--cream','#f5ead2');
-        document.documentElement.style.setProperty('--paper','#fdf3e3');
-        document.documentElement.style.setProperty('--ink','#5c3d11');
-        document.documentElement.style.setProperty('--ink-light','#8b6331');
-    } else {
-        document.documentElement.removeAttribute('style');
-        document.documentElement.setAttribute('data-theme', t);
-    }
+    document.documentElement.removeAttribute('style');
+    document.documentElement.setAttribute('data-theme', t);
     localStorage.setItem('theme', t);
     // sync radio
     var r = document.querySelector('[name="theme_pick"][value="'+t+'"]');

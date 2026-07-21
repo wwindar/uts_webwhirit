@@ -36,6 +36,17 @@
     --rose:        #C77A8A;
 }
 
+[data-theme="sepia"] {
+    --cream:       #f5ead2;
+    --paper:       #fdf3e3;
+    --ink:         #5c3d11;
+    --ink-light:   #8b6331;
+    --border:      #e4cda7;
+    --shadow:      rgba(92, 61, 17, 0.1);
+    --rose-light:  #f3e1d5;
+    --sage-light:  #efe6d5;
+}
+
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
