@@ -106,6 +106,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary btn-full">Masuk</button>
         </form>
 
+        <div class="social-divider">Atau</div>
+
+        <div class="social-btn-container">
+            <button type="button" class="btn-social btn-google" onclick="openSocialModal('google')">
+                <svg class="social-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.9h6.6c-.28 1.48-1.12 2.73-2.38 3.58v3h3.84c2.25-2.07 3.54-5.12 3.54-8.6a8.88 8.88 0 0 0-.16-1.81z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.84-3c-1.07.72-2.44 1.16-4.09 1.16-3.15 0-5.81-2.13-6.76-5.01H1.38v3.13A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.24 14.24a7.25 7.25 0 0 1 0-2.48V8.63H1.38a12 12 0 0 0 0 6.74l3.86-1.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.93 1.19 15.2.08 12 .08A12 12 0 0 0 1.38 8.63l3.86 3.13c.95-2.88 3.61-5.01 6.76-5.01z"/></svg>
+                Lanjutkan dengan Google
+            </button>
+        </div>
+
         <div class="auth-footer">
             Belum punya akun? <a href="register.php">Daftar di sini</a><br><br>
             Lupa password? <a href="forgot_password.php">Reset di sini</a>
@@ -115,12 +124,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include('footer.php'); ?>
 
+<!-- MODAL SIMULASI GOOGLE -->
+<div class="social-modal-overlay" id="modalGoogle">
+    <div class="social-modal">
+        <button class="social-modal-close" onclick="closeSocialModal('google')">×</button>
+        <div class="social-modal-header">
+            <svg class="social-modal-logo" viewBox="0 0 24 24" style="width:36px;height:36px;"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.9h6.6c-.28 1.48-1.12 2.73-2.38 3.58v3h3.84c2.25-2.07 3.54-5.12 3.54-8.6a8.88 8.88 0 0 0-.16-1.81z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.84-3c-1.07.72-2.44 1.16-4.09 1.16-3.15 0-5.81-2.13-6.76-5.01H1.38v3.13A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.24 14.24a7.25 7.25 0 0 1 0-2.48V8.63H1.38a12 12 0 0 0 0 6.74l3.86-1.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.93 1.19 15.2.08 12 .08A12 12 0 0 0 1.38 8.63l3.86 3.13c.95-2.88 3.61-5.01 6.76-5.01z"/></svg>
+            <h3 class="social-modal-title">Masuk dengan Google</h3>
+            <p class="social-modal-subtitle">Gunakan Akun Google Anda untuk masuk</p>
+        </div>
+        <form action="auth_social.php" method="POST">
+            <input type="hidden" name="provider" value="google">
+            <div class="form-group">
+                <label for="google_email">Email Google</label>
+                <input type="email" id="google_email" name="email" placeholder="contoh@gmail.com" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Kirim Kode OTP ke Gmail</button>
+        </form>
+    </div>
+</div>
+
 <script>
 document.getElementById('togglePassword').addEventListener('click', function (e) {
     const password = document.getElementById('password');
     const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
     password.setAttribute('type', type);
     this.textContent = type === 'password' ? '👁️' : '🙈';
+});
+
+function openSocialModal(provider) {
+    if (provider === 'google') {
+        document.getElementById('modalGoogle').classList.add('show');
+    }
+}
+
+function closeSocialModal(provider) {
+    if (provider === 'google') {
+        document.getElementById('modalGoogle').classList.remove('show');
+    }
+}
+
+// Close modal when clicking overlay background
+window.addEventListener('click', function(e) {
+    const modalGoogle = document.getElementById('modalGoogle');
+    if (e.target === modalGoogle) {
+        closeSocialModal('google');
+    }
 });
 </script>
 

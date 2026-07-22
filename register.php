@@ -17,10 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $konfirmasi = $_POST['konfirmasi'] ?? '';
 
-    if (empty($username) || empty($password) || empty($konfirmasi)) {
-        $error = 'Username dan Password wajib diisi.';
-    } elseif (empty($email) && empty($nomor_telepon)) {
-        $error = 'Email atau Nomor Telepon wajib diisi (minimal salah satu).';
+    if (empty($username) || empty($email) || empty($password) || empty($konfirmasi)) {
+        $error = 'Username, Email, dan Password wajib diisi.';
     } elseif (strlen($username) < 4) {
         $error = 'Username minimal 4 karakter.';
     } elseif (!preg_match('/^[a-z0-9_.]+$/', $username)) {
@@ -53,34 +51,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($insert->execute()) {
                 $newUserId = $insert->insert_id;
                 
-                if (!empty($email)) {
-                    // Generate OTP
-                    $otp = sprintf("%06d", mt_rand(100000, 999999));
-                    $expires = date("Y-m-d H:i:s", strtotime("+15 minutes"));
-                    
-                    $stmt_otp = $conn->prepare("UPDATE users SET otp_code = ?, otp_expires = ? WHERE id = ?");
-                    $stmt_otp->bind_param("ssi", $otp, $expires, $newUserId);
-                    $stmt_otp->execute();
-                    $stmt_otp->close();
-                    
-                    require_once('mailer.php');
-                    kirimEmailOTPRegister($email, $username, $otp);
-                    
-                    // Set session for verification
-                    $_SESSION['verify_user_id'] = $newUserId;
-                    $_SESSION['verify_email'] = $email;
-                    
-                    header("Location: verify_register.php");
-                    exit();
-                } else {
-                    // If no email, auto-verify for now or show error (since we only send via email)
-                    // The user requested: "wajib menggunakan email atau nomor untuk mendapatkan kode"
-                    // But we only integrated email. We'll mark them as unverified and tell them to login to get OTP.
-                    // Wait, if no email is provided, we can't send OTP. Let's just redirect to login with a warning.
-                    $_SESSION['verify_user_id'] = $newUserId;
-                    header("Location: login.php?msg=no_email");
-                    exit();
-                }
+                // Generate OTP
+                $otp = sprintf("%06d", mt_rand(100000, 999999));
+                $expires = date("Y-m-d H:i:s", strtotime("+15 minutes"));
+                
+                $stmt_otp = $conn->prepare("UPDATE users SET otp_code = ?, otp_expires = ? WHERE id = ?");
+                $stmt_otp->bind_param("ssi", $otp, $expires, $newUserId);
+                $stmt_otp->execute();
+                $stmt_otp->close();
+                
+                require_once('mailer.php');
+                kirimEmailOTPRegister($email, $username, $otp);
+                
+                // Set session for verification
+                $_SESSION['verify_user_id'] = $newUserId;
+                $_SESSION['verify_email'] = $email;
+                
+                header("Location: verify_register.php");
+                exit();
             } else {
                 $error = 'Gagal membuat akun. Coba lagi. (Error: ' . $insert->error . ')';
             }
@@ -135,13 +123,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        placeholder="Nama asli atau nama pena Anda">
             </div>
             <div class="form-group">
-                <label for="email">Email <span style="font-size: 0.8em; color: #8C8C94;">(Salah satu dengan No HP wajib diisi)</span></label>
+                <label for="email">Email <span style="font-size: 0.8em; color: #8C8C94;">(Wajib)</span></label>
                 <input type="email" id="email" name="email"
                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
-                       placeholder="Contoh: user@email.com">
+                       placeholder="Contoh: user@email.com" required>
             </div>
             <div class="form-group">
-                <label for="nomor_telepon">Nomor Telepon <span style="font-size: 0.8em; color: #8C8C94;">(Salah satu dengan Email wajib diisi)</span></label>
+                <label for="nomor_telepon">Nomor Telepon <span style="font-size: 0.8em; color: #8C8C94;">(Opsional)</span></label>
                 <input type="text" id="nomor_telepon" name="nomor_telepon"
                        value="<?= htmlspecialchars($_POST['nomor_telepon'] ?? '') ?>"
                        placeholder="Contoh: 08123456789">
@@ -166,6 +154,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button type="submit" class="btn btn-primary btn-full">Daftar Sekarang</button>
         </form>
+
+        <div class="social-divider">Atau</div>
+
+        <div class="social-btn-container">
+            <button type="button" class="btn-social btn-google" onclick="openSocialModal('google')">
+                <svg class="social-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.9h6.6c-.28 1.48-1.12 2.73-2.38 3.58v3h3.84c2.25-2.07 3.54-5.12 3.54-8.6a8.88 8.88 0 0 0-.16-1.81z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.84-3c-1.07.72-2.44 1.16-4.09 1.16-3.15 0-5.81-2.13-6.76-5.01H1.38v3.13A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.24 14.24a7.25 7.25 0 0 1 0-2.48V8.63H1.38a12 12 0 0 0 0 6.74l3.86-1.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.93 1.19 15.2.08 12 .08A12 12 0 0 0 1.38 8.63l3.86 3.13c.95-2.88 3.61-5.01 6.76-5.01z"/></svg>
+                Lanjutkan dengan Google
+            </button>
+        </div>
 
         <div class="auth-footer">
             Sudah punya akun? <a href="login.php">Login di sini</a>
@@ -285,7 +282,47 @@ document.getElementById('toggleKonfirmasiReg').addEventListener('click', functio
     konfirmasi.setAttribute('type', type);
     this.textContent = type === 'password' ? '👁️' : '🙈';
 });
+
+function openSocialModal(provider) {
+    if (provider === 'google') {
+        document.getElementById('modalGoogle').classList.add('show');
+    }
+}
+
+function closeSocialModal(provider) {
+    if (provider === 'google') {
+        document.getElementById('modalGoogle').classList.remove('show');
+    }
+}
+
+// Close modal when clicking overlay background
+window.addEventListener('click', function(e) {
+    const modalGoogle = document.getElementById('modalGoogle');
+    if (e.target === modalGoogle) {
+        closeSocialModal('google');
+    }
+});
 </script>
+
+<!-- MODAL SIMULASI GOOGLE -->
+<div class="social-modal-overlay" id="modalGoogle">
+    <div class="social-modal">
+        <button class="social-modal-close" onclick="closeSocialModal('google')">×</button>
+        <div class="social-modal-header">
+            <svg class="social-modal-logo" viewBox="0 0 24 24" style="width:36px;height:36px;"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.9h6.6c-.28 1.48-1.12 2.73-2.38 3.58v3h3.84c2.25-2.07 3.54-5.12 3.54-8.6a8.88 8.88 0 0 0-.16-1.81z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.84-3c-1.07.72-2.44 1.16-4.09 1.16-3.15 0-5.81-2.13-6.76-5.01H1.38v3.13A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.24 14.24a7.25 7.25 0 0 1 0-2.48V8.63H1.38a12 12 0 0 0 0 6.74l3.86-1.13z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.93 1.19 15.2.08 12 .08A12 12 0 0 0 1.38 8.63l3.86 3.13c.95-2.88 3.61-5.01 6.76-5.01z"/></svg>
+            <h3 class="social-modal-title">Daftar dengan Google</h3>
+            <p class="social-modal-subtitle">Gunakan Akun Google Anda untuk mendaftar</p>
+        </div>
+        <form action="auth_social.php" method="POST">
+            <input type="hidden" name="provider" value="google">
+            <div class="form-group">
+                <label for="google_email">Email Google</label>
+                <input type="email" id="google_email" name="email" placeholder="contoh@gmail.com" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Kirim Kode OTP ke Gmail</button>
+        </form>
+    </div>
+</div>
 
 </body>
 </html>

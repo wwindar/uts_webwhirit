@@ -3,8 +3,6 @@ session_start();
 require_once('db.php');
 require_once('auth.php');
 
-redirectIfLoggedIn();
-
 if (!isset($_SESSION['verify_user_id']) || !isset($_SESSION['verify_email'])) {
     header("Location: login.php");
     exit();
