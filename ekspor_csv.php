@@ -6,16 +6,11 @@ requireLogin();
 
 $userId = $_SESSION['user_id'];
 
-if (ob_get_length()) ob_clean();
+// Set header
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename=resensi_buku_' . time() . '.csv');
-
-$output = fopen('php://output', 'w');
-// Tambahkan UTF-8 BOM agar Excel/WPS membacanya dengan benar
-fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-
-// Header kolom
-fputcsv($output, ['ID', 'Judul Buku', 'Penulis', 'Genre', 'Ulasan', 'Rating', 'Tanggal Input'], ';');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 $query = "SELECT id, judul_buku, penulis, genre, ulasan, rating, tgl_input FROM resensi WHERE user_id = ?";
 $st = $conn->prepare($query);
@@ -23,10 +18,22 @@ $st->bind_param("i", $userId);
 $st->execute();
 $result = $st->get_result();
 
+// UTF-8 BOM agar Excel/WPS membaca dengan benar
+echo "\xEF\xBB\xBF";
+
+// Header kolom
+echo "ID;Judul Buku;Penulis;Genre;Ulasan;Rating;Tanggal Input\r\n";
+
 while ($row = $result->fetch_assoc()) {
-    fputcsv($output, $row, ';');
+    $rowEscaped = [];
+    foreach ($row as $val) {
+        // Bersihkan data dari karakter baris baru dan escape kutip dua
+        $valCleaned = str_replace(["\r", "\n"], ' ', $val);
+        $rowEscaped[] = '"' . str_replace('"', '""', $valCleaned) . '"';
+    }
+    echo implode(';', $rowEscaped) . "\r\n";
 }
 
 $st->close();
-fclose($output);
 exit();
+?>

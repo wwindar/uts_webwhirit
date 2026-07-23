@@ -52,13 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($errors)) {
+            $nomor_telepon_val = empty($nomor_telepon) ? null : $nomor_telepon;
             $stmtUp = $conn->prepare("UPDATE users SET email = ?, nomor_telepon = ? WHERE id = ?");
-            $stmtUp->bind_param("ssi", $email, $nomor_telepon, $uid);
+            $stmtUp->bind_param("ssi", $email, $nomor_telepon_val, $uid);
             if ($stmtUp->execute()) {
                 $success = 'Kontak berhasil disimpan!';
                 // Refresh data user
                 $user['email'] = $email;
-                $user['nomor_telepon'] = $nomor_telepon;
+                $user['nomor_telepon'] = $nomor_telepon_val;
             } else {
                 $errors[] = 'Gagal menyimpan kontak.';
             }
